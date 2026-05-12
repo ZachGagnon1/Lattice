@@ -203,8 +203,13 @@ export const MergeTags: React.FC<{
             slotProps={{
               paper: {
                 sx: {
-                  width: anchorEl?.clientWidth, // Match the width of the input exactly
-                  p: 1,
+                  minWidth: anchorEl
+                    ? Math.max(anchorEl.clientWidth, 280)
+                    : 280,
+                  maxWidth: 450,
+                  maxHeight: 350,
+                  overflow: "auto",
+                  p: 1.5,
                 },
               },
             }}

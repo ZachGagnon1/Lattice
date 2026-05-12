@@ -19,8 +19,9 @@ import { Hero } from "./Hero";
 import { Navbar } from "./Navbar";
 import { Social } from "./Social";
 import { Table } from "./Table";
-import { BasicType, AdvancedType } from "@";
+import { AdvancedType, BasicType } from "@";
 import { AdvancedTable } from "./AdvancedTable";
+import { Condition } from "@/extensions/AttributePanel/components/blocks/Condition";
 
 export const blocks = {
   [BasicType.PAGE]: Page,
@@ -43,6 +44,7 @@ export const blocks = {
   [BasicType.NAVBAR]: Navbar,
   [BasicType.SOCIAL]: Social,
   [BasicType.TABLE]: Table,
+  [BasicType.CONDITION]: Condition,
 
   [AdvancedType.TEXT]: Text,
   [AdvancedType.IMAGE]: Image,

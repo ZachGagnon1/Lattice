@@ -21,6 +21,7 @@ import { AccordionTitle, IAccordionTitle } from "./AccordionTitle";
 import { AccordionText, IAccordionText } from "./AccordionText";
 import { ITable, Table } from "./Table";
 import { BasicType } from "@/core/constants";
+import { Condition, ICondition } from "@/core/blocks/standard/Condition";
 
 export const standardBlocks = {
   [BasicType.PAGE]: Page,
@@ -38,6 +39,7 @@ export const standardBlocks = {
   [BasicType.HERO]: Hero,
   [BasicType.NAVBAR]: Navbar,
   [BasicType.SOCIAL]: Social,
+  [BasicType.CONDITION]: Condition,
 
   // spacial block, render string
   [BasicType.TEMPLATE]: Template,
@@ -74,4 +76,5 @@ export type {
   IAccordionTitle,
   IAccordionText,
   ITemplate,
+  ICondition,
 };

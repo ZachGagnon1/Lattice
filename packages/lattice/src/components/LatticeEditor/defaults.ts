@@ -1,4 +1,4 @@
-import { AdvancedType, ExtensionProps } from "@";
+import { AdvancedType, BasicType, ExtensionProps } from "@";
 
 export const defaultCategories: ExtensionProps["categories"] = [
   {
@@ -40,6 +40,16 @@ export const defaultCategories: ExtensionProps["categories"] = [
       {
         title: "4 columns",
         payload: [["25%", "25%", "25%", "25%"]],
+      },
+    ],
+  },
+  {
+    label: "Logic",
+    active: true,
+    displayType: "grid",
+    blocks: [
+      {
+        type: BasicType.CONDITION,
       },
     ],
   },
