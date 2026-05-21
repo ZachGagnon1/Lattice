@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 import { Stack, TextStyle } from "@";
 
 import { TextBlockItem } from "./TextBlockItem";
@@ -25,7 +25,7 @@ export const defaultCategories = [
     name: "CONTENT",
     blocks: [
       {
-        type: AdvancedType.TEXT,
+        type: BasicType.TEXT,
         get title() {
           return t("Text");
         },
@@ -35,7 +35,7 @@ export const defaultCategories = [
         component: TextBlockItem,
       },
       {
-        type: AdvancedType.IMAGE,
+        type: BasicType.IMAGE,
         get title() {
           return t("Image");
         },
@@ -53,7 +53,7 @@ export const defaultCategories = [
         component: ImageBlockItem,
       },
       {
-        type: AdvancedType.BUTTON,
+        type: BasicType.BUTTON,
         get title() {
           return t("Button");
         },
@@ -63,7 +63,7 @@ export const defaultCategories = [
         component: ButtonBlockItem,
       },
       {
-        type: AdvancedType.HERO,
+        type: BasicType.HERO,
         get title() {
           return t("Hero");
         },
@@ -75,7 +75,7 @@ export const defaultCategories = [
         component: HeroBlockItem,
       },
       {
-        type: AdvancedType.NAVBAR,
+        type: BasicType.NAVBAR,
         get title() {
           return t("Navbar");
         },
@@ -87,7 +87,7 @@ export const defaultCategories = [
         component: NavbarBlockItem,
       },
       {
-        type: AdvancedType.SPACER,
+        type: BasicType.SPACER,
         get title() {
           return t("Spacer");
         },
@@ -97,7 +97,7 @@ export const defaultCategories = [
         component: SpacerBlockItem,
       },
       {
-        type: AdvancedType.DIVIDER,
+        type: BasicType.DIVIDER,
         get title() {
           return t("Divider");
         },
@@ -109,7 +109,7 @@ export const defaultCategories = [
         component: DividerBlockItem,
       },
       {
-        type: AdvancedType.ACCORDION,
+        type: BasicType.ACCORDION,
         get title() {
           return t("Accordion");
         },
@@ -121,7 +121,7 @@ export const defaultCategories = [
         component: AccordionBlockItem,
       },
       {
-        type: AdvancedType.CAROUSEL,
+        type: BasicType.CAROUSEL,
         get title() {
           return t("Carousel");
         },
@@ -133,7 +133,7 @@ export const defaultCategories = [
         component: CarouselBlockItem,
       },
       {
-        type: AdvancedType.SOCIAL,
+        type: BasicType.SOCIAL,
         get title() {
           return t("Social");
         },
@@ -153,7 +153,7 @@ export const defaultCategories = [
     name: "LAYOUT",
     blocks: [
       {
-        type: AdvancedType.WRAPPER,
+        type: BasicType.WRAPPER,
         get title() {
           return t("Wrapper");
         },
@@ -165,7 +165,7 @@ export const defaultCategories = [
         component: WrapperBlockItem,
       },
       {
-        type: AdvancedType.SECTION,
+        type: BasicType.SECTION,
         get title() {
           return t("Section");
         },
@@ -188,7 +188,7 @@ export const defaultCategories = [
         component: SectionBlockItem,
       },
       {
-        type: AdvancedType.GROUP,
+        type: BasicType.GROUP,
         get title() {
           return t("Group");
         },
@@ -200,7 +200,7 @@ export const defaultCategories = [
         component: GroupBlockItem,
       },
       {
-        type: AdvancedType.COLUMN,
+        type: BasicType.COLUMN,
         get title() {
           return t("Column");
         },

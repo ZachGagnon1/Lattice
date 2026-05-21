@@ -1,5 +1,4 @@
-import { AdvancedType } from "@/core/constants";
-
-export function isAdvancedBlock(type: any) {
-  return Object.values(AdvancedType).includes(type);
+// Advanced blocks have been merged into BasicType. This always returns false.
+export function isAdvancedBlock(_type: any): boolean {
+  return false;
 }

@@ -1,17 +1,17 @@
-import { AdvancedType, BasicType, ExtensionProps } from "@";
+import { BasicType, ExtensionProps } from "@";
 
 export const defaultCategories: ExtensionProps["categories"] = [
   {
     label: "Content",
     active: true,
     blocks: [
-      { type: AdvancedType.TEXT },
-      { type: AdvancedType.IMAGE },
-      { type: AdvancedType.BUTTON },
-      { type: AdvancedType.SOCIAL },
-      { type: AdvancedType.DIVIDER },
-      { type: AdvancedType.SPACER },
-      { type: AdvancedType.TABLE },
+      { type: BasicType.TEXT },
+      { type: BasicType.IMAGE },
+      { type: BasicType.BUTTON },
+      { type: BasicType.SOCIAL },
+      { type: BasicType.DIVIDER },
+      { type: BasicType.SPACER },
+      { type: BasicType.TABLE },
     ],
   },
   {
@@ -50,6 +50,9 @@ export const defaultCategories: ExtensionProps["categories"] = [
     blocks: [
       {
         type: BasicType.CONDITION,
+      },
+      {
+        type: BasicType.FOR_LOOP,
       },
     ],
   },

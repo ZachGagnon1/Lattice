@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 import { Stack } from "@";
 
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
@@ -10,7 +10,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_52"),
     payload: {
-      type: AdvancedType.SOCIAL,
+      type: BasicType.SOCIAL,
       data: {
         value: {
           elements: [
@@ -58,7 +58,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_71"),
     payload: {
-      type: AdvancedType.SOCIAL,
+      type: BasicType.SOCIAL,
       data: {
         value: {
           elements: [
@@ -113,7 +113,7 @@ export function SocialBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.SOCIAL}
+              type={BasicType.SOCIAL}
               payload={item.payload}
             >
               <div style={{ position: "relative" }}>

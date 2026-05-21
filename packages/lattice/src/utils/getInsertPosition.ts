@@ -9,7 +9,7 @@ import {
   IPage,
 } from "@";
 
-import { AdvancedType, BasicType } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { DirectionPosition } from "./getDirectionPosition";
 
 interface Params {
@@ -19,15 +19,9 @@ interface Params {
   dragType: string;
 }
 
-const verticalBlocks: string[] = [
-  BasicType.SECTION,
-  BasicType.GROUP,
-  AdvancedType.SECTION,
-  AdvancedType.GROUP,
-];
+const verticalBlocks: string[] = [BasicType.SECTION, BasicType.GROUP];
 
-const isColumnBlock = (type: string) =>
-  ([BasicType.COLUMN, AdvancedType.COLUMN] as string[]).includes(type);
+const isColumnBlock = (type: string) => type === BasicType.COLUMN;
 
 export function getInsertPosition(params: Params) {
   const { idx, dragType, directionPosition, context } = params;

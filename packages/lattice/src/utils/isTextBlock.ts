@@ -1,5 +1,5 @@
-import { BasicType, AdvancedType } from "@";
+import { BasicType } from "@";
 
 export function isTextBlock(blockType: any) {
-  return blockType === BasicType.TEXT || blockType === AdvancedType.TEXT;
+  return blockType === BasicType.TEXT;
 }

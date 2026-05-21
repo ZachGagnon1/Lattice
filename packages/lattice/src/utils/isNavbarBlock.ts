@@ -1,5 +1,5 @@
-import { BasicType, AdvancedType } from "@";
+import { BasicType } from "@";
 
 export function isNavbarBlock(blockType: any) {
-  return blockType === BasicType.NAVBAR || blockType === AdvancedType.NAVBAR;
+  return blockType === BasicType.NAVBAR;
 }

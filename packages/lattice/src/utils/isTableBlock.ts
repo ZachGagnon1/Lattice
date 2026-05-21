@@ -1,5 +1,5 @@
-import { AdvancedType, BasicType } from "@";
+import { BasicType } from "@";
 
 export function isTableBlock(blockType: any) {
-  return blockType === AdvancedType.TABLE || blockType === BasicType.TABLE;
+  return blockType === BasicType.TABLE;
 }

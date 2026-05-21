@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 import { Stack } from "@";
 
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
@@ -10,7 +10,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_14"),
     payload: {
-      type: AdvancedType.CAROUSEL,
+      type: BasicType.CAROUSEL,
       data: {
         value: {
           images: [
@@ -49,7 +49,7 @@ export function CarouselBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.CAROUSEL}
+              type={BasicType.CAROUSEL}
               payload={item.payload}
             >
               <div style={{ position: "relative" }}>

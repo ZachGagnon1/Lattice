@@ -5,7 +5,7 @@ import { EmailEditor } from "@/components/EmailEditor";
 import { defaultCategories, defaultFontList } from "./defaults";
 import { IEmailTemplate } from "@/typings";
 import { FormSpy } from "react-final-form";
-import { AdvancedType, BasicType } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { ExtensionProps } from "@/extensions";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -57,7 +57,7 @@ export function LatticeEditor(props: LatticeEditorProps) {
       blocks: category.blocks.filter((block) => {
         if (block && typeof block === "object" && "type" in block) {
           return (
-            block.type !== AdvancedType.IMAGE && block.type !== BasicType.IMAGE
+            block.type !== BasicType.IMAGE
           );
         }
         return true;

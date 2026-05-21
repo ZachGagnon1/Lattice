@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType, IImage, RecursivePartial } from "@";
+import { BasicType, IImage, RecursivePartial } from "@";
 import { Stack } from "@";
 
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
@@ -24,7 +24,7 @@ export function ImageBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.IMAGE}
+              type={BasicType.IMAGE}
               payload={
                 {
                   attributes: {

@@ -1,4 +1,4 @@
-import { AdvancedType, BasicType } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { IPage } from "@/core/blocks";
 
 /**
@@ -30,7 +30,7 @@ export function unlayerToLattice(unlayerData: any): IPage {
     },
     children: [
       {
-        type: AdvancedType.WRAPPER, // Or BasicType.WRAPPER
+        type: BasicType.WRAPPER,
         data: { value: {} },
         attributes: {},
         children: [],
@@ -42,7 +42,7 @@ export function unlayerToLattice(unlayerData: any): IPage {
 
   for (const row of unlayerData.body.rows) {
     const section = {
-      type: AdvancedType.SECTION,
+      type: BasicType.SECTION,
       data: { value: {} },
       attributes: {
         "background-color": row.values.backgroundColor || "transparent",
@@ -55,7 +55,7 @@ export function unlayerToLattice(unlayerData: any): IPage {
 
     for (const col of row.columns) {
       const column = {
-        type: AdvancedType.COLUMN,
+        type: BasicType.COLUMN,
         data: { value: {} },
         attributes: {
           "background-color": col.values.backgroundColor || "transparent",
@@ -91,7 +91,7 @@ function mapUnlayerContentToLattice(content: any) {
     case "text":
     case "heading": // Treat Unlayer headings as Text blocks holding HTML
       return {
-        type: AdvancedType.TEXT,
+        type: BasicType.TEXT,
         data: {
           value: {
             content: values.text, // Contains the HTML formatted string from Unlayer
@@ -109,7 +109,7 @@ function mapUnlayerContentToLattice(content: any) {
 
     case "image":
       return {
-        type: AdvancedType.IMAGE,
+        type: BasicType.IMAGE,
         data: { value: {} },
         attributes: {
           padding: values.containerPadding || "10px",
@@ -125,7 +125,7 @@ function mapUnlayerContentToLattice(content: any) {
 
     case "divider":
       return {
-        type: AdvancedType.DIVIDER,
+        type: BasicType.DIVIDER,
         data: { value: {} },
         attributes: {
           padding: values.containerPadding || "10px",
@@ -152,7 +152,7 @@ function mapUnlayerContentToLattice(content: any) {
     case "social":
       // Maps Unlayer's social array to Lattice's MJML Social block requirements
       return {
-        type: AdvancedType.SOCIAL,
+        type: BasicType.SOCIAL,
         data: {
           value: {
             elements:
@@ -173,7 +173,7 @@ function mapUnlayerContentToLattice(content: any) {
 
     case "menu":
       return {
-        type: AdvancedType.NAVBAR,
+        type: BasicType.NAVBAR,
         data: {
           value: {
             links:

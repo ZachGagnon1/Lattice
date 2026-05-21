@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 import { Stack } from "@";
 
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
@@ -14,7 +14,7 @@ export function WrapperBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.WRAPPER}
+              type={BasicType.WRAPPER}
               payload={item.payload}
             >
               <div style={{ position: "relative" }}>

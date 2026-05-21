@@ -1,4 +1,4 @@
-import { AdvancedType, BasicType } from "@";
+import { BasicType } from "@";
 import { get } from "lodash";
 import TagIcon from "@mui/icons-material/Tag";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
@@ -39,23 +39,6 @@ let iconsMap = {
   [BasicType.TABLE]: <TableChartIcon />,
   [BasicType.CONDITION]: <AltRouteIcon />,
   [BasicType.FOR_LOOP]: <LoopIcon />,
-
-  [AdvancedType.TEXT]: <TextFieldsIcon />,
-  [AdvancedType.DIVIDER]: <HorizontalRuleIcon />,
-  [AdvancedType.IMAGE]: <ImageIcon />,
-  [AdvancedType.BUTTON]: <Crop169Icon />,
-  [AdvancedType.NAVBAR]: <MenuIcon />,
-  [AdvancedType.SPACER]: <DensityLargeIcon />,
-  [AdvancedType.SOCIAL]: <TagIcon />,
-  [AdvancedType.CAROUSEL]: <ViewCarouselIcon />,
-  [AdvancedType.ACCORDION]: <TableRowsIcon />,
-  [AdvancedType.TABLE]: <TableChartIcon />,
-
-  [AdvancedType.WRAPPER]: <ViewDayIcon />,
-  [AdvancedType.SECTION]: <SplitscreenIcon />,
-  [AdvancedType.COLUMN]: <ViewColumnIcon />,
-  [AdvancedType.GROUP]: <DataArrayIcon />,
-  [AdvancedType.HERO]: <WebIcon />,
 };
 
 export function getIconNameByBlockType(type: string) {

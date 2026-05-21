@@ -1,10 +1,9 @@
 import { IBlock, IBlockData } from "@/core/typings";
-import { advancedBlocks, standardBlocks } from "@/core/blocks";
+import { standardBlocks } from "@/core/blocks";
 
 export class BlockManager {
   private static blocksMap: Record<string, IBlock> = {
     ...standardBlocks,
-    ...advancedBlocks,
   };
   private static autoCompletePath: { [key: string]: Array<string[]> } = {};
 
@@ -23,7 +22,14 @@ export class BlockManager {
   public static getBlockByType<T extends IBlockData>(
     type: string,
   ): IBlock<T> | undefined {
-    return this.blocksMap[type] as IBlock<any> as IBlock<T>;
+    const block = this.blocksMap[type];
+    if (block) return block as IBlock<any> as IBlock<T>;
+    // Backward compat: map legacy "advanced_*" type strings to their basic equivalents
+    if (type.startsWith("advanced_")) {
+      const basicType = type.replace("advanced_", "");
+      return this.blocksMap[basicType] as IBlock<any> as IBlock<T>;
+    }
+    return undefined;
   }
 
   public static getBlocksByType(

@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 import { Stack } from "@";
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
 import { getImg } from "@/extensions/ShortcutToolbar/utils/getImg";
@@ -9,7 +9,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_46"),
     payload: {
-      type: AdvancedType.NAVBAR,
+      type: BasicType.NAVBAR,
       data: {
         value: {
           links: [
@@ -73,7 +73,7 @@ export function NavbarBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.NAVBAR}
+              type={BasicType.NAVBAR}
               payload={item.payload}
             >
               <div style={{ position: "relative" }}>

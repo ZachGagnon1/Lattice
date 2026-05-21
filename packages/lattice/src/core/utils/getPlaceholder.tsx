@@ -1,4 +1,4 @@
-import { AdvancedType, BasicType } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { IBlock } from "@/core/typings";
 
 export function getPlaceholder(params: Parameters<IBlock["render"]>[0]) {
@@ -12,18 +12,13 @@ export function getPlaceholder(params: Parameters<IBlock["render"]>[0]) {
   let text: null | string = null;
   if (type === BasicType.PAGE) {
     text = "Drop a Wrapper block here";
-  } else if (type === BasicType.WRAPPER || type === AdvancedType.WRAPPER) {
+  } else if (type === BasicType.WRAPPER) {
     text = "Drop a Section block here";
-  } else if (
-    type === BasicType.SECTION ||
-    type === BasicType.GROUP ||
-    type === AdvancedType.SECTION ||
-    type === AdvancedType.GROUP
-  ) {
+  } else if (type === BasicType.SECTION || type === BasicType.GROUP) {
     text = "Drop a Column block here";
-  } else if (type === BasicType.COLUMN || type === AdvancedType.COLUMN) {
+  } else if (type === BasicType.COLUMN) {
     text = "Drop a content block here";
-  } else if (type === BasicType.CONDITION) {
+  } else if (type === BasicType.CONDITION || type === BasicType.FOR_LOOP) {
     text = "Drop a block here";
   }
 
