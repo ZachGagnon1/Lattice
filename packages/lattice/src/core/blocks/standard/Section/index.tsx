@@ -52,7 +52,7 @@ export const Section = createBlock<ISection>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.PAGE, BasicType.WRAPPER, BasicType.CONDITION],
+  validParentType: [BasicType.PAGE, BasicType.WRAPPER, BasicType.CONDITION, BasicType.FOR_LOOP],
   render(params) {
     return <BasicBlock params={params} tag="mj-section" />;
   },

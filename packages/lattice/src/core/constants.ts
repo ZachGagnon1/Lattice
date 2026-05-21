@@ -24,6 +24,7 @@ export enum BasicType {
   // TODO
   TABLE = "table",
   CONDITION = "condition",
+  FOR_LOOP = "for-loop",
 
   TEMPLATE = "template",
 }

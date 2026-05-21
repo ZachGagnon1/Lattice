@@ -22,6 +22,7 @@ import { Table } from "./Table";
 import { AdvancedType, BasicType } from "@";
 import { AdvancedTable } from "./AdvancedTable";
 import { Condition } from "@/extensions/AttributePanel/components/blocks/Condition";
+import { ForLoop } from "@/extensions/AttributePanel/components/blocks/ForLoop";
 
 export const blocks = {
   [BasicType.PAGE]: Page,
@@ -45,6 +46,7 @@ export const blocks = {
   [BasicType.SOCIAL]: Social,
   [BasicType.TABLE]: Table,
   [BasicType.CONDITION]: Condition,
+  [BasicType.FOR_LOOP]: ForLoop,
 
   [AdvancedType.TEXT]: Text,
   [AdvancedType.IMAGE]: Image,
