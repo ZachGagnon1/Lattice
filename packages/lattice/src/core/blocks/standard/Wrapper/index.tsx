@@ -40,7 +40,7 @@ export const Wrapper = createBlock<IWrapper>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.PAGE],
+  validParentType: [BasicType.PAGE, BasicType.CONDITION],
   render(params) {
     return <BasicBlock params={params} tag="mj-wrapper" />;
   },

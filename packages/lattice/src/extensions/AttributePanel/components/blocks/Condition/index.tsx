@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useField } from "react-final-form";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { AttributesPanelWrapper } from "@/extensions/AttributePanel/components/attributes/AttributesPanelWrapper";
+import { useFocusIdx } from "@";
 import { RuleBuilderModal } from "./RuleBuilderModal";
 import { IConditionGroupNode, isConditionGroup } from "./types";
 
@@ -21,8 +22,8 @@ const countTotalRules = (node: IConditionGroupNode): number => {
 };
 
 export function Condition() {
-  // Bind to the exact path in the block's data object
-  const { input } = useField<IConditionGroupNode>("data.value.rulesTree", {
+  const { focusIdx } = useFocusIdx();
+  const { input } = useField<IConditionGroupNode>(`${focusIdx}.data.value.rulesTree`, {
     subscription: { value: true },
   });
 

@@ -74,13 +74,13 @@ export const AdvancedTable = generateAdvancedTableBlock({
 export const AdvancedWrapper = generateAdvancedLayoutBlock<IWrapper>({
   type: AdvancedType.WRAPPER,
   baseType: BasicType.WRAPPER,
-  validParentType: [BasicType.PAGE],
+  validParentType: [BasicType.PAGE, BasicType.CONDITION],
 });
 
 export const AdvancedSection = generateAdvancedLayoutBlock<ISection>({
   type: AdvancedType.SECTION,
   baseType: BasicType.SECTION,
-  validParentType: [BasicType.PAGE, BasicType.WRAPPER, AdvancedType.WRAPPER],
+  validParentType: [BasicType.PAGE, BasicType.WRAPPER, AdvancedType.WRAPPER, BasicType.CONDITION],
 });
 
 export const AdvancedGroup = generateAdvancedLayoutBlock<IGroup>({
@@ -97,6 +97,7 @@ export const AdvancedColumn = generateAdvancedLayoutBlock<IColumn>({
     AdvancedType.SECTION,
     BasicType.GROUP,
     AdvancedType.GROUP,
+    BasicType.CONDITION,
   ],
 });
 

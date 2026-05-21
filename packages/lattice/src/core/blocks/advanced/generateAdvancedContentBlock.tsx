@@ -20,6 +20,7 @@ export function generateAdvancedContentBlock<T extends IBlockData>(option: {
       BasicType.COLUMN,
       BasicType.GROUP,
       BasicType.HERO,
+      BasicType.CONDITION,
 
       AdvancedType.WRAPPER,
       AdvancedType.COLUMN,
@@ -63,7 +64,8 @@ export function generateAdvancedContentBlock<T extends IBlockData>(option: {
       if (
         parentBlockData.type === BasicType.PAGE ||
         parentBlockData.type === BasicType.WRAPPER ||
-        parentBlockData.type === AdvancedType.WRAPPER
+        parentBlockData.type === AdvancedType.WRAPPER ||
+        parentBlockData.type === BasicType.CONDITION
       ) {
         return (
           <Section padding="0px" text-align="left">

@@ -16,6 +16,7 @@ import SplitscreenIcon from "@mui/icons-material/Splitscreen";
 import WebIcon from "@mui/icons-material/Web";
 import ViewDayIcon from "@mui/icons-material/ViewDay";
 import TableRowsIcon from "@mui/icons-material/TableRows";
+import AltRouteIcon from "@mui/icons-material/AltRoute";
 
 // TODO I don't really like this as a fix for the icon stuff. It's kind of scuffed but oh well.
 let iconsMap = {
@@ -35,6 +36,7 @@ let iconsMap = {
   [BasicType.CAROUSEL]: <ViewCarouselIcon />,
   [BasicType.ACCORDION]: <TableRowsIcon />,
   [BasicType.TABLE]: <TableChartIcon />,
+  [BasicType.CONDITION]: <AltRouteIcon />,
 
   [AdvancedType.TEXT]: <TextFieldsIcon />,
   [AdvancedType.DIVIDER]: <HorizontalRuleIcon />,

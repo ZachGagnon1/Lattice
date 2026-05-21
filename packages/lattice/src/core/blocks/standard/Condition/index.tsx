@@ -1,33 +1,69 @@
 import React from "react";
 import { IBlockData } from "@/core/typings";
-import { BasicType } from "@/core/constants";
+import { BasicType, EMAIL_BLOCK_CLASS_NAME } from "@/core/constants";
 import { createBlock } from "@/core/utils/createBlock";
 import { merge } from "lodash";
-import { t } from "@/core/utils";
-import { BasicBlock } from "@/core/components/BasicBlock";
-import { getPlaceholder } from "@/core/utils/getPlaceholder"; // <-- 1. Import this
+import { getChildIdx, getNodeIdxClassName, getNodeTypeClassName, t } from "@/core/utils";
+import { BlockRenderer } from "@/core/components/BlockRenderer";
 
-export interface IConditionRule {
+export interface IConditionBlockRule {
   fieldId: string;
   comparisonOperator: string;
   value: string;
   logicalOperator?: "AND" | "OR";
 }
 
-export interface IConditionGroup {
+export interface IConditionBlockGroup {
   logicalOperator: "AND" | "OR";
-  rules: (IConditionRule | IConditionGroup)[];
+  rules: (IConditionBlockRule | IConditionBlockGroup)[];
 }
 
-export type ICondition = IBlockData<
+export type IConditionBlock = IBlockData<
   {},
   {
-    rulesTree: IConditionGroup;
+    rulesTree: IConditionBlockGroup;
   }
 >;
 
+const compileRulesToHumanReadable = (
+  node: IConditionBlockGroup | IConditionBlockRule,
+): string => {
+  if (!node) return "";
+  if (!("rules" in node)) {
+    const { fieldId, comparisonOperator, value } = node;
+    if (!fieldId) return "";
+    switch (comparisonOperator) {
+      case "EQUALS":
+        return `${fieldId} equals "${value}"`;
+      case "NOT_EQUALS":
+        return `${fieldId} not equals "${value}"`;
+      case "GREATER_THAN":
+        return `${fieldId} > ${value}`;
+      case "LESS_THAN":
+        return `${fieldId} < ${value}`;
+      case "CONTAINS":
+        return `${fieldId} contains "${value}"`;
+      case "IS_EMPTY":
+        return `${fieldId} is empty`;
+      case "IS_NOT_EMPTY":
+        return `${fieldId} is not empty`;
+      default:
+        return fieldId;
+    }
+  }
+  if (node.rules && node.rules.length > 0) {
+    const parts = node.rules
+      .map((rule) => compileRulesToHumanReadable(rule))
+      .filter(Boolean);
+    if (parts.length === 0) return "";
+    if (parts.length === 1) return parts[0];
+    return `(${parts.join(` ${node.logicalOperator} `)})`;
+  }
+  return "";
+};
+
 const compileRulesToString = (
-  node: IConditionGroup | IConditionRule,
+  node: IConditionBlockGroup | IConditionBlockRule,
 ): string => {
   if (!node) return "";
   if (!("rules" in node)) {
@@ -37,7 +73,7 @@ const compileRulesToString = (
       case "EQUALS":
         return `(eq ${fieldId} '${value}')`;
       case "NOT_EQUALS":
-        return `(neq ${fieldId} '${value}')`;
+        return `(ne ${fieldId} '${value}')`;
       case "GREATER_THAN":
         return `(gt ${fieldId} ${value})`;
       case "LESS_THAN":
@@ -64,13 +100,13 @@ const compileRulesToString = (
   return "";
 };
 
-export const Condition = createBlock<ICondition>({
+export const Condition = createBlock<IConditionBlock>({
   get name() {
     return t("If Condition");
   },
   type: BasicType.CONDITION,
   create: (payload) => {
-    const defaultData: ICondition = {
+    const defaultData: IConditionBlock = {
       type: BasicType.CONDITION,
       data: {
         value: { rulesTree: { logicalOperator: "AND", rules: [] } },
@@ -89,48 +125,63 @@ export const Condition = createBlock<ICondition>({
     BasicType.HERO,
   ],
   render(params) {
-    const { data, children } = params;
+    const { data, idx, mode } = params;
     const rulesTree = data.data.value.rulesTree;
     const conditionString = compileRulesToString(rulesTree);
     const hasCondition = !!conditionString;
 
-    // 2. Handle the Empty State!
-    if (data.children.length === 0) {
+    const renderedChildren = data.children.map((child, index) => (
+      <BlockRenderer
+        key={index}
+        {...params}
+        idx={idx ? getChildIdx(idx, index) : null}
+        data={child}
+      />
+    ));
+
+    if (mode === "testing") {
+      const blockClass = [
+        EMAIL_BLOCK_CLASS_NAME,
+        idx && getNodeIdxClassName(idx),
+        getNodeTypeClassName(BasicType.CONDITION),
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const conditionLabel = hasCondition
+        ? compileRulesToHumanReadable(rulesTree)
+        : "(no condition set)";
+
+      if (data.children.length === 0) {
+        return (
+          <>
+            {`<mj-raw><div class="${blockClass}" style="border: 2px dashed #d9d9d9; padding: 20px; text-align: center; color: #999; background: #fafafa; cursor: pointer;"><div style="margin-bottom: 6px; font-size: 11px; color: #ff8c00; font-weight: 500; font-family: monospace;">IF: ${conditionLabel}</div><div>Drop a block here</div></div></mj-raw>`}
+          </>
+        );
+      }
+
       return (
-        <React.Fragment>
-          <BasicBlock params={params} tag="mj-raw">
-            {hasCondition ? `{{#if ${conditionString}}}` : ""}
-          </BasicBlock>
-
-          {/* This renders the native visual dropzone with spacing & dashed borders */}
-          <BasicBlock params={params} tag="mj-raw">
-            {getPlaceholder(params)}
-          </BasicBlock>
-
-          <BasicBlock params={params} tag="mj-raw">
-            {hasCondition ? `{{/if}}` : ""}
-          </BasicBlock>
-        </React.Fragment>
+        <>
+          {`<mj-raw><div class="${blockClass}" style="border-left: 3px solid #ff8c00; background: rgba(255,140,0,0.05); padding: 3px 8px; font-size: 11px; font-family: monospace; color: #ff8c00;">IF: ${conditionLabel}</div></mj-raw>`}
+          {renderedChildren}
+          {`<mj-raw><div style="border-left: 3px solid #ff8c00; background: rgba(255,140,0,0.05); padding: 3px 8px; font-size: 11px; font-family: monospace; color: #ff8c00;">/IF</div></mj-raw>`}
+        </>
       );
     }
 
-    // 3. Handle the Populated State
+    // Production mode
+    if (data.children.length === 0) return null;
+
     if (!hasCondition) {
-      return <>{children}</>;
+      return <>{renderedChildren}</>;
     }
 
     return (
-      <React.Fragment>
-        <BasicBlock params={params} tag="mj-raw">
-          {`{{#if ${conditionString}}}`}
-        </BasicBlock>
-
-        {children}
-
-        <BasicBlock params={params} tag="mj-raw">
-          {`{{/if}}`}
-        </BasicBlock>
-      </React.Fragment>
+      <>
+        {`<mj-raw>{{#if ${conditionString}}}</mj-raw>`}
+        {renderedChildren}
+        {`<mj-raw>{{/if}}</mj-raw>`}
+      </>
     );
   },
 });

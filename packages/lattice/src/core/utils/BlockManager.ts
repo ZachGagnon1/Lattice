@@ -73,6 +73,7 @@ export class BlockManager {
       pathObj: Array<string[]>,
       prevPaths: string[],
     ): any => {
+      if (prevPaths.includes(type)) return;
       const block = this.getBlockByType(type);
       if (!block) {
         throw new Error(`Can you register ${type} block`);

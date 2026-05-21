@@ -49,7 +49,7 @@ export const Text = createBlock<IText>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.COLUMN, BasicType.HERO],
+  validParentType: [BasicType.COLUMN, BasicType.HERO, BasicType.CONDITION],
   render(params) {
     const { data } = params;
     return (

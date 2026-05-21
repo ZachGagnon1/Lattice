@@ -41,7 +41,7 @@ export const Divider = createBlock<IDivider>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.COLUMN, BasicType.HERO],
+  validParentType: [BasicType.COLUMN, BasicType.HERO, BasicType.CONDITION],
   render(params) {
     return <BasicBlock params={params} tag="mj-divider" />;
   },

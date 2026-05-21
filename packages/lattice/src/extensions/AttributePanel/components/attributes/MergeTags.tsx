@@ -199,7 +199,6 @@ export const MergeTags: React.FC<{
             onClose={() => setAnchorEl(null)}
             anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
             transformOrigin={{ vertical: "top", horizontal: "left" }}
-            sx={{ maxHeight: 400, maxWidth: 400, overflow: "auto" }}
             slotProps={{
               paper: {
                 sx: {
