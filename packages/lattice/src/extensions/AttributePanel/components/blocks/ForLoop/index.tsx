@@ -3,6 +3,7 @@ import { useField } from "react-final-form";
 import { Box, Divider, Stack, TextField, Typography } from "@mui/material";
 import { AttributesPanelWrapper } from "@/extensions/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { useFocusIdx } from "@";
+import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
 
 export function ForLoop() {
   const { focusIdx } = useFocusIdx();
@@ -49,14 +50,13 @@ export function ForLoop() {
         <Stack spacing={2}>
           <Box>
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
-              Data Source (array variable)
+              Data Source (array merge tag)
             </Typography>
-            <TextField
-              {...sourceInput}
-              size="small"
-              fullWidth
-              placeholder="e.g. products"
-              helperText="The Handlebars path to the array you want to iterate over."
+            <MergeTags
+              isSelect
+              isArraySelect
+              value={sourceInput.value}
+              onChange={sourceInput.onChange}
             />
           </Box>
 

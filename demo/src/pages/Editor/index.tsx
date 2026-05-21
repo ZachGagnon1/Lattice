@@ -145,15 +145,18 @@ export default function Editor() {
 
       <LatticeEditor
         data={template}
-        onChange={setTemplate} // Automatically syncs state!
+        onChange={setTemplate}
         onUploadImage={mockImageUpload}
         config={{
           compact,
           showSourceCode: true,
         }}
+        allowCondition
+        allowForLoop
         mergeTags={{
-          test: "test",
-          test2: [{ label: "test2", value: "test2" }],
+          firstName: "{{firstName}}",
+          products: [{ name: "Product Name", price: "0.00", imageUrl: "" }],
+          orders: [{ id: "", total: "0.00", date: "" }],
         }}
       />
 

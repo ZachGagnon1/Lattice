@@ -48,15 +48,15 @@ export const defaultCategories: ExtensionProps["categories"] = [
     active: true,
     displayType: "grid",
     blocks: [
-      {
-        type: BasicType.CONDITION,
-      },
-      {
-        type: BasicType.FOR_LOOP,
-      },
+      { type: BasicType.CONDITION },
+      { type: BasicType.FOR_LOOP },
     ],
   },
 ];
+
+// Note: the Logic category is filtered in LatticeEditor based on
+// allowCondition / allowForLoop props. With both flags false (default)
+// the Logic category is hidden entirely.
 
 export const defaultFontList = [
   { label: "Arial", value: "Arial" },

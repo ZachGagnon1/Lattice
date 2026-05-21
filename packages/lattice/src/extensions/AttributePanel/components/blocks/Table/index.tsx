@@ -17,6 +17,7 @@ import { Box, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/mat
 import CodeIcon from "@mui/icons-material/Code";
 import { useField } from "react-final-form";
 import { useFocusIdx } from "@";
+import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
 
 export function Table() {
   const [visible, setVisible] = useState(false);
@@ -79,14 +80,13 @@ export function Table() {
           </Typography>
           <Box>
             <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
-              Data Source (array variable)
+              Data Source (array merge tag)
             </Typography>
-            <TextField
-              {...sourceInput}
-              size="small"
-              fullWidth
-              placeholder="e.g. rows"
-              helperText="Array to iterate over."
+            <MergeTags
+              isSelect
+              isArraySelect
+              value={sourceInput.value}
+              onChange={sourceInput.onChange}
             />
           </Box>
           <Box>

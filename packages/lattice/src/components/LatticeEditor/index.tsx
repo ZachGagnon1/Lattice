@@ -26,6 +26,10 @@ export interface LatticeEditorProps {
   fontList?: { label: string; value: string }[];
   mergeTags?: Record<string, any>;
   height?: string | number;
+  /** Include the If Condition block in the Logic palette category. Defaults to false. */
+  allowCondition?: boolean;
+  /** Include the For Loop block in the Logic palette category. Defaults to false. */
+  allowForLoop?: boolean;
 }
 
 export function LatticeEditor(props: LatticeEditorProps) {
@@ -38,6 +42,8 @@ export function LatticeEditor(props: LatticeEditorProps) {
     fontList = defaultFontList,
     mergeTags,
     height = "calc(100vh - 108px)",
+    allowCondition = false,
+    allowForLoop = false,
   } = props;
 
   const {
@@ -49,21 +55,41 @@ export function LatticeEditor(props: LatticeEditorProps) {
   } = config;
 
   const activeComponents = useMemo(() => {
-    if (onUploadImage) return components;
+    let cats = components;
 
-    // Otherwise, map through the categories and strip out the image blocks
-    return components.map((category) => ({
-      ...category,
-      blocks: category.blocks.filter((block) => {
-        if (block && typeof block === "object" && "type" in block) {
-          return (
-            block.type !== BasicType.IMAGE
-          );
-        }
+    // Strip image blocks when no upload handler is provided
+    if (!onUploadImage) {
+      cats = cats.map((category) => ({
+        ...category,
+        blocks: category.blocks.filter((block) => {
+          if (block && typeof block === "object" && "type" in block) {
+            return block.type !== BasicType.IMAGE;
+          }
+          return true;
+        }),
+      })) as ExtensionProps["categories"];
+    }
+
+    // Filter the Logic category based on allowCondition / allowForLoop
+    cats = cats
+      .map((category) => {
+        if (category.label !== "Logic") return category;
+        const blocks = category.blocks.filter((block) => {
+          if (!block || typeof block !== "object" || !("type" in block)) return true;
+          if (block.type === BasicType.CONDITION) return allowCondition;
+          if (block.type === BasicType.FOR_LOOP) return allowForLoop;
+          return true;
+        });
+        return { ...category, blocks };
+      })
+      .filter((category) => {
+        // Drop the Logic category entirely if both flags are off and it would be empty
+        if (category.label === "Logic" && category.blocks.length === 0) return false;
         return true;
-      }),
-    })) as ExtensionProps["categories"];
-  }, [components, onUploadImage]);
+      }) as ExtensionProps["categories"];
+
+    return cats;
+  }, [components, onUploadImage, allowCondition, allowForLoop]);
 
   const onValueChange = (values: IEmailTemplate) => {
     if (onChange) {
