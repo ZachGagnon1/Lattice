@@ -19,7 +19,7 @@ import { Accordion, IAccordion } from "./Accordion";
 import { AccordionElement, IAccordionElement } from "./AccordionElement";
 import { AccordionTitle, IAccordionTitle } from "./AccordionTitle";
 import { AccordionText, IAccordionText } from "./AccordionText";
-import { ITable, Table } from "./Table";
+import { ITable, ITableCellData, Table } from "./Table";
 import { BasicType } from "@/core/constants";
 import { Condition } from "@/core/blocks/standard/Condition";
 import { ConditionBranch } from "@/core/blocks/standard/ConditionBranch";
@@ -61,6 +61,8 @@ export const standardBlocks = {
 };
 
 export type { IForLoop };
+
+export type { ITableCellData };
 
 export type {
   IPage,
