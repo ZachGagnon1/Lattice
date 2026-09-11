@@ -5,6 +5,7 @@ import { createBlock } from "@/core/utils/createBlock";
 import { merge } from "lodash";
 import { BasicBlock } from "@/core/components/BasicBlock";
 import { t } from "@/core/utils";
+import { wrapTableRowsInEach } from "@/core/utils/handlebars";
 
 export type ITable = IBlockData<
   {},
@@ -13,6 +14,8 @@ export type ITable = IBlockData<
     rowLoop?: {
       source: string;
       itemAs: string;
+      /** Leading rows kept out of the loop. Absent on templates saved before this field. */
+      headerRows?: number;
     };
   }
 >;
@@ -28,7 +31,7 @@ export const Table = createBlock<ITable>({
       data: {
         value: {
           content: "",
-          rowLoop: { source: "", itemAs: "" },
+          rowLoop: { source: "", itemAs: "", headerRows: 1 },
         },
       },
       attributes: {},
@@ -46,11 +49,7 @@ export const Table = createBlock<ITable>({
     const { data } = params;
     const { content, rowLoop } = data.data.value;
 
-    let innerContent = content;
-    if (rowLoop?.source) {
-      const alias = rowLoop.itemAs ? ` as |${rowLoop.itemAs}|` : "";
-      innerContent = `{{#each ${rowLoop.source}${alias}}}${content}{{/each}}`;
-    }
+    const innerContent = wrapTableRowsInEach(content, rowLoop);
 
     return (
       <BasicBlock params={params} tag="mj-table">

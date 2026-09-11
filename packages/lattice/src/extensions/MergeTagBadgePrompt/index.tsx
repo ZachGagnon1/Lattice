@@ -21,12 +21,6 @@ const removeAllActiveBadge = () => {
     .forEach((item) => {
       item.classList.remove("easy-email-merge-tag-focus");
     });
-
-  const popoverNode = getIframeDocument()?.querySelectorAll(
-    ".easy-email-merge-tag-popover",
-  );
-  if (popoverNode) {
-  }
 };
 
 export function MergeTagBadgePrompt() {

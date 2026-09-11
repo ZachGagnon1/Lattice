@@ -10,100 +10,14 @@ import {
   t,
 } from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
-
-export interface IConditionBlockRule {
-  fieldId: string;
-  comparisonOperator: string;
-  value: string;
-  logicalOperator?: "AND" | "OR";
-}
-
-export interface IConditionBlockGroup {
-  logicalOperator: "AND" | "OR";
-  rules: (IConditionBlockRule | IConditionBlockGroup)[];
-}
+import { compileCondition, IConditionGroup } from "@/core/utils/handlebars";
 
 export type IConditionBlock = IBlockData<
   {},
   {
-    rulesTree: IConditionBlockGroup;
+    rulesTree: IConditionGroup;
   }
 >;
-
-const compileRulesToHumanReadable = (
-  node: IConditionBlockGroup | IConditionBlockRule,
-): string => {
-  if (!node) return "";
-  if (!("rules" in node)) {
-    const { fieldId, comparisonOperator, value } = node;
-    if (!fieldId) return "";
-    switch (comparisonOperator) {
-      case "EQUALS":
-        return `${fieldId} equals "${value}"`;
-      case "NOT_EQUALS":
-        return `${fieldId} not equals "${value}"`;
-      case "GREATER_THAN":
-        return `${fieldId} > ${value}`;
-      case "LESS_THAN":
-        return `${fieldId} < ${value}`;
-      case "CONTAINS":
-        return `${fieldId} contains "${value}"`;
-      case "IS_EMPTY":
-        return `${fieldId} is empty`;
-      case "IS_NOT_EMPTY":
-        return `${fieldId} is not empty`;
-      default:
-        return fieldId;
-    }
-  }
-  if (node.rules && node.rules.length > 0) {
-    const parts = node.rules
-      .map((rule) => compileRulesToHumanReadable(rule))
-      .filter(Boolean);
-    if (parts.length === 0) return "";
-    if (parts.length === 1) return parts[0];
-    return `(${parts.join(` ${node.logicalOperator} `)})`;
-  }
-  return "";
-};
-
-const compileRulesToString = (
-  node: IConditionBlockGroup | IConditionBlockRule,
-): string => {
-  if (!node) return "";
-  if (!("rules" in node)) {
-    const { fieldId, comparisonOperator, value } = node;
-    if (!fieldId) return "";
-    switch (comparisonOperator) {
-      case "EQUALS":
-        return `(eq ${fieldId} '${value}')`;
-      case "NOT_EQUALS":
-        return `(ne ${fieldId} '${value}')`;
-      case "GREATER_THAN":
-        return `(gt ${fieldId} ${value})`;
-      case "LESS_THAN":
-        return `(lt ${fieldId} ${value})`;
-      case "CONTAINS":
-        return `(contains ${fieldId} '${value}')`;
-      case "IS_EMPTY":
-        return `(not ${fieldId})`;
-      case "IS_NOT_EMPTY":
-        return `${fieldId}`;
-      default:
-        return fieldId;
-    }
-  }
-  if (node.rules && node.rules.length > 0) {
-    const compiledRules = node.rules
-      .map((rule) => compileRulesToString(rule))
-      .filter((str) => str !== "");
-    if (compiledRules.length === 0) return "";
-    if (compiledRules.length === 1) return compiledRules[0];
-    const operator = node.logicalOperator === "AND" ? "and" : "or";
-    return `(${operator} ${compiledRules.join(" ")})`;
-  }
-  return "";
-};
 
 export const Condition = createBlock<IConditionBlock>({
   get name() {
@@ -133,8 +47,8 @@ export const Condition = createBlock<IConditionBlock>({
   ],
   render(params) {
     const { data, idx, mode } = params;
-    const rulesTree = data.data.value.rulesTree;
-    const conditionString = compileRulesToString(rulesTree);
+    const compiled = compileCondition(data.data.value.rulesTree);
+    const conditionString = compiled.expression;
     const hasCondition = !!conditionString;
 
     const renderedChildren = data.children.map((child, index) => (
@@ -155,9 +69,7 @@ export const Condition = createBlock<IConditionBlock>({
         .filter(Boolean)
         .join(" ");
 
-      const conditionLabel = hasCondition
-        ? compileRulesToHumanReadable(rulesTree)
-        : "(no condition set)";
+      const conditionLabel = hasCondition ? compiled.label : "(no condition set)";
 
       if (data.children.length === 0) {
         return (

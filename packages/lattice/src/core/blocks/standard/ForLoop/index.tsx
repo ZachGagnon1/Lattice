@@ -10,6 +10,7 @@ import {
   t,
 } from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
+import { compileLoopLabel, compileLoopOpen, LOOP_CLOSE } from "@/core/utils/handlebars";
 
 export type IForLoop = IBlockData<
   {},
@@ -49,9 +50,10 @@ export const ForLoop = createBlock<IForLoop>({
     const { data, idx, mode } = params;
     const { dataSource, itemAs } = data.data.value;
 
-    const loopOpen = dataSource
-      ? `{{#each ${dataSource}${itemAs ? ` as |${itemAs}|` : ""}}}`
-      : null;
+    // The block stores `dataSource`, but the shared compiler takes `source`.
+    // Adapt here. Renaming the stored field would break saved templates.
+    const loopConfig = { source: dataSource, itemAs };
+    const loopOpen = compileLoopOpen(loopConfig);
 
     const renderedChildren = data.children.map((child, index) => (
       <BlockRenderer
@@ -71,9 +73,7 @@ export const ForLoop = createBlock<IForLoop>({
         .filter(Boolean)
         .join(" ");
 
-      const loopLabel = dataSource
-        ? `FOR EACH: ${dataSource}${itemAs ? ` as |${itemAs}|` : ""}`
-        : "(no data source set)";
+      const loopLabel = compileLoopLabel(loopConfig);
 
       if (data.children.length === 0) {
         return (
@@ -102,7 +102,7 @@ export const ForLoop = createBlock<IForLoop>({
       <>
         {`<mj-raw>${loopOpen}</mj-raw>`}
         {renderedChildren}
-        {`<mj-raw>{{/each}}</mj-raw>`}
+        {`<mj-raw>${LOOP_CLOSE}</mj-raw>`}
       </>
     );
   },

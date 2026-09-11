@@ -76,7 +76,6 @@ export interface PropsProviderProps {
     mjml: string,
     data: Record<string, any>,
   ) => string | Promise<string>;
-  enabledLogic?: boolean;
   locale?: Record<string, string>;
 
   toolbar?: {
@@ -103,7 +102,6 @@ export const EditorPropsContext = React.createContext<
   autoComplete: false,
   dashed: true,
   mergeTagGenerate: defaultMergeTagGenerate,
-  enabledLogic: false,
 });
 
 export const PropsProvider: React.FC<PropsProviderProps> = (props) => {

@@ -18,6 +18,14 @@ const MUSTACHE_WRAPPER = /^\{\{\s*([\s\S]*?)\s*\}\}$/;
 const BARE_KEYWORDS = ["true", "false", "null", "undefined"];
 
 /**
+ * The shape the Handlebars lexer accepts as a number.
+ *
+ * Handlebars has no exponent form and no `Infinity` or `NaN` literal, so this
+ * pattern is deliberately narrower than `Number()`.
+ */
+const NUMBER_LITERAL = /^-?\d+(\.\d+)?$/;
+
+/**
  * Makes a value safe to place inside a single-quoted Handlebars literal.
  *
  * @param raw - Any value. `null` and `undefined` become an empty string.
@@ -58,10 +66,15 @@ export function toHbsLiteral(raw: string): string {
     return trimmed;
   }
 
-  // Only a canonical number goes out bare. `String(Number(v)) === v` keeps
-  // "18" as 18, and it keeps "01234" (a zip code) and "1e3" as strings,
-  // because both round-trip to a different text.
-  if (trimmed !== "" && String(Number(trimmed)) === trimmed) {
+  // Only a canonical number goes out bare, and it must also match the shape
+  // that the Handlebars lexer accepts as a NUMBER: `-?[0-9]+(\.[0-9]+)?`.
+  //
+  // The shape test is not redundant. A round-trip test alone lets through
+  // "Infinity", "NaN", and "1e-7", none of which Handlebars reads as a number.
+  // It would treat each one as a path lookup and quietly resolve it to
+  // undefined. The round-trip test then keeps "01234" (a zip code) and "1.50"
+  // as strings, because they round-trip to different text.
+  if (NUMBER_LITERAL.test(trimmed) && String(Number(trimmed)) === trimmed) {
     return trimmed;
   }
 

@@ -21,7 +21,7 @@ export enum BasicType {
   CAROUSEL = "carousel",
   NAVBAR = "navbar",
   SOCIAL = "social",
-  // TODO
+  // Table and the logic blocks (Condition, ForLoop) added by Lattice.
   TABLE = "table",
   CONDITION = "condition",
   FOR_LOOP = "for-loop",
