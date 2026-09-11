@@ -37,7 +37,10 @@ describe("compileCondition single rule operators", () => {
       group("AND", [rule("status", "NOT_EQUALS", "active")]),
     );
 
-    expect(result.expression).toBe("(ne status 'active')");
+    // handlebars-helpers has no `ne` helper, and its `isnt` compares with
+    // `!=` while `eq` compares with `===`. `(not (eq ...))` is the exact
+    // negation of EQUALS and needs only helpers that certainly exist.
+    expect(result.expression).toBe("(not (eq status 'active'))");
     expect(result.label).toBe('status not equals "active"');
   });
 

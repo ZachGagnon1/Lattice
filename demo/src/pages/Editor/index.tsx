@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { cloneDeep } from "lodash";
 import { useWindowSize } from "react-use";
+import Handlebars from "handlebars";
+import comparisonHelpers from "handlebars-helpers/lib/comparison";
 
 import {
   downloadFile,
@@ -13,6 +15,43 @@ import {
 } from "lattice";
 import { TEMPLATE_DATA } from "@demo/pages/Editor/Arturia - Newsletter"; // Import the converter we created! Adjust the path to wherever you saved it.
 // Import the converter we created! Adjust the path to wherever you saved it.
+
+// Register the comparison helpers once, at module scope. A call on every
+// render would re-register the same helpers and waste work.
+// This gives us eq, gt, gte, lt, lte, and, or, not, and contains.
+//
+// We import the `comparison` group directly. The package root also loads the
+// `fs`, `path`, `code`, `url`, and `markdown` groups, which require Node
+// built-in modules. Those modules do not exist in a browser, so Vite replaces
+// them with stubs that throw. The Condition compiler only emits comparison
+// helpers, so this import is both safe and much smaller.
+Handlebars.registerHelper(comparisonHelpers);
+
+/**
+ * The variable data. One object serves both jobs.
+ *
+ * The picker reads the KEYS to build its tree, and it wraps a picked path with
+ * `mergeTagGenerate`. So a value never has to be a `"{{firstName}}"`
+ * placeholder. Real values work, and they also let the preview render.
+ *
+ * An array holds sample entries. The picker treats an array as a loop source
+ * and reads the first entry to learn the item fields.
+ */
+const MERGE_TAGS = {
+  firstName: "John",
+  lastName: "Reed",
+  age: 34,
+  email: "john.reed@example.com",
+  products: [
+    { name: "Polybrute 12", price: "3499.00", imageUrl: "" },
+    { name: "MiniFreak V", price: "199.00", imageUrl: "" },
+    { name: "AudioFuse 16Rig", price: "1299.00", imageUrl: "" },
+  ],
+  orders: [
+    { id: "A-1001", total: "3499.00", date: "2026-01-14" },
+    { id: "A-1002", total: "199.00", date: "2026-02-03" },
+  ],
+};
 
 export default function Editor() {
   const { width } = useWindowSize();
@@ -27,8 +66,44 @@ export default function Editor() {
     content: cloneDeep(JSON.parse(TEMPLATE_DATA.content.content)),
   }));
 
+  /**
+   * Expands the Handlebars logic before mjml() compiles the markup.
+   *
+   * The callback is memoised because `PreviewEmailProvider` lists
+   * `onBeforeMjmlCompile` in the dependency array of its preview effect. An
+   * inline arrow would rebuild the preview on every render.
+   *
+   * @param mjmlString - The MJML string that JsonToMjml() produced.
+   * @param data - The preview data. It is `previewInjectData` when that prop
+   *   is set, and the `mergeTags` prop when it is not.
+   * @returns The expanded MJML, or the original string when the template
+   *   fails to compile.
+   */
+  const handleBeforeMjmlCompile = useCallback(
+    (mjmlString: string, data: Record<string, any>) => {
+      try {
+        return Handlebars.compile(mjmlString)(data);
+      } catch (error) {
+        // A half typed rule must not blank the preview. Show the unexpanded
+        // template instead.
+        console.error("Handlebars failed to compile the MJML preview:", error);
+        return mjmlString;
+      }
+    },
+    [],
+  );
+
   const handleExportHTML = async () => {
-    const html = await exportToHtml(template);
+    const html = await exportToHtml(template, {
+      transformMjml: (mjmlString) => {
+        try {
+          return Handlebars.compile(mjmlString)(MERGE_TAGS);
+        } catch (error) {
+          console.error("Handlebars failed to compile the MJML export:", error);
+          return mjmlString;
+        }
+      },
+    });
     downloadFile(html, "lattice-email.html", "text/html");
   };
 
@@ -153,11 +228,8 @@ export default function Editor() {
         }}
         allowCondition
         allowForLoop
-        mergeTags={{
-          firstName: "{{firstName}}",
-          products: [{ name: "Product Name", price: "0.00", imageUrl: "" }],
-          orders: [{ id: "", total: "0.00", date: "" }],
-        }}
+        mergeTags={MERGE_TAGS}
+        onBeforeMjmlCompile={handleBeforeMjmlCompile}
       />
 
       {/* --- Basic Modal Overlay for Unlayer Import --- */}

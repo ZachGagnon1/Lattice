@@ -40,32 +40,35 @@ export const OPERATOR_LABELS: Record<ComparisonOperator, string> = {
 };
 
 /** The `handlebars-helpers` functions that the compiler can emit. */
-export type HandlebarsHelperName =
-  | "eq"
-  | "ne"
-  | "contains"
-  | "gt"
-  | "lt"
-  | "not";
+export type HandlebarsHelperName = "eq" | "contains" | "gt" | "lt" | "not";
 
 /**
  * Maps an operator to its `handlebars-helpers` function.
  *
  * `IS_NOT_EMPTY` maps to `null` on purpose. A truthy test needs no helper, so
  * the compiler emits the bare field path instead of a subexpression.
+ *
+ * `NOT_EQUALS` maps to `eq`, and {@link NEGATED_OPERATORS} wraps the result in
+ * `not`. `handlebars-helpers` has no `ne` helper. Its `isnt` helper exists, but
+ * it compares with `!=` while `eq` compares with `===`, so the pair would not
+ * agree. `(not (eq a b))` is the exact negation of Equals, and it needs only
+ * helpers that the library certainly provides.
  */
 export const OPERATOR_HELPER_NAMES: Record<
   ComparisonOperator,
   HandlebarsHelperName | null
 > = {
   EQUALS: "eq",
-  NOT_EQUALS: "ne",
+  NOT_EQUALS: "eq",
   CONTAINS: "contains",
   GREATER_THAN: "gt",
   LESS_THAN: "lt",
   IS_EMPTY: "not",
   IS_NOT_EMPTY: null,
 };
+
+/** Operators whose subexpression the compiler wraps in `not`. */
+export const NEGATED_OPERATORS: readonly ComparisonOperator[] = ["NOT_EQUALS"];
 
 /**
  * One leaf comparison in the rules tree.

@@ -92,25 +92,27 @@ The `StandardLayout` composes pluggable extension panels:
 
 ### Condition Block
 
-`BasicType.CONDITION` is a transparent layout wrapper that conditionally renders its children using Handlebars `{{#if}}/{{/if}}`. It produces no MJML of its own — the MJML compiler only sees the inner blocks after Handlebars preprocessing has run.
+`BasicType.CONDITION` is a transparent layout wrapper. It renders its children with Handlebars `{{#if}}/{{/if}}`. It produces no MJML of its own. The MJML compiler only sees the inner blocks after a template engine expands the Handlebars.
 
 **How it works end-to-end:**
 
 1. The user configures rules in the Attribute Panel (field comparisons, AND/OR logic).
-2. On save, the rules tree is compiled into a Handlebars subexpression, e.g. `(and (eq firstName 'John') (gt age 18))`.
+2. On save, the compiler turns the rules tree into a Handlebars subexpression, e.g. `(and (eq firstName 'John') (gt age 18))`.
 3. In **production mode** the block outputs:
    ```
    {{#if (and (eq firstName 'John') (gt age 18))}}
    <mj-section>...</mj-section>
    {{/if}}
    ```
-4. In **editor/testing mode** it renders a visible orange-bordered region with a human-readable label (`firstName equals "John" AND age > 18`) so the author can see which condition applies.
+4. In **editor/testing mode** it renders a visible orange-bordered region with a human-readable label (`firstName equals "John" AND age > 18`). The author sees which condition applies.
 
-**Valid children:** Section, Wrapper, Column, and all content blocks (Text, Image, Button, etc.) can be dropped directly into a Condition block. Advanced variants work too.
+**Valid children:** Section, Wrapper, Column, and all content blocks (Text, Image, Button, etc.) drop directly into a Condition block.
+
+**Value quotes:** The compiler does not always quote a value. `handlebars-helpers` compares with `===`, so `(eq age '18')` is false against numeric data. A canonical number goes out bare: `(gt age 18)`. A value that is not a canonical number stays quoted. This keeps a zip code such as `01234` and a price such as `1.50` as strings. The keywords `true`, `false`, `null`, and `undefined` also go out bare. `packages/lattice/src/core/utils/handlebars/literals.ts` holds this logic.
 
 **Setting up Handlebars on the consumer side:**
 
-The generated expressions use standard Handlebars subexpression syntax. Register comparison helpers before compiling:
+The library has no dependency on `handlebars`. Install the engine in your own app:
 
 ```bash
 npm install handlebars handlebars-helpers
@@ -120,26 +122,91 @@ npm install handlebars handlebars-helpers
 import Handlebars from "handlebars";
 import helpers from "handlebars-helpers";
 
-helpers({ handlebars: Handlebars }); // registers eq, ne, gt, lt, and, or, not, contains, etc.
+helpers({ handlebars: Handlebars }); // registers eq, gt, lt, and, or, not, contains
+```
 
-// Preprocess the template, then pass to MJML
-const mjmlString = Handlebars.compile(latticeTemplate)(contactData);
-const { html } = mjml(mjmlString);
+The compiler emits only helpers that `handlebars-helpers` provides. Note that
+`handlebars-helpers` has no `ne` helper, so Not Equals compiles to
+`(not (eq a b))`. That is the exact negation of Equals. Its `isnt` helper exists,
+but it compares with `!=` while `eq` compares with `===`, so the pair would not
+agree.
+
+In a browser bundle, import only the comparison group. The package root also loads groups that require the Node `fs`, `path`, and `url` modules:
+
+```js
+import comparisonHelpers from "handlebars-helpers/lib/comparison";
+Handlebars.registerHelper(comparisonHelpers);
 ```
 
 **Operator → helper mapping:**
 
-| Rule operator | Helper used                 |
-| ------------- | --------------------------- |
-| Equals        | `eq`                        |
-| Not Equals    | `ne`                        |
-| Greater Than  | `gt`                        |
-| Less Than     | `lt`                        |
-| Contains      | `contains`                  |
-| Is Empty      | `not`                       |
-| Is Not Empty  | (truthy — no helper needed) |
-| AND group     | `and`                       |
-| OR group      | `or`                        |
+The table matches `OPERATOR_HELPER_NAMES` in `packages/lattice/src/core/utils/handlebars/types.ts`.
+
+| Rule operator | Helper used                           |
+| ------------- | ------------------------------------- |
+| Equals        | `eq`                                  |
+| Not Equals    | `not` + `eq` — emits `(not (eq a b))` |
+| Greater Than  | `gt`                                  |
+| Less Than     | `lt`                                  |
+| Contains      | `contains`                            |
+| Is Empty      | `not`                                 |
+| Is Not Empty  | (truthy — no helper needed)           |
+| AND group     | `and`                                 |
+| OR group      | `or`                                  |
+
+### Template Engine Seams
+
+The editor gives you two places to run a template engine. Both are optional.
+
+**`onBeforeMjmlCompile` — the preview seam.**
+
+This prop on `LatticeEditor` runs between `JsonToMjml()` and `mjml()`. Prefer it for `{{#each}}`. The engine expands the loop first, so MJML computes the column widths on the final markup. `onBeforePreview` runs after `mjml()`, so a loop over columns renders wrong there.
+
+The second argument is the preview data. It is `previewInjectData` when you set that prop, and `mergeTags` when you do not.
+
+```tsx
+const handleBeforeMjmlCompile = useCallback(
+  (mjmlString: string, data: Record<string, any>) => {
+    try {
+      return Handlebars.compile(mjmlString)(data);
+    } catch (error) {
+      console.error(error);
+      return mjmlString; // Keep the preview alive on a half-typed rule.
+    }
+  },
+  [],
+);
+
+<LatticeEditor
+  data={template}
+  previewInjectData={PREVIEW_DATA}
+  onBeforeMjmlCompile={handleBeforeMjmlCompile}
+/>;
+```
+
+Memoise the callback. `PreviewEmailProvider` lists `onBeforeMjmlCompile` in the dependency array of its preview effect. An inline arrow rebuilds the preview on every render.
+
+Give `mergeTags` real sample values. One object does both jobs.
+
+The picker reads the KEYS to build its tree, and it wraps a picked path with
+`mergeTagGenerate`. A value never has to be a `"{{firstName}}"` placeholder.
+Real values work, and they also let the preview render. Put two or three
+entries in each array, so a loop visibly repeats.
+
+Set `previewInjectData` only when the preview needs different data from the
+picker sample. The editor falls back to `mergeTags` when you omit it.
+
+**`exportToHtml(template, { transformMjml })` — the export seam.**
+
+`transformMjml` runs on the MJML string before `mjml()` compiles it. It accepts a string or a promise.
+
+```ts
+const html = await exportToHtml(template, {
+  transformMjml: (mjmlString) => Handlebars.compile(mjmlString)(contactData),
+});
+```
+
+`exportToMjml(template)` returns the raw MJML with the Handlebars intact. Send that to a backend when the backend renders the data.
 
 ### Key Implementation Details
 
@@ -147,5 +214,6 @@ const { html } = mjml(mjmlString);
 - Image blocks are auto-stripped when no `onUploadImage` handler is provided
 - **Custom blocks** are created via `createCustomBlock()` and registered in the block map
 - **Unlayer template** import is available via `unlayerToLattice()`
+- **Table row loop**: the Table block takes a `rowLoop` config (`source`, `itemAs`, `headerRows`). `headerRows` is the count of leading rows that stay out of the `{{#each}}`. Set it to `1` to keep a header row static.
 - SCSS modules use `localsConvention: "dashes"`
 - MUI v9 + Base UI v1.4.1 for component styling; Emotion for CSS-in-JS

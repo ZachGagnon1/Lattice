@@ -12,6 +12,7 @@ import {
   ConditionIssue,
   IConditionGroup,
   IConditionRule,
+  NEGATED_OPERATORS,
   OPERATORS_WITHOUT_VALUE,
   OPERATOR_HELPER_NAMES,
   isConditionGroup,
@@ -149,11 +150,16 @@ function compileRule(
     return { expression: fieldPath, label };
   }
 
-  if (!needsValue) {
-    return { expression: `(${helper} ${fieldPath})`, label };
-  }
+  const inner = needsValue
+    ? `(${helper} ${fieldPath} ${toHbsLiteral(value)})`
+    : `(${helper} ${fieldPath})`;
 
-  return { expression: `(${helper} ${fieldPath} ${toHbsLiteral(value)})`, label };
+  // `NOT_EQUALS` compiles to `(not (eq a b))`. See NEGATED_OPERATORS.
+  const expression = NEGATED_OPERATORS.includes(operator)
+    ? `(not ${inner})`
+    : inner;
+
+  return { expression, label };
 }
 
 /**

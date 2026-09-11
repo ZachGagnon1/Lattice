@@ -1,9 +1,23 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useField } from "react-final-form";
-import { Box, Divider, Stack, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { AttributesPanelWrapper } from "@/extensions/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { useFocusIdx } from "@";
 import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
+import {
+  ILoopConfig,
+  LOOP_CLOSE,
+  compileLoopIssues,
+  compileLoopLabel,
+  compileLoopOpen,
+} from "@/core/utils/handlebars";
 
 export function ForLoop() {
   const { focusIdx } = useFocusIdx();
@@ -20,7 +34,22 @@ export function ForLoop() {
     },
   );
 
-  const hasSource = Boolean(sourceInput.value);
+  // The block stores `dataSource`, but the shared compiler takes `source`.
+  // Adapt here. A rename of the stored field breaks saved templates.
+  const loopConfig: ILoopConfig = useMemo(
+    () => ({ source: sourceInput.value, itemAs: itemAsInput.value }),
+    [sourceInput.value, itemAsInput.value],
+  );
+
+  const loopOpen = compileLoopOpen(loopConfig);
+  const issues = compileLoopIssues(loopConfig);
+
+  const hasSource = loopOpen !== null;
+  const hasAlias = String(itemAsInput.value ?? "").trim() !== "";
+
+  // A block with an empty source and an empty alias is not configured yet.
+  // The status card already reports that state, so the warning stays quiet.
+  const isLoopStarted = Boolean(sourceInput.value) || hasAlias;
 
   return (
     <AttributesPanelWrapper>
@@ -52,7 +81,7 @@ export function ForLoop() {
             color={hasSource ? "primary.main" : "text.secondary"}
           >
             {hasSource
-              ? `Looping over "${sourceInput.value}"${itemAsInput.value ? ` as "${itemAsInput.value}"` : ""}`
+              ? "This block repeats its contents for each item."
               : "No data source set. Contents will render without a loop."}
           </Typography>
         </Box>
@@ -68,7 +97,7 @@ export function ForLoop() {
             </Typography>
             <MergeTags
               isSelect
-              isArraySelect
+              rawPath
               value={sourceInput.value}
               onChange={sourceInput.onChange}
             />
@@ -92,22 +121,51 @@ export function ForLoop() {
           </Box>
         </Stack>
 
-        {hasSource && (
-          <Box
-            sx={{
-              p: 1.5,
-              bgcolor: "grey.50",
-              borderRadius: 1,
-              border: "1px solid",
-              borderColor: "grey.200",
-              fontFamily: "monospace",
-              fontSize: 12,
-              color: "text.secondary",
-            }}
-          >
-            <code>
-              {`{{#each ${sourceInput.value}${itemAsInput.value ? ` as |${itemAsInput.value}|` : ""}}}...{{/each}}`}
-            </code>
+        {isLoopStarted && issues.length > 0 && (
+          <Alert severity="warning" variant="outlined" sx={{ py: 0.5 }}>
+            {issues.map((issue) => (
+              <Typography
+                key={`${issue.path}-${issue.code}`}
+                variant="body2"
+                component="div"
+              >
+                {issue.message}
+              </Typography>
+            ))}
+          </Alert>
+        )}
+
+        {hasSource && !hasAlias && (
+          <Typography variant="caption" color="text.secondary">
+            {"With no alias, fields insert as {{this.field}}. " +
+              "An alias is clearer, especially inside a nested loop."}
+          </Typography>
+        )}
+
+        {loopOpen !== null && (
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
+              {compileLoopLabel(loopConfig)}
+            </Typography>
+            <Box
+              sx={{
+                p: 1.5,
+                bgcolor: "grey.50",
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: "grey.200",
+                fontFamily: "monospace",
+                fontSize: 12,
+                color: "text.secondary",
+                wordBreak: "break-all",
+              }}
+            >
+              <code>{`${loopOpen}...${LOOP_CLOSE}`}</code>
+            </Box>
           </Box>
         )}
       </Box>
