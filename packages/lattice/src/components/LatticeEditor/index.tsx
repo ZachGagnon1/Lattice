@@ -9,7 +9,10 @@ import { BasicType } from "@/core/constants";
 import { ExtensionProps } from "@/extensions";
 import { PropsProviderProps } from "@/components/Provider/PropsProvider";
 import { useDebouncedCallback } from "use-debounce";
+import { toVariableSample } from "@/utils/variableSchema";
+import { VariableDataOf } from "@/typings/variableData";
 
+/** Layout and panel switches for the editor chrome. */
 export interface LatticeEditorConfig {
   showSourceCode?: boolean;
   mjmlReadOnly?: boolean;
@@ -18,16 +21,35 @@ export interface LatticeEditorConfig {
   compact?: boolean;
 }
 
-export interface LatticeEditorProps {
+/**
+ * The props of {@link LatticeEditor}.
+ *
+ * `TVar` is the type of the value the consumer passes as `variableData`. It is
+ * either a plain sample object type or a schema type. `VariableDataOf<TVar>`
+ * resolves both of them to the data shape, so every prop that speaks in terms
+ * of the DATA uses `VariableDataOf<TVar>` and never `TVar`.
+ *
+ * @typeParam TVar - The `variableData` value type. The default keeps every
+ *   existing consumer source compatible, and widens a path to `string`.
+ */
+export interface LatticeEditorProps<TVar = Record<string, any>> {
   data: IEmailTemplate;
   onChange?: (values: IEmailTemplate) => void;
   onUploadImage?: (file: Blob) => Promise<string>;
   components?: ExtensionProps["categories"];
   config?: LatticeEditorConfig;
   fontList?: { label: string; value: string }[];
-  mergeTags?: Record<string, any>;
-  /** Data injected into the preview instead of `mergeTags`. */
-  previewInjectData?: PropsProviderProps["previewInjectData"];
+  /**
+   * The variable data a template can read.
+   *
+   * Pass a plain sample object, or pass a zod schema. The editor normalises a
+   * schema into sample data at this boundary. A schema carries no values, so
+   * every generated leaf is a string placeholder. Supply `previewOverride` to
+   * put real values into the preview.
+   */
+  variableData?: TVar;
+  /** Data merged over `variableData` in the preview. */
+  previewOverride?: Partial<VariableDataOf<TVar>>;
   /** Runs on the preview HTML after mjml() compiles it. */
   onBeforePreview?: PropsProviderProps["onBeforePreview"];
   /** Runs on the MJML string before mjml() compiles it. */
@@ -41,7 +63,17 @@ export interface LatticeEditorProps {
   allowForLoop?: boolean;
 }
 
-export function LatticeEditor(props: LatticeEditorProps) {
+/**
+ * The complete editor: the provider, the standard layout, and the canvas.
+ *
+ * @typeParam TVar - The `variableData` value type. See
+ *   {@link LatticeEditorProps}.
+ * @param props - The editor props.
+ * @returns The editor element.
+ */
+export function LatticeEditor<TVar = Record<string, any>>(
+  props: LatticeEditorProps<TVar>,
+) {
   const {
     data,
     onChange,
@@ -49,8 +81,8 @@ export function LatticeEditor(props: LatticeEditorProps) {
     components = defaultCategories,
     config = {},
     fontList = defaultFontList,
-    mergeTags,
-    previewInjectData,
+    variableData,
+    previewOverride,
     onBeforePreview,
     onBeforeMjmlCompile,
     mergeTagGenerate,
@@ -105,6 +137,26 @@ export function LatticeEditor(props: LatticeEditorProps) {
     return cats;
   }, [components, onUploadImage, allowCondition, allowForLoop]);
 
+  /**
+   * The resolved sample data.
+   *
+   * `toVariableSample` returns a plain object unchanged, and it walks a schema
+   * into a FRESH object. The memo pins that new object identity across
+   * renders. `PreviewEmailProvider` builds `injectData` with
+   * `useMemo(..., [variableData, previewOverride])`, and its preview effect
+   * depends on `injectData`. A new identity on every render therefore rebuilds
+   * the MJML preview on every keystroke.
+   *
+   * The generic stops here. React context cannot be generic per consumer, so
+   * `PropsProvider` keeps a plain, non generic
+   * `variableData?: Record<string, any>`, which holds this RESOLVED sample.
+   * Do not try to thread `TVar` through the context.
+   */
+  const resolvedVariableData = useMemo(
+    () => toVariableSample(variableData),
+    [variableData],
+  );
+
   const onValueChange = (values: IEmailTemplate) => {
     if (onChange) {
       onChange(values);
@@ -120,8 +172,8 @@ export function LatticeEditor(props: LatticeEditorProps) {
       onUploadImage={onUploadImage}
       dashed={dashed}
       compact={compact}
-      mergeTags={mergeTags}
-      previewInjectData={previewInjectData}
+      variableData={resolvedVariableData}
+      previewOverride={previewOverride as PropsProviderProps["previewOverride"]}
       onBeforePreview={onBeforePreview}
       onBeforeMjmlCompile={onBeforeMjmlCompile}
       mergeTagGenerate={mergeTagGenerate}

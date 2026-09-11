@@ -34,7 +34,7 @@ export interface ToolsProps {
 }
 
 export function Tools(props: ToolsProps) {
-  const { mergeTags, enabledMergeTagsBadge, toolbar } = useEditorProps();
+  const { variableData, enabledMergeTagsBadge, toolbar } = useEditorProps();
   const { focusBlockNode } = useFocusBlockLayout();
   const { selectionRange, restoreRange, setRangeByElement } =
     useSelectionRange();
@@ -157,7 +157,7 @@ export function Tools(props: ToolsProps) {
   const tools = enabledTools.flatMap((tool) => {
     switch (tool) {
       case AvailableTools.MergeTags:
-        if (!mergeTags) {
+        if (!variableData) {
           return [];
         }
         return [

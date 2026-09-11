@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import { cloneDeep } from "lodash";
 import { useWindowSize } from "react-use";
 import Handlebars from "handlebars";
-import comparisonHelpers from "handlebars-helpers/lib/comparison";
 
 import {
   downloadFile,
@@ -16,14 +15,44 @@ import {
 import { TEMPLATE_DATA } from "@demo/pages/Editor/Arturia - Newsletter"; // Import the converter we created! Adjust the path to wherever you saved it.
 // Import the converter we created! Adjust the path to wherever you saved it.
 
-// Register the comparison helpers once, at module scope. A call on each render
-// registers the same helpers again, and that wastes work.
-//
-// We import only the `comparison` group. The package root loads other groups
-// that use Node built-in modules. Those modules do not exist in a browser.
-// Vite replaces them with stubs that throw errors. The Condition compiler
-// emits only comparison helpers. This import is safe and smaller.
-Handlebars.registerHelper(comparisonHelpers);
+/**
+ * The seven helpers that the Lattice Condition compiler emits.
+ *
+ * The demo registers them by hand on purpose. The `handlebars-helpers`
+ * package is CommonJS, and its `lazy-cache` dependency calls `require()` at
+ * module scope. A browser has no `require`, so the module throws
+ * `ReferenceError: require is not defined` as soon as the page loads. A
+ * narrow import of `lib/comparison` does not help, because that file still
+ * pulls in `lib/utils/utils.js`.
+ *
+ * `and` and `or` are variadic. Handlebars appends an `options` object as the
+ * last argument, so each one removes that argument before it tests the rest.
+ *
+ * The compiler emits no `ne` helper. `Not Equals` compiles to
+ * `(not (eq a b))`.
+ */
+const LOGIC_HELPERS = {
+  eq: (a: unknown, b: unknown) => a === b,
+  gt: (a: any, b: any) => a > b,
+  lt: (a: any, b: any) => a < b,
+  not: (v: unknown) => !v,
+  contains: (haystack: unknown, needle: any) =>
+    Array.isArray(haystack) || typeof haystack === "string"
+      ? (haystack as any).includes(needle)
+      : false,
+  and: (...args: unknown[]) => {
+    args.pop();
+    return args.every(Boolean);
+  },
+  or: (...args: unknown[]) => {
+    args.pop();
+    return args.some(Boolean);
+  },
+};
+
+// Register the helpers once, at module scope. A call on every render would
+// re-register the same helpers and waste work.
+Handlebars.registerHelper(LOGIC_HELPERS);
 
 /**
  * The variable data. One object serves both jobs.
@@ -35,7 +64,7 @@ Handlebars.registerHelper(comparisonHelpers);
  * An array holds sample entries. The picker uses an array as a loop source.
  * It reads the first entry to learn the item fields.
  */
-const MERGE_TAGS = {
+const VARIABLE_DATA = {
   firstName: "John",
   lastName: "Reed",
   age: 34,
@@ -50,6 +79,44 @@ const MERGE_TAGS = {
     { id: "A-1002", total: "199.00", date: "2026-02-03" },
   ],
 };
+
+/*
+ * The schema alternative.
+ *
+ * `variableData` also accepts a zod schema. The editor duck-types the schema
+ * and never imports zod, so a consumer without zod still builds.
+ *
+ * The demo keeps the plain object above as the primary example, because a
+ * schema carries no values. Every generated leaf is a string placeholder, so
+ * the preview shows `"firstName"` instead of `"John"`, and a numeric
+ * Condition compares against a string. Pass `previewOverride` to put real
+ * values back.
+ *
+ * import { z } from "zod";
+ *
+ * const VARIABLE_SCHEMA = z.object({
+ *   firstName: z.string(),
+ *   lastName: z.string(),
+ *   age: z.number(),
+ *   email: z.string(),
+ *   products: z.array(
+ *     z.object({
+ *       name: z.string(),
+ *       price: z.string(),
+ *       imageUrl: z.string(),
+ *     }),
+ *   ),
+ *   orders: z.array(
+ *     z.object({ id: z.string(), total: z.string(), date: z.string() }),
+ *   ),
+ * });
+ *
+ * <LatticeEditor
+ *   data={template}
+ *   variableData={VARIABLE_SCHEMA}
+ *   previewOverride={{ firstName: "John", age: 34 }}
+ * />
+ */
 
 export default function Editor() {
   const { width } = useWindowSize();
@@ -69,8 +136,11 @@ export default function Editor() {
    * `PreviewEmailProvider` lists `onBeforeMjmlCompile` in the dependencies of
    * its preview effect. An inline arrow would rebuild the preview on each render.
    *
-   * @param data - `previewInjectData` when that prop is set, else `mergeTags`.
-   * @returns The expanded MJML, or the original string when Handlebars fails.
+   * @param mjmlString - The MJML string that JsonToMjml() produced.
+   * @param data - The preview data. It is the `variableData` prop with the
+   *   `previewOverride` prop merged over it.
+   * @returns The expanded MJML, or the original string when the template
+   *   fails to compile.
    */
   const handleBeforeMjmlCompile = useCallback(
     (mjmlString: string, data: Record<string, any>) => {
@@ -90,7 +160,7 @@ export default function Editor() {
     const html = await exportToHtml(template, {
       transformMjml: (mjmlString) => {
         try {
-          return Handlebars.compile(mjmlString)(MERGE_TAGS);
+          return Handlebars.compile(mjmlString)(VARIABLE_DATA);
         } catch (error) {
           console.error("Handlebars failed to compile the MJML export:", error);
           return mjmlString;
@@ -221,7 +291,7 @@ export default function Editor() {
         }}
         allowCondition
         allowForLoop
-        mergeTags={MERGE_TAGS}
+        variableData={VARIABLE_DATA}
         onBeforeMjmlCompile={handleBeforeMjmlCompile}
       />
 

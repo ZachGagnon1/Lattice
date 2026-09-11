@@ -85,3 +85,4 @@ export { LatticeEditor } from "./components/LatticeEditor";
 export * from "./components/LatticeEditor/defaults";
 export * from "./utils/export";
 export * from "./utils/unlayerToLattice";
+export * from "./utils/variableSchema";

@@ -35,7 +35,7 @@ function values(children: any[]) {
   return { content: block(BasicType.PAGE, {}, children) };
 }
 
-const mergeTags = {
+const variableData = {
   products: [{ name: "Widget", price: 10, variants: [{ sku: "A1" }] }],
   user: { first: "Ada" },
   company: "ACME",
@@ -58,13 +58,13 @@ describe("isExpandable", () => {
 
 describe("getLoopScopes", () => {
   it("returns no scope at the page root", () => {
-    expect(getLoopScopes(mergeTags, values([]), "content")).toEqual([]);
+    expect(getLoopScopes(variableData, values([]), "content")).toEqual([]);
   });
 
   it("finds one loop above the focused block", () => {
     const tree = values([forLoop("products", "product", [text()])]);
     const scopes = getLoopScopes(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -74,17 +74,17 @@ describe("getLoopScopes", () => {
     expect(scopes[0].source).toBe("products");
     expect(scopes[0].idx).toBe("content.children.[0]");
     expect(scopes[0].resolved).toBe(true);
-    expect(scopes[0].sample).toEqual(mergeTags.products[0]);
+    expect(scopes[0].sample).toEqual(variableData.products[0]);
   });
 
   it("skips the loop declared by the focused block by default", () => {
     const tree = values([forLoop("products", "product", [text()])]);
-    expect(getLoopScopes(mergeTags, tree, "content.children.[0]")).toEqual([]);
+    expect(getLoopScopes(variableData, tree, "content.children.[0]")).toEqual([]);
   });
 
   it("includes the loop declared by the focused block with includeSelfLoop", () => {
     const tree = values([forLoop("products", "product", [text()])]);
-    const scopes = getLoopScopes(mergeTags, tree, "content.children.[0]", {
+    const scopes = getLoopScopes(variableData, tree, "content.children.[0]", {
       includeSelfLoop: true,
     });
 
@@ -99,7 +99,7 @@ describe("getLoopScopes", () => {
       ]),
     ]);
     const scopes = getLoopScopes(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0].children.[0]",
     );
@@ -114,7 +114,7 @@ describe("getLoopScopes", () => {
       forLoop("products", "", [forLoop("this.variants", "variant", [text()])]),
     ]);
     const scopes = getLoopScopes(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0].children.[0]",
     );
@@ -128,7 +128,7 @@ describe("getLoopScopes", () => {
       forLoop("products", "item", [forLoop("user", "item", [text()])]),
     ]);
     const scopes = getLoopScopes(
-      { ...mergeTags, user: [{ first: "Ada" }] },
+      { ...variableData, user: [{ first: "Ada" }] },
       tree,
       "content.children.[0].children.[0].children.[0]",
     );
@@ -142,7 +142,7 @@ describe("getLoopScopes", () => {
       forLoop("products", "", [forLoop("products", "product", [text()])]),
     ]);
     const scopes = getLoopScopes(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0].children.[0]",
     );
@@ -153,7 +153,7 @@ describe("getLoopScopes", () => {
   it("registers an unresolved source anyway", () => {
     const tree = values([forLoop("missing", "row", [text()])]);
     const scopes = getLoopScopes(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -166,7 +166,7 @@ describe("getLoopScopes", () => {
   it("treats a non-array source as unresolved", () => {
     const tree = values([forLoop("user", "row", [text()])]);
     const scopes = getLoopScopes(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -190,31 +190,31 @@ describe("getLoopScopes", () => {
   it("skips a loop with a blank source", () => {
     const tree = values([forLoop("", "row", [text()])]);
     expect(
-      getLoopScopes(mergeTags, tree, "content.children.[0].children.[0]"),
+      getLoopScopes(variableData, tree, "content.children.[0].children.[0]"),
     ).toEqual([]);
   });
 
   it("does not leak a table row loop to a descendant", () => {
     const tree = values([table("products", "product", [text()])]);
     expect(
-      getLoopScopes(mergeTags, tree, "content.children.[0].children.[0]"),
+      getLoopScopes(variableData, tree, "content.children.[0].children.[0]"),
     ).toEqual([]);
   });
 
   it("reads a table row loop for the table itself", () => {
     const tree = values([table("products", "product")]);
-    const scopes = getLoopScopes(mergeTags, tree, "content.children.[0]", {
+    const scopes = getLoopScopes(variableData, tree, "content.children.[0]", {
       includeSelfLoop: true,
     });
 
     expect(scopes).toHaveLength(1);
     expect(scopes[0].prefix).toBe("product");
-    expect(scopes[0].sample).toEqual(mergeTags.products[0]);
+    expect(scopes[0].sample).toEqual(variableData.products[0]);
   });
 
   it("ignores a table row loop without includeSelfLoop", () => {
     const tree = values([table("products", "product")]);
-    expect(getLoopScopes(mergeTags, tree, "content.children.[0]")).toEqual([]);
+    expect(getLoopScopes(variableData, tree, "content.children.[0]")).toEqual([]);
   });
 
   it("does not throw on malformed block data", () => {
@@ -228,10 +228,10 @@ describe("getLoopScopes", () => {
     } as any;
 
     expect(() =>
-      getLoopScopes(mergeTags, tree, "content.children.[0].children.[0]"),
+      getLoopScopes(variableData, tree, "content.children.[0].children.[0]"),
     ).not.toThrow();
     expect(
-      getLoopScopes(mergeTags, tree, "content.children.[0].children.[0]"),
+      getLoopScopes(variableData, tree, "content.children.[0].children.[0]"),
     ).toEqual([]);
   });
 
@@ -254,7 +254,7 @@ describe("getLoopScopes", () => {
 
 describe("getScopedMergeTags", () => {
   it("returns only the globals when there is no loop", () => {
-    const result = getScopedMergeTags(mergeTags, values([]), "content");
+    const result = getScopedMergeTags(variableData, values([]), "content");
 
     expect(result.scopes).toEqual([]);
     expect(result.roots.map((root) => root.displayPath)).toEqual([
@@ -263,13 +263,13 @@ describe("getScopedMergeTags", () => {
       "company",
     ]);
     expect(result.roots.every((root) => root.kind === "global")).toBe(true);
-    expect(result.tags).toEqual(mergeTags);
+    expect(result.tags).toEqual(variableData);
   });
 
   it("puts the innermost loop fields first, bare and alias qualified", () => {
     const tree = values([forLoop("products", "product", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -307,7 +307,7 @@ describe("getScopedMergeTags", () => {
   it("emits this qualified paths for a blank alias", () => {
     const tree = values([forLoop("products", "", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -323,7 +323,7 @@ describe("getScopedMergeTags", () => {
       ]),
     ]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0].children.[0]",
     );
@@ -378,7 +378,7 @@ describe("getScopedMergeTags", () => {
   it("emits one loop-item entry for an unresolved source", () => {
     const tree = values([forLoop("missing", "row", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -394,7 +394,7 @@ describe("getScopedMergeTags", () => {
   it("emits a this loop-item entry for a blank alias that does not resolve", () => {
     const tree = values([forLoop("missing", "", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -427,20 +427,20 @@ describe("getScopedMergeTags", () => {
   it("builds a flat tags map from the scopes and the globals", () => {
     const tree = values([forLoop("products", "product", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
 
-    expect(result.tags.product).toEqual(mergeTags.products[0]);
-    expect(result.tags.products).toEqual(mergeTags.products);
+    expect(result.tags.product).toEqual(variableData.products[0]);
+    expect(result.tags.products).toEqual(variableData.products);
     expect(result.tags.company).toBe("ACME");
   });
 
   it("omits an unresolved scope from the flat tags map", () => {
     const tree = values([forLoop("missing", "row", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );
@@ -451,7 +451,7 @@ describe("getScopedMergeTags", () => {
   it("never expands an array into indexed children", () => {
     const tree = values([forLoop("products", "product", [text()])]);
     const result = getScopedMergeTags(
-      mergeTags,
+      variableData,
       tree,
       "content.children.[0].children.[0]",
     );

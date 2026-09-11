@@ -56,7 +56,7 @@ export const MergeTags: React.FC<{
 
   const { focusIdx } = useFocusIdx();
   const {
-    mergeTags = {},
+    variableData = {},
     mergeTagGenerate,
     renderMergeTagContent,
   } = useEditorProps();
@@ -66,8 +66,9 @@ export const MergeTags: React.FC<{
   const arraysOnly = props.arraysOnly ?? false;
 
   const scoped = useMemo(
-    () => getScopedMergeTags(mergeTags, values, focusIdx, { includeSelfLoop }),
-    [mergeTags, values, focusIdx, includeSelfLoop],
+    () =>
+      getScopedMergeTags(variableData, values, focusIdx, { includeSelfLoop }),
+    [variableData, values, focusIdx, includeSelfLoop],
   );
 
   const { treeOptions, nodeIndex } = useMemo(() => {
