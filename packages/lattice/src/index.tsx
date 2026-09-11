@@ -60,7 +60,18 @@ export * as components from "./core/components";
 export * from "./core/typings/index";
 export * from "./core/constants";
 
-export { getContextMergeTags } from "./extensions/utils/getContextMergeTags";
+export {
+  getLoopScopes,
+  getScopedMergeTags,
+  isExpandable,
+} from "./extensions/utils/mergeTagScope";
+export type {
+  LoopScope,
+  ScopeOptions,
+  ScopedMergeTagEntry,
+  ScopedMergeTagKind,
+  ScopedMergeTags,
+} from "./extensions/utils/mergeTagScope";
 export {
   getIconNameByBlockType,
   setIconsMap,

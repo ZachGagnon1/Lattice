@@ -9,7 +9,18 @@ export * from "./components/Providers/ExtensionProvider";
 export * from "./constants";
 export * from "./components/Form";
 
-export { getContextMergeTags } from "./utils/getContextMergeTags";
+export {
+  getLoopScopes,
+  getScopedMergeTags,
+  isExpandable,
+} from "./utils/mergeTagScope";
+export type {
+  LoopScope,
+  ScopeOptions,
+  ScopedMergeTagEntry,
+  ScopedMergeTagKind,
+  ScopedMergeTags,
+} from "./utils/mergeTagScope";
 export {
   getIconNameByBlockType,
   setIconsMap,
