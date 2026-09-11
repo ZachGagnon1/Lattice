@@ -1,0 +1,13 @@
+{
+  // Declaration build only. It extends the type-check config and drops the
+  // test files, so no *.test.d.ts reaches the published package. The plain
+  // tsconfig.json still type-checks the tests through `tsc --noEmit`.
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "src/utils/__tests__",
+    "**/*.stories.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
+}

@@ -64,6 +64,18 @@ export interface PropsProviderProps {
       | PropsProviderProps["previewInjectData"]
       | PropsProviderProps["mergeTags"],
   ) => string | Promise<string>;
+  /**
+   * Runs on the MJML string BEFORE mjml() compiles it. Use it to evaluate a
+   * template engine (e.g. Handlebars) so loops and conditions expand first.
+   *
+   * Prefer this over onBeforePreview for {{#each}}: onBeforePreview runs AFTER
+   * mjml(), by which point column widths and MSO conditionals were already
+   * computed for the unexpanded markup, so a loop over columns renders wrong.
+   */
+  onBeforeMjmlCompile?: (
+    mjml: string,
+    data: Record<string, any>,
+  ) => string | Promise<string>;
   enabledLogic?: boolean;
   locale?: Record<string, string>;
 

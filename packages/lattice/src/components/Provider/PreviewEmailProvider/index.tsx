@@ -30,7 +30,8 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
   const [mobileWidth, setMobileWidth] = useState(MOBILE_WIDTH);
 
   const { pageData } = useEditorContext();
-  const { onBeforePreview, mergeTags, previewInjectData } = useEditorProps();
+  const { onBeforePreview, onBeforeMjmlCompile, mergeTags, previewInjectData } =
+    useEditorProps();
   const [errMsg, setErrMsg] = useState<React.ReactNode>("");
   const [html, setHtml] = useState("");
   const lazyPageData = useLazyState(pageData, 0);
@@ -72,9 +73,23 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
       keepClassName: true,
     });
 
-    // Handle the async mjml compilation
-    mjml(mjmlString)
-      .then((result) => {
+    // Handle the async template transform + mjml compilation
+    (async () => {
+      try {
+        let compileSource = mjmlString;
+
+        // Runs BEFORE mjml(), so a template engine can expand loops and
+        // conditions while mjml still computes layout on the final markup.
+        if (onBeforeMjmlCompile) {
+          const transformed = await onBeforeMjmlCompile(
+            compileSource,
+            injectData,
+          );
+          if (!isMounted) return;
+          compileSource = transformed;
+        }
+
+        const result = await mjml(compileSource);
         if (!isMounted) return;
 
         let parseHtml = result.html;
@@ -98,18 +113,24 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
         } else {
           setHtml(parseHtml);
         }
-      })
-      .catch((error) => {
+      } catch (error: any) {
         if (isMounted) {
           setErrMsg(error?.message || "MJML compilation failed");
         }
-      });
+      }
+    })();
 
     return () => {
       isMounted = false;
       setHtml("");
     };
-  }, [injectData, onBeforePreview, lazyPageData, mobileWidth]);
+  }, [
+    injectData,
+    onBeforePreview,
+    onBeforeMjmlCompile,
+    lazyPageData,
+    mobileWidth,
+  ]);
 
   const htmlNode = useMemo(() => HtmlStringToPreviewReactNodes(html), [html]);
 

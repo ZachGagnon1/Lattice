@@ -128,6 +128,8 @@ export const Condition = createBlock<IConditionBlock>({
     BasicType.COLUMN,
     BasicType.GROUP,
     BasicType.HERO,
+    BasicType.CONDITION,
+    BasicType.FOR_LOOP,
   ],
   render(params) {
     const { data, idx, mode } = params;

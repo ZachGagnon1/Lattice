@@ -7,6 +7,7 @@ import { IEmailTemplate } from "@/typings";
 import { FormSpy } from "react-final-form";
 import { BasicType } from "@/core/constants";
 import { ExtensionProps } from "@/extensions";
+import { PropsProviderProps } from "@/components/Provider/PropsProvider";
 import { useDebouncedCallback } from "use-debounce";
 
 export interface LatticeEditorConfig {
@@ -25,6 +26,14 @@ export interface LatticeEditorProps {
   config?: LatticeEditorConfig;
   fontList?: { label: string; value: string }[];
   mergeTags?: Record<string, any>;
+  /** Data injected into the preview instead of `mergeTags`. */
+  previewInjectData?: PropsProviderProps["previewInjectData"];
+  /** Runs on the preview HTML after mjml() compiles it. */
+  onBeforePreview?: PropsProviderProps["onBeforePreview"];
+  /** Runs on the MJML string before mjml() compiles it. */
+  onBeforeMjmlCompile?: PropsProviderProps["onBeforeMjmlCompile"];
+  /** Formats a merge tag path into the placeholder text. Defaults to `{{path}}`. */
+  mergeTagGenerate?: PropsProviderProps["mergeTagGenerate"];
   height?: string | number;
   /** Add the If Condition block to the Logic category. Default is false. */
   allowCondition?: boolean;
@@ -41,6 +50,10 @@ export function LatticeEditor(props: LatticeEditorProps) {
     config = {},
     fontList = defaultFontList,
     mergeTags,
+    previewInjectData,
+    onBeforePreview,
+    onBeforeMjmlCompile,
+    mergeTagGenerate,
     height = "calc(100vh - 108px)",
     allowCondition = false,
     allowForLoop = false,
@@ -108,6 +121,10 @@ export function LatticeEditor(props: LatticeEditorProps) {
       dashed={dashed}
       compact={compact}
       mergeTags={mergeTags}
+      previewInjectData={previewInjectData}
+      onBeforePreview={onBeforePreview}
+      onBeforeMjmlCompile={onBeforeMjmlCompile}
+      mergeTagGenerate={mergeTagGenerate}
       fontList={fontList}
     >
       {() => (
