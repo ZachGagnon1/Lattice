@@ -68,12 +68,7 @@ export const Button = createBlock<IButton>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [
-    BasicType.COLUMN,
-    BasicType.HERO,
-    BasicType.CONDITION,
-    BasicType.FOR_LOOP,
-  ],
+  validParentType: [BasicType.COLUMN, BasicType.HERO],
   render(params) {
     const { data } = params;
     return (

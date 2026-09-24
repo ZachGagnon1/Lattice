@@ -42,12 +42,7 @@ export const Table = createBlock<ITable>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [
-    BasicType.COLUMN,
-    BasicType.HERO,
-    BasicType.CONDITION,
-    BasicType.FOR_LOOP,
-  ],
+  validParentType: [BasicType.COLUMN, BasicType.HERO],
   render(params) {
     const { data } = params;
     const { content, rowLoop } = data.data.value;
