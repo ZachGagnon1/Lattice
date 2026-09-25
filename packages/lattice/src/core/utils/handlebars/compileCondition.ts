@@ -1,9 +1,9 @@
 /**
- * Compiles a condition rules tree into one Handlebars subexpression.
+ * This module compiles a rules tree into one Handlebars subexpression.
  *
- * One traversal produces the emitted expression, the editor label, the issue
- * list, and the leaf count. The editor overlay and the emitted template must
- * never describe different trees, so there is exactly one recursive walk.
+ * One walk builds the expression, the label, the issues, and the leaf count.
+ * The editor overlay and the template must describe the same tree, so there
+ * is only one walk.
  */
 
 import {
@@ -37,7 +37,6 @@ interface NodeOutput {
   label: string;
 }
 
-/** Tells a known operator from a typo or an empty selection. */
 const isComparisonOperator = (raw: string): raw is ComparisonOperator =>
   (COMPARISON_OPERATORS as readonly string[]).includes(raw);
 
@@ -45,7 +44,6 @@ const isComparisonOperator = (raw: string): raw is ComparisonOperator =>
  * Builds the dotted path of a child node.
  *
  * @param parentPath - The path of the parent group. The root is `""`.
- * @param index - The position of the child inside `rules`.
  * @returns A path such as `rules.0` or `rules.2.rules.1`.
  */
 const childPath = (parentPath: string, index: number): string =>
@@ -54,7 +52,6 @@ const childPath = (parentPath: string, index: number): string =>
 /**
  * Builds the human readable half of one rule.
  *
- * @param operator - The comparison the user picked.
  * @param path - The normalized field path.
  * @param value - The raw value the user typed.
  * @returns One short phrase, such as `age > 18`.
@@ -85,7 +82,6 @@ function ruleLabel(
 /**
  * Compiles one leaf rule.
  *
- * @param rule - The leaf node from the tree.
  * @param path - The dotted path of this node, for any issue.
  * @param issues - The collector for problems. This function appends to it.
  * @returns The expression and label, or `null` when the rule is invalid.
@@ -116,8 +112,8 @@ function compileRule(
   }
 
   // The old compiler had a `default:` branch that returned the bare field id.
-  // A malformed operator then emitted `{{#if firstName}}`, which is a silent
-  // truthy test that the author never asked for. Report it instead.
+  // A malformed operator then emitted `{{#if firstName}}`, a silent truthy test.
+  // The author never asked for it. The code reports it instead.
   if (!isComparisonOperator(rawOperator)) {
     issues.push({
       path,
@@ -131,7 +127,7 @@ function compileRule(
   const needsValue = !OPERATORS_WITHOUT_VALUE.includes(operator);
   const value = String(rule?.value ?? "");
 
-  // An empty value used to emit the malformed `(gt age )`.
+  // Without this check, an empty value emits the malformed `(gt age )`.
   if (needsValue && isBlankValue(value)) {
     issues.push({
       path,
@@ -144,8 +140,8 @@ function compileRule(
   const label = ruleLabel(operator, fieldPath, value);
   const helper = OPERATOR_HELPER_NAMES[operator];
 
-  // `IS_NOT_EMPTY` maps to `null`. A truthy test needs no helper, so the bare
-  // path goes out without parentheses.
+  // `IS_NOT_EMPTY` maps to `null`. A truthy check needs no helper.
+  // The code returns the field path without parentheses.
   if (helper === null) {
     return { expression: fieldPath, label };
   }
@@ -165,11 +161,10 @@ function compileRule(
 /**
  * Compiles one group and every node below it.
  *
- * @param group - The group node.
- * @param path - The dotted path of this group. The root is `""`.
- * @param issues - The collector for problems. This function appends to it.
- * @param counter - A one-field box that counts every leaf rule reached.
- * @returns The expression and label, or `null` when no child compiles.
+ * @param path - The dotted path. The root is `""`.
+ * @param issues - The function appends items to this array.
+ * @param counter - A one-field object that counts each leaf rule the walk reaches.
+ * @returns The expression and the label, or `null` when no child compiles.
  */
 function compileGroup(
   group: IConditionGroup,
@@ -207,8 +202,8 @@ function compileGroup(
     return null;
   }
 
-  // One child passes through without parentheses. That keeps the output the
-  // same as the inline compiler it replaces.
+  // One child returns without parentheses. The output then matches the old
+  // inline compiler.
   if (compiled.length === 1) {
     return compiled[0];
   }
@@ -227,9 +222,6 @@ function compileGroup(
  *
  * The function never throws. A missing root, a missing `rules` array, or a
  * malformed node produces an issue and an empty expression.
- *
- * @param root - The root group of the rules tree, or `undefined`.
- * @returns The expression, the label, the issues, and the leaf rule count.
  */
 export function compileCondition(
   root: IConditionGroup | undefined,

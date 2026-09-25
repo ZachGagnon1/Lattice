@@ -1,27 +1,25 @@
 /**
  * Compiles a loop configuration into Handlebars `{{#each}}` markup.
  *
- * The ForLoop block and the Table `rowLoop` share this module. Both store
- * their path under a different key, so each caller adapts its own data into
- * an `ILoopConfig` before it calls in here.
+ * The ForLoop block and the Table `rowLoop` use this module. Each caller
+ * stores its path under a different key and adapts its data into an
+ * `ILoopConfig` before the call.
  */
 
 import { ConditionIssue, ILoopConfig } from "./types";
 import { normalizeFieldPath } from "./literals";
 
-/** The closing tag of every loop this module opens. */
 export const LOOP_CLOSE = "{{/each}}";
 
 /** A valid Handlebars block parameter name. */
 const ALIAS_PATTERN = /^[A-Za-z_$][\w$]*$/;
 
-/** Matches one `<tr>` element. The content is `<tr>`-shaped by construction. */
+/** Matches one `<tr>` element. The content holds only `<tr>` elements. */
 const ROW_PATTERN = /<tr\b[\s\S]*?<\/tr>/gi;
 
 /**
  * Reads the alias, and tells whether the stored text is usable.
  *
- * @param cfg - The loop configuration, or `undefined`.
  * @returns The alias to emit (`""` when there is none) and its validity.
  */
 function readAlias(cfg: ILoopConfig | undefined): {
@@ -35,8 +33,9 @@ function readAlias(cfg: ILoopConfig | undefined): {
   }
 
   if (!ALIAS_PATTERN.test(raw)) {
-    // An alias such as `item name` breaks the whole block parameter list, so
-    // drop it and keep the loop working on `this`.
+    // An alias that is not an identifier, such as `item name`, breaks the
+    // block parameter list.
+    // Drop the alias and run the loop on `this`.
     return { alias: "", invalid: true };
   }
 
@@ -46,7 +45,6 @@ function readAlias(cfg: ILoopConfig | undefined): {
 /**
  * Builds the opening tag of a loop.
  *
- * @param cfg - The loop configuration, or `undefined`.
  * @returns `{{#each items as |item|}}`, or `null` when the source is blank.
  */
 export function compileLoopOpen(cfg: ILoopConfig | undefined): string | null {
@@ -64,7 +62,6 @@ export function compileLoopOpen(cfg: ILoopConfig | undefined): string | null {
 /**
  * Builds the editor label of a loop.
  *
- * @param cfg - The loop configuration, or `undefined`.
  * @returns `FOR EACH: items as |item|`, or `(no data source set)`.
  */
 export function compileLoopLabel(cfg: ILoopConfig | undefined): string {
@@ -83,10 +80,9 @@ export function compileLoopLabel(cfg: ILoopConfig | undefined): string {
  * Lists the problems in a loop configuration.
  *
  * The codes come from the condition compiler. A blank source reuses
- * `MISSING_FIELD` and a bad alias reuses `MISSING_VALUE`, because a loop has
- * one node and needs no new code.
+ * `MISSING_FIELD` and a bad alias reuses `MISSING_VALUE`. A loop has one
+ * node, so it needs no new code.
  *
- * @param cfg - The loop configuration, or `undefined`.
  * @returns The issues, in report order. The `path` is always `""`.
  */
 export function compileLoopIssues(
@@ -115,15 +111,13 @@ export function compileLoopIssues(
 }
 
 /**
- * Wraps the body rows of a table in a loop.
+ * Wraps the table body rows in a loop.
  *
- * A regular expression is correct here. The content is a string of `<tr>`
- * elements by construction, the editor never puts a nested table inside it,
- * and the worst failure is that the loop wraps every row. That is exactly
- * what the code this replaces already does.
+ * A regular expression is safe here. The content holds only `<tr>`
+ * elements. The editor does not add a nested table. The worst case
+ * wraps every row in the loop. That result matches the old code.
  *
  * @param content - The HTML string of `<tr>` rows.
- * @param cfg - The loop configuration, or `undefined`.
  * @returns The content with one loop around the body rows.
  */
 export function wrapTableRowsInEach(
@@ -145,8 +139,8 @@ export function wrapTableRowsInEach(
     return content;
   }
 
-  // Slice by match position. A re-join of the parsed rows would drop the
-  // `<thead>`, the `<tbody>`, and every piece of whitespace between them.
+  // Slice by match position. A re-join of the parsed rows drops the
+  // `<thead>`, the `<tbody>`, and the whitespace between them.
   const first = rows[skip];
   const last = rows[rows.length - 1];
   const start = first.index ?? 0;
@@ -164,12 +158,11 @@ export function wrapTableRowsInEach(
 /**
  * Splits rows into the header block and the looped body block.
  *
- * The stacked `table-cell-operations` branch holds a cell matrix instead of
- * an HTML string. This keeps that merge to a one line call site change.
+ * The stacked `table-cell-operations` branch holds a cell matrix, not an
+ * HTML string. This keeps the merge to one call site change.
  *
  * @param rows - Every row, in display order.
  * @param headerRows - The count of leading rows to keep out of the loop.
- * @returns The header rows and the body rows.
  */
 export function splitLoopRows<T>(
   rows: T[],

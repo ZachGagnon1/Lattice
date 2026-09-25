@@ -59,9 +59,9 @@ export function Table() {
     },
   );
 
-  // The field holds a row count, but the panel offers one checkbox. A saved
-  // template with no value reads as 0, so the box starts clear and the loop
-  // keeps every row, as the compiler does.
+  // The field holds a row count, but the panel offers one checkbox.
+  // A saved template with no value reads as 0, so the box starts clear and
+  // the loop keeps every row, as the compiler does.
   const headerRowCount = Number(headerRowsInput.value ?? 0);
   const keepsHeaderRow = Number.isFinite(headerRowCount) && headerRowCount > 0;
 
@@ -80,7 +80,7 @@ export function Table() {
   const hasSource = loopOpen !== null;
   const hasAlias = String(itemAsInput.value ?? "").trim() !== "";
 
-  // A row loop is optional. The warning stays quiet until the author starts
+  // A row loop is optional. The warning shows only when the author starts
   // one, so a plain table shows no problem.
   const isLoopStarted = Boolean(sourceInput.value) || hasAlias;
 

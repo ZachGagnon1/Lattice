@@ -14,7 +14,10 @@ export type ITable = IBlockData<
     rowLoop?: {
       source: string;
       itemAs: string;
-      /** Leading rows kept out of the loop. Absent on templates saved before this field. */
+      /**
+       * The number of rows at the start that stay out of the loop.
+       * Templates saved before this field do not have this value.
+       */
       headerRows?: number;
     };
   }

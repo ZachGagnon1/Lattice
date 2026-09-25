@@ -16,26 +16,24 @@ import {
 import { TEMPLATE_DATA } from "@demo/pages/Editor/Arturia - Newsletter"; // Import the converter we created! Adjust the path to wherever you saved it.
 // Import the converter we created! Adjust the path to wherever you saved it.
 
-// Register the comparison helpers once, at module scope. A call on every
-// render would re-register the same helpers and waste work.
-// This gives us eq, gt, gte, lt, lte, and, or, not, and contains.
+// Register the comparison helpers once, at module scope. A call on each render
+// registers the same helpers again, and that wastes work.
 //
-// We import the `comparison` group directly. The package root also loads the
-// `fs`, `path`, `code`, `url`, and `markdown` groups, which require Node
-// built-in modules. Those modules do not exist in a browser, so Vite replaces
-// them with stubs that throw. The Condition compiler only emits comparison
-// helpers, so this import is both safe and much smaller.
+// We import only the `comparison` group. The package root loads other groups
+// that use Node built-in modules. Those modules do not exist in a browser.
+// Vite replaces them with stubs that throw errors. The Condition compiler
+// emits only comparison helpers. This import is safe and smaller.
 Handlebars.registerHelper(comparisonHelpers);
 
 /**
  * The variable data. One object serves both jobs.
  *
- * The picker reads the KEYS to build its tree, and it wraps a picked path with
- * `mergeTagGenerate`. So a value never has to be a `"{{firstName}}"`
+ * The picker reads the keys to build its tree. It wraps a picked path with
+ * `mergeTagGenerate`, so a value never has to be a `"{{firstName}}"`
  * placeholder. Real values work, and they also let the preview render.
  *
- * An array holds sample entries. The picker treats an array as a loop source
- * and reads the first entry to learn the item fields.
+ * An array holds sample entries. The picker uses an array as a loop source.
+ * It reads the first entry to learn the item fields.
  */
 const MERGE_TAGS = {
   firstName: "John",
@@ -57,7 +55,6 @@ export default function Editor() {
   const { width } = useWindowSize();
   const compact = width > 1600;
 
-  // --- New state for our Unlayer Import Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [unlayerJson, setUnlayerJson] = useState("");
 
@@ -67,25 +64,21 @@ export default function Editor() {
   }));
 
   /**
-   * Expands the Handlebars logic before mjml() compiles the markup.
+   * Expands Handlebars logic before mjml() compiles the markup.
    *
-   * The callback is memoised because `PreviewEmailProvider` lists
-   * `onBeforeMjmlCompile` in the dependency array of its preview effect. An
-   * inline arrow would rebuild the preview on every render.
+   * `PreviewEmailProvider` lists `onBeforeMjmlCompile` in the dependencies of
+   * its preview effect. An inline arrow would rebuild the preview on each render.
    *
-   * @param mjmlString - The MJML string that JsonToMjml() produced.
-   * @param data - The preview data. It is `previewInjectData` when that prop
-   *   is set, and the `mergeTags` prop when it is not.
-   * @returns The expanded MJML, or the original string when the template
-   *   fails to compile.
+   * @param data - `previewInjectData` when that prop is set, else `mergeTags`.
+   * @returns The expanded MJML, or the original string when Handlebars fails.
    */
   const handleBeforeMjmlCompile = useCallback(
     (mjmlString: string, data: Record<string, any>) => {
       try {
         return Handlebars.compile(mjmlString)(data);
       } catch (error) {
-        // A half typed rule must not blank the preview. Show the unexpanded
-        // template instead.
+        // A partial rule must not blank the preview. Show the unexpanded
+        // template.
         console.error("Handlebars failed to compile the MJML preview:", error);
         return mjmlString;
       }

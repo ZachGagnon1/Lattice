@@ -1,8 +1,9 @@
 /**
- * Shared rule types for the logic blocks (Condition, ForLoop, Table rowLoop).
+ * The rule types for the logic blocks: Condition, ForLoop, and the Table
+ * `rowLoop`.
  *
- * This module is the single source of truth. It has no runtime dependencies,
- * so both the block renderers and the attribute panel can import it.
+ * The module holds these types once. It has no runtime dependency.
+ * Both the block renderers and the attribute panel import it.
  */
 
 /** Joins the rules of one group. One operator applies to the whole group. */
@@ -19,7 +20,6 @@ export const COMPARISON_OPERATORS = [
   "IS_NOT_EMPTY",
 ] as const;
 
-/** One comparison between a field and an optional value. */
 export type ComparisonOperator = (typeof COMPARISON_OPERATORS)[number];
 
 /** Operators that take no right-hand value. */
@@ -46,13 +46,13 @@ export type HandlebarsHelperName = "eq" | "contains" | "gt" | "lt" | "not";
  * Maps an operator to its `handlebars-helpers` function.
  *
  * `IS_NOT_EMPTY` maps to `null` on purpose. A truthy test needs no helper, so
- * the compiler emits the bare field path instead of a subexpression.
+ * the compiler emits the bare field path, not a subexpression.
  *
- * `NOT_EQUALS` maps to `eq`, and {@link NEGATED_OPERATORS} wraps the result in
- * `not`. `handlebars-helpers` has no `ne` helper. Its `isnt` helper exists, but
- * it compares with `!=` while `eq` compares with `===`, so the pair would not
- * agree. `(not (eq a b))` is the exact negation of Equals, and it needs only
- * helpers that the library certainly provides.
+ * `NOT_EQUALS` maps to `eq`. {@link NEGATED_OPERATORS} wraps the result in
+ * `not`. `handlebars-helpers` has no `ne` helper. Its `isnt` helper compares
+ * with `!=`. The `eq` helper compares with `===`. The pair would not agree.
+ * `(not (eq a b))` is the exact negation of Equals. It needs only helpers that
+ * the library provides.
  */
 export const OPERATOR_HELPER_NAMES: Record<
   ComparisonOperator,
@@ -73,9 +73,9 @@ export const NEGATED_OPERATORS: readonly ComparisonOperator[] = ["NOT_EQUALS"];
 /**
  * One leaf comparison in the rules tree.
  *
- * There is no `logicalOperator` field here on purpose. The parent group holds
- * the one operator that joins its rules. The old per-rule field was never read
- * by the compiler, so it silently did nothing.
+ * It has no `logicalOperator` field on purpose. The parent group holds the one
+ * operator that joins its rules. The compiler never read the old per-rule
+ * field, so that field did nothing.
  */
 export interface IConditionRule {
   /** The field path, such as `firstName` or `user.first-name`. */
@@ -94,12 +94,7 @@ export interface IConditionGroup {
   rules: Array<IConditionRule | IConditionGroup>;
 }
 
-/**
- * Tells a group apart from a leaf rule.
- *
- * @param node - Any node from the rules tree, or an unknown value.
- * @returns `true` when the node is a group.
- */
+/** Tells a group apart from a leaf rule. */
 export const isConditionGroup = (node: unknown): node is IConditionGroup =>
   typeof node === "object" &&
   node !== null &&
@@ -113,22 +108,21 @@ export type ConditionIssueCode =
   | "UNKNOWN_OPERATOR"
   | "EMPTY_GROUP";
 
-/** One problem that the compiler found in the rules tree. */
+/** One problem that the compiler finds in the rules tree. */
 export interface ConditionIssue {
   /** Dotted path to the offending node inside the rules tree, e.g. "rules.0.rules.2". */
   path: string;
-  /** The machine-readable reason. */
   code: ConditionIssueCode;
   /** A short sentence for the attribute panel. */
   message: string;
 }
 
-/** A loop's configuration, shared by the ForLoop block and the Table rowLoop. */
+/** The loop configuration that the ForLoop block and the Table rowLoop share. */
 export interface ILoopConfig {
   /** The array field path to iterate, such as `order.items`. */
   source: string;
   /** The alias for the current item. The compiler defaults it when absent. */
   itemAs?: string;
-  /** Leading rows excluded from the loop. Table only. */
+  /** The count of leading rows that stay out of the loop. Only Table uses it. */
   headerRows?: number;
 }

@@ -37,9 +37,9 @@ describe("compileCondition single rule operators", () => {
       group("AND", [rule("status", "NOT_EQUALS", "active")]),
     );
 
-    // handlebars-helpers has no `ne` helper, and its `isnt` compares with
-    // `!=` while `eq` compares with `===`. `(not (eq ...))` is the exact
-    // negation of EQUALS and needs only helpers that certainly exist.
+    // `handlebars-helpers` has no `ne` helper. `isnt` uses `!=`, and
+    // `eq` uses `===`. `(not (eq ...))` is the exact negation of EQUALS.
+    // It uses only helpers that exist.
     expect(result.expression).toBe("(not (eq status 'active'))");
     expect(result.label).toBe('status not equals "active"');
   });
@@ -137,8 +137,8 @@ describe("compileCondition grouping", () => {
   });
 
   it("lets the root group operator drive the join", () => {
-    // The attribute panel cannot set the root operator today. The compiler
-    // contract still has to honour it.
+    // The attribute panel cannot set the root operator. The compiler
+    // must still handle it.
     const result = compileCondition(
       group("OR", [rule("a", "IS_NOT_EMPTY"), rule("b", "IS_NOT_EMPTY")]),
     );
@@ -251,8 +251,8 @@ describe("compileCondition invalid rules", () => {
   });
 
   it("never emits a bare field for an unknown operator", () => {
-    // The old compiler had a `default:` branch that returned the bare field
-    // id, so a malformed operator became a silent `{{#if firstName}}`.
+    // The old compiler used a `default:` branch that returned the bare
+    // field id. A bad operator became a silent `{{#if firstName}}`.
     const result = compileCondition(
       group("AND", [
         rule("firstName", "BETWEEN" as ComparisonOperator, "John"),

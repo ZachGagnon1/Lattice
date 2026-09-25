@@ -1,5 +1,5 @@
 /**
- * Helpers that turn user input into safe Handlebars literals and field paths.
+ * These functions turn user input into safe Handlebars literals and field paths.
  *
  * These are pure string functions. The condition and loop compilers use them
  * to build subexpressions such as `(eq user.[first-name] 'O\'Hara')`.
@@ -18,43 +18,42 @@ const MUSTACHE_WRAPPER = /^\{\{\s*([\s\S]*?)\s*\}\}$/;
 const BARE_KEYWORDS = ["true", "false", "null", "undefined"];
 
 /**
- * The shape the Handlebars lexer accepts as a number.
+ * The form the Handlebars lexer accepts as a number.
  *
- * Handlebars has no exponent form and no `Infinity` or `NaN` literal, so this
- * pattern is deliberately narrower than `Number()`.
+ * This pattern is narrower than `Number()`. Handlebars has no exponent form and
+ * no `Infinity` or `NaN` literal.
  */
 const NUMBER_LITERAL = /^-?\d+(\.\d+)?$/;
 
 /**
- * Makes a value safe to place inside a single-quoted Handlebars literal.
+ * Makes a value safe inside a single-quoted Handlebars literal.
  *
- * @param raw - Any value. `null` and `undefined` become an empty string.
- * @returns The escaped text, without the surrounding quotes.
+ * @param raw - `null` and `undefined` become an empty string.
+ * @returns The escaped text without the surrounding quotes.
  */
 export function escapeHbsString(raw: unknown): string {
   const text = String(raw ?? "");
 
-  // A Handlebars string literal cannot hold a line break, so collapse each
-  // break to one space.
+  // A Handlebars string literal cannot hold a line break, so each break
+  // becomes one space.
   const singleLine = text.replace(/\r\n|\r|\n/g, " ");
 
-  // Escape the backslashes first, then the quotes. The order matters: it stops
-  // the backslash of an escaped quote from being escaped a second time. It also
-  // means a trailing backslash can never escape the closing quote, so nothing
-  // has to be truncated and no input is lost.
+  // Escape the backslashes before the quotes. The order stops a double
+  // escape. It also stops a trailing backslash from escaping the closing
+  // quote, so no input is lost.
   //
-  // Note: `}}` needs no escape. Handlebars tokenises the string literal before
-  // it looks for the closing braces, so `'a }} b'` stays one literal. Do not
-  // "fix" this — an escape here reaches the output as visible backslashes.
+  // `}}` needs no escape. Handlebars reads the string literal before it looks
+  // for the closing braces. So `'a }} b'` stays one literal. Do not add an
+  // escape here. It shows as visible backslashes in the output.
   return singleLine.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
 }
 
 /**
- * Emits a Handlebars literal, unquoted where the value is canonical.
+ * Emits a Handlebars literal. A canonical value stays unquoted.
  *
- * `handlebars-helpers` compares with `===`, so `(eq age '18')` is false against
- * numeric data. Both `EQUALS` and `NOT_EQUALS` use this function for that
- * reason, not only the numeric comparisons.
+ * `handlebars-helpers` compares values with `===`. So `(eq age '18')` is false
+ * against numeric data. Both `EQUALS` and `NOT_EQUALS` use this function for
+ * that reason, not only for numeric comparisons.
  *
  * @param raw - The value the user typed.
  * @returns A bare keyword, a bare number, or a quoted string.
@@ -66,14 +65,14 @@ export function toHbsLiteral(raw: string): string {
     return trimmed;
   }
 
-  // Only a canonical number goes out bare, and it must also match the shape
-  // that the Handlebars lexer accepts as a NUMBER: `-?[0-9]+(\.[0-9]+)?`.
+  // Only a canonical number goes out bare. It must match the shape that the
+  // Handlebars lexer reads as a NUMBER: `-?[0-9]+(\.[0-9]+)?`.
   //
-  // The shape test is not redundant. A round-trip test alone lets through
-  // "Infinity", "NaN", and "1e-7", none of which Handlebars reads as a number.
-  // It would treat each one as a path lookup and quietly resolve it to
-  // undefined. The round-trip test then keeps "01234" (a zip code) and "1.50"
-  // as strings, because they round-trip to different text.
+  // The shape test is not redundant. A round-trip test alone lets "Infinity",
+  // "NaN", and "1e-7" through. Handlebars does not read these as numbers.
+  // It reads each one as a path lookup and resolves it to undefined.
+  // The round-trip test keeps "01234" (a zip code) and "1.50" as strings,
+  // because they round-trip to different text.
   if (NUMBER_LITERAL.test(trimmed) && String(Number(trimmed)) === trimmed) {
     return trimmed;
   }
@@ -90,7 +89,7 @@ export function toHbsLiteral(raw: string): string {
 export function normalizeFieldPath(raw: string): string {
   let text = String(raw ?? "").trim();
 
-  // The old Condition field picker saved `{{firstName}}`, which produced the
+  // The old Condition field picker saved `{{firstName}}`. It produced the
   // invalid nested `{{#if (eq {{firstName}} 'John')}}`. Strip one wrapper.
   const wrapped = MUSTACHE_WRAPPER.exec(text);
   if (wrapped) {
@@ -105,8 +104,8 @@ export function normalizeFieldPath(raw: string): string {
       if (IDENTIFIER_SEGMENT.test(segment) || NUMERIC_SEGMENT.test(segment)) {
         return segment;
       }
-      // Hyphenated merge tags such as `first-name` parse as a subtraction, so
-      // bracket-quote them. Brackets inside the segment would close the quote.
+      // Hyphenated merge tags such as `first-name` parse as a subtraction.
+      // Bracket-quote them. A bracket inside the segment closes the quote.
       return `[${segment.replace(/[[\]]/g, "")}]`;
     })
     .filter((segment) => segment !== "[]");

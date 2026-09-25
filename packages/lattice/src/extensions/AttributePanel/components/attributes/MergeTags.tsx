@@ -18,7 +18,10 @@ export const MergeTags: React.FC<{
   onChange: (v: string) => void;
   value: string;
   isSelect?: boolean;
-  /** When true, any node is selectable and the raw path is returned. It is not wrapped in `{{ }}`. */
+  /**
+   * When true, any node is selectable, arrays and objects included. The path
+   * goes out with no `{{ }}` around it.
+   */
   rawPath?: boolean;
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
@@ -80,8 +83,6 @@ export const MergeTags: React.FC<{
       }
 
       if (props.rawPath) {
-        // Raw path mode: any node is selectable, arrays and objects included,
-        // and the path goes out with no `{{ }}` around it.
         props.onChange(itemId);
         if (props.isSelect) {
           setAnchorEl(null);

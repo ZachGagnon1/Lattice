@@ -73,13 +73,12 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
       keepClassName: true,
     });
 
-    // Handle the async template transform + mjml compilation
     (async () => {
       try {
         let compileSource = mjmlString;
 
-        // Runs BEFORE mjml(), so a template engine can expand loops and
-        // conditions while mjml still computes layout on the final markup.
+        // The template engine runs first, so mjml() computes the layout on the
+        // markup after the loops and conditions expand.
         if (onBeforeMjmlCompile) {
           const transformed = await onBeforeMjmlCompile(
             compileSource,

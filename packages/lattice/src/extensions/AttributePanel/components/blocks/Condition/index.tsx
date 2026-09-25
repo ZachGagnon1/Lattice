@@ -20,11 +20,11 @@ export function Condition() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // A block that is new on the canvas has no rules tree yet, so give the modal a root group.
+  // A new block on the canvas has no rules tree, so the modal gets a root group.
   const currentData: IConditionGroup = input.value || EMPTY_TREE;
 
-  // The compiler already walks the tree, so the summary reads its count
-  // instead of walking the tree a second time.
+  // The compiler already walks the tree, so the summary reads its count.
+  // A second walk is not necessary.
   const totalRules = useMemo(
     () => compileCondition(currentData).ruleCount,
     [currentData],

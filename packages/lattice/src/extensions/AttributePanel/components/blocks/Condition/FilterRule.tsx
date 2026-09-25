@@ -19,29 +19,27 @@ import {
   OPERATOR_LABELS,
 } from "@/core/utils/handlebars";
 
-/** The width of the connector column. Every row reserves it, so nothing shifts. */
+/** The width of the connector column. Each row reserves it, so no row shifts. */
 const CONNECTOR_WIDTH = 90;
 
 export interface RuleConnectorProps {
   /** The field name of the GROUP that owns this row, such as `rulesTree`. */
   groupName: string;
-  /** The position of this row inside the group. */
   index: number;
 }
 
 /**
  * Renders the AND/OR connector in front of one row of a group.
  *
- * One operator joins every child of a group, so only the second row carries
- * the editable `<Select>`. Later rows repeat the same operator as static text.
- * The first row gets a spacer of the same width.
+ * One operator joins all children of a group, so only the second row holds
+ * the editable `<Select>`. Later rows show the operator as static text.
+ * The first row holds a spacer of the same width.
  */
 export function RuleConnector(props: Readonly<RuleConnectorProps>) {
   const { groupName, index } = props;
 
-  // This binds the GROUP's operator, not the row's. The compiler reads only
-  // the group operator, so a per-row field would show the user a value that
-  // never reaches the output.
+  // Bind the GROUP operator, not the row operator. The compiler reads only the
+  // group operator. A per-row field shows a value that never reaches the output.
   const { input } = useField<LogicalOperator>(`${groupName}.logicalOperator`);
   const operator: LogicalOperator = input.value === "OR" ? "OR" : "AND";
 
@@ -82,9 +80,7 @@ export function RuleConnector(props: Readonly<RuleConnectorProps>) {
 export interface FilterRuleProps {
   /** The field name of this rule, such as `rulesTree.rules[0]`. */
   name: string;
-  /** The field name of the group that owns this rule. */
   groupName: string;
-  /** The position of this rule inside the group. */
   index: number;
   onRemove: () => void;
 }
@@ -99,7 +95,7 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
   const { input: valueInput } = useField<string>(`${name}.value`);
 
   // `IS_EMPTY` and `IS_NOT_EMPTY` take no right-hand value. The compiler owns
-  // that list, so the panel reads it instead of repeating it.
+  // that list. The panel reads it, not a copy.
   const isValueHidden = (OPERATORS_WITHOUT_VALUE as readonly string[]).includes(
     comparisonInput.value,
   );

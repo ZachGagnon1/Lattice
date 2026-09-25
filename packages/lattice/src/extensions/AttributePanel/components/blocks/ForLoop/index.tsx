@@ -35,7 +35,7 @@ export function ForLoop() {
   );
 
   // The block stores `dataSource`, but the shared compiler takes `source`.
-  // Adapt here. A rename of the stored field breaks saved templates.
+  // A rename of the stored field breaks saved templates.
   const loopConfig: ILoopConfig = useMemo(
     () => ({ source: sourceInput.value, itemAs: itemAsInput.value }),
     [sourceInput.value, itemAsInput.value],
@@ -47,7 +47,7 @@ export function ForLoop() {
   const hasSource = loopOpen !== null;
   const hasAlias = String(itemAsInput.value ?? "").trim() !== "";
 
-  // A block with an empty source and an empty alias is not configured yet.
+  // An empty source and an empty alias mean that the loop is not configured.
   // The status card already reports that state, so the warning stays quiet.
   const isLoopStarted = Boolean(sourceInput.value) || hasAlias;
 

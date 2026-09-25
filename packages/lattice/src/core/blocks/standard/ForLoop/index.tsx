@@ -54,8 +54,8 @@ export const ForLoop = createBlock<IForLoop>({
     const { data, idx, mode } = params;
     const { dataSource, itemAs } = data.data.value;
 
-    // The block stores `dataSource`, but the shared compiler takes `source`.
-    // Adapt here. Renaming the stored field would break saved templates.
+    // The compiler reads `source`, but the block stores `dataSource`.
+    // We keep `dataSource` because saved templates use that name.
     const loopConfig = { source: dataSource, itemAs };
     const loopOpen = compileLoopOpen(loopConfig);
 

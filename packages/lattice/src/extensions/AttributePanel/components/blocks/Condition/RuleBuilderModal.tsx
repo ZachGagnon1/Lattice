@@ -36,12 +36,12 @@ interface RuleBuilderValues {
 /**
  * Rebuilds one leaf rule in the clean shape.
  *
- * An older panel saved the field as `{{firstName}}` and wrote a dead
- * `logicalOperator` onto each rule. Both go away here, so the next save
- * writes data that matches what the compiler reads.
+ * An older panel saved the field as `{{firstName}}` and wrote an
+ * unused `logicalOperator` to each rule. The function removes both, so
+ * the next save matches what the compiler reads.
  *
  * @param rule - One leaf node from the saved tree.
- * @returns A new rule. The input is never changed.
+ * @returns A new rule. It does not change the input.
  */
 const normalizeRule = (rule: IConditionRule): IConditionRule => ({
   fieldId: normalizeFieldPath(rule?.fieldId),
@@ -53,7 +53,7 @@ const normalizeRule = (rule: IConditionRule): IConditionRule => ({
  * Rebuilds one group and every node below it.
  *
  * @param group - One group node from the saved tree.
- * @returns A new group. The input is never changed.
+ * @returns A new group. It does not change the input.
  */
 const normalizeGroup = (group: IConditionGroup): IConditionGroup => ({
   logicalOperator: group?.logicalOperator === "OR" ? "OR" : "AND",
@@ -84,9 +84,9 @@ function issueLocation(path: string): string {
 export function RuleBuilderModal(props: Readonly<RuleBuilderModalProps>) {
   const { open, initialData, onClose, onSave } = props;
 
-  // Seed the form with healed data. A new object on every render would make
-  // react-final-form reinitialise the form and drop the author's edits, so
-  // this stays tied to the incoming reference.
+  // Seed the form with normalized data. A new object on each render
+  // makes react-final-form reinitialize the form and drop the author's
+  // edits, so the value stays tied to the incoming reference.
   const initialValues = useMemo<RuleBuilderValues>(
     () => ({ rulesTree: normalizeGroup(initialData) }),
     [initialData],
@@ -111,16 +111,17 @@ export function RuleBuilderModal(props: Readonly<RuleBuilderModalProps>) {
           const compiled = compileCondition(values.rulesTree);
           const isCleared = isClearedTree(values.rulesTree);
 
-          // A half-configured rule compiles to nothing, and the block then
-          // renders its children with no `{{#if}}` at all. That leaks content
-          // the author meant to gate, so the save waits until every rule is
-          // complete. An empty tree is the one exception: it is how the
-          // author removes the condition on purpose.
+          // A half-configured rule compiles to nothing, and the block renders
+          // its children with no `{{#if}}` at all. The result exposes content
+          // the author wants to gate. So the save waits until every rule is
+          // complete. An empty tree is the one exception: the author uses an
+          // empty tree to remove the condition on purpose.
           const issues: ConditionIssue[] = isCleared ? [] : compiled.issues;
           const canSave = issues.length === 0;
 
           return (
-            // The form tag is required to natively handle the submit event from DialogActions
+            // DialogActions needs the form tag to handle the submit event
+            // natively.
             <form
               onSubmit={handleSubmit}
               style={{

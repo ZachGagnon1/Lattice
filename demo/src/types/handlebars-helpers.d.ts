@@ -12,13 +12,7 @@ declare module "handlebars-helpers" {
     hbs?: typeof Handlebars;
   }
 
-  /**
-   * Registers the helper groups on a Handlebars instance.
-   *
-   * @param groups - One group name, a list of group names, or the options.
-   * @param options - The Handlebars instance to register the helpers on.
-   * @returns The helper map of that Handlebars instance.
-   */
+  /** @param options - The Handlebars instance to register on, despite its name. */
   function helpers(
     groups: string | string[] | HelperOptions,
     options?: HelperOptions,

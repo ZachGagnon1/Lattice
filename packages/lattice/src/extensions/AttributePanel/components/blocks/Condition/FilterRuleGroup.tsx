@@ -8,25 +8,25 @@ import {
   isConditionGroup,
 } from "@/core/utils/handlebars";
 
-/** The shape of a brand new rule. It carries no operator of its own. */
+/** Builds a new rule. A rule has no logical operator. */
 const createRule = (): IConditionRule => ({
   fieldId: "",
   comparisonOperator: "EQUALS",
   value: "",
 });
 
-/** The shape of a brand new group. Only a group holds a logical operator. */
+/** Builds a new group. Only a group has a logical operator. */
 const createGroup = (): IConditionGroup => ({
   logicalOperator: "AND",
   rules: [createRule()],
 });
 
 export interface FilterRuleGroupProps {
-  /** The field name of this group, such as `rulesTree.rules[1]`. */
+  /** The field name of this group. Example: `rulesTree.rules[1]`. */
   name: string;
   /**
-   * The field name of the PARENT group. The root group has no parent, so it
-   * leaves this out and shows no connector.
+   * The field name of the parent group.
+   * The root group has no parent. It omits this field and shows no connector.
    */
   groupName?: string;
   nestingLevel: number;
@@ -63,8 +63,8 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
       spacing={2}
       sx={{ width: "100%", alignItems: "flex-start" }}
     >
-      {/* The connector belongs to the PARENT group, so it binds the parent's
-          operator. A nested group is one row of its parent, exactly like a
+      {/* The connector belongs to the PARENT group, so it binds the parent
+          operator. A nested group is one row of its parent, the same as a
           rule. The root group has no parent and shows nothing. */}
       {groupName && <RuleConnector groupName={groupName} index={index} />}
 

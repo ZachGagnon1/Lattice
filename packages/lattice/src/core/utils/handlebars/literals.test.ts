@@ -46,8 +46,8 @@ describe("escapeHbsString", () => {
 
     expect(literal).toBe("'C:\\\\dir\\\\'");
 
-    // An even count of backslashes before the closing quote means every
-    // backslash is itself escaped, so the quote still closes the literal.
+    // An even count of backslashes before the closing quote means each
+    // backslash is escaped. So the quote still closes the literal.
     const trailingBackslashes = /(\\*)'$/.exec(literal);
     expect(trailingBackslashes).not.toBeNull();
     expect((trailingBackslashes as RegExpExecArray)[1].length % 2).toBe(0);
@@ -59,8 +59,8 @@ describe("escapeHbsString", () => {
   });
 
   it("leaves a closing mustache pair alone", () => {
-    // Handlebars tokenises the string literal before it looks for `}}`, so an
-    // escape here would reach the output as visible backslashes.
+    // Handlebars tokenises the string literal before it looks for `}}`.
+    // An escape here reaches the output as visible backslashes.
     expect(escapeHbsString("a }} b")).toBe("a }} b");
   });
 });
@@ -119,8 +119,8 @@ describe("toHbsLiteral", () => {
   });
 
   it("never quotes a number, because the eq helper compares with strict equality", () => {
-    // `handlebars-helpers` `eq` is `===`. A quoted `'18'` never matches the
-    // numeric `18` in the data, so the number must go out bare.
+    // `handlebars-helpers` `eq` is `===`. A quoted `'18'` does not match the
+    // numeric `18` in the data, so the number must stay bare.
     const literal = toHbsLiteral("18");
 
     expect(literal).not.toBe("'18'");
@@ -131,8 +131,8 @@ describe("toHbsLiteral", () => {
 
 describe("toHbsLiteral number detection edge cases", () => {
   it("keeps Infinity quoted, because Handlebars has no Infinity literal", () => {
-    // A bare `Infinity` lexes as a path, so `(eq x Infinity)` compares against
-    // an undefined field instead of the text the author typed.
+    // A bare `Infinity` lexes as a path. So `(eq x Infinity)` reads an
+    // undefined field, not the text that the author typed.
     expect(toHbsLiteral("Infinity")).toBe("'Infinity'");
   });
 
