@@ -13,9 +13,9 @@ import {
  * Find every zod version in the pnpm store.
  *
  * zod is not a dependency of this package, so a bare `import "zod"` does not
- * resolve. The versions that other packages pull in still sit in the pnpm
- * store, so the tests load them by path. The real-zod suites skip themselves
- * when the store holds no zod.
+ * resolve. The pnpm store still holds the zod versions that other packages
+ * install, so the tests load them by path. The real-zod suites skip when the
+ * store holds no zod.
  *
  * @returns The zod entry files, keyed by major version label.
  */

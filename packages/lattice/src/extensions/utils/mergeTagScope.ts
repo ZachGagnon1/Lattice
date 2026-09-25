@@ -236,7 +236,6 @@ function shadowFilter(scopes: LoopScope[]): LoopScope[] {
  * @param variableData - The root variable data sample.
  * @param context - The form values, that is `{ content: <page block> }`.
  * @param idx - The idx of the block in focus.
- * @param options - See {@link ScopeOptions}.
  * @returns The active scopes, innermost first, with unique prefixes.
  */
 export function getLoopScopes(

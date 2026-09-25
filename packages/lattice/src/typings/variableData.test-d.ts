@@ -86,7 +86,7 @@ type ArrayIsTerminal = Expect<
   Equal<VariablePath<{ products: { name: string }[] }>, "products">
 >;
 
-/** A tuple counts as an array, so it is terminal too. */
+/** A tuple is an array, so it is terminal too. */
 type TupleIsTerminal = Expect<
   Equal<VariablePath<{ pair: [string, number] }>, "pair">
 >;
@@ -109,7 +109,7 @@ type NullableObjectExpands = Expect<
 /** The loose default shape degrades to `string`, never to `never`. */
 type LooseIsString = Expect<Equal<VariablePath<Record<string, any>>, string>>;
 
-/** `never` would break the loose default. Prove it is not `never`. */
+/** A `never` result breaks the loose default. This test proves it is not `never`. */
 type LooseIsNotNever = Expect<
   Equal<
     [VariablePath<Record<string, any>>] extends [never] ? true : false,
@@ -163,7 +163,7 @@ type ArrayPaths = Expect<
   Equal<ArrayVariablePath<Nested>, "products" | "tags" | "pair">
 >;
 
-/** A nested array is found through a plain object. */
+/** The paths reach a nested array through a plain object. */
 type NestedArrayPaths = Expect<
   Equal<
     ArrayVariablePath<{ user: { orders: number[]; email: string } }>,
@@ -244,8 +244,9 @@ type ItemOfNonArray = Expect<Equal<LoopItem<Nested, "user.email">, never>>;
 /**
  * A real zod schema, built with the classic `zod` entry point.
  *
- * zod is a devDependency of this package, and it is used ONLY here. The
- * library itself never imports it. See `src/utils/variableSchema.ts` for why.
+ * zod is a devDependency of this package. The code uses it only in this file.
+ * The library itself never imports it. `src/utils/variableSchema.ts` gives
+ * the reason.
  *
  * The shape is realistic on purpose. It holds a nested object, an array of
  * objects, an optional field, and a field with a default.
@@ -274,8 +275,8 @@ type ContactOutput = z.infer<typeof contactSchema>;
  * A real `zod/mini` schema.
  *
  * `zod/mini` has no `_output` member, so it exercises the `_zod.output`
- * branch of {@link InferSchemaOutput}. The import is real, so no structural
- * fixture is needed for that branch.
+ * branch of {@link InferSchemaOutput}. The import is real, so the code needs
+ * no structural fixture for that branch.
  */
 const miniSchema = zmini.object({
   firstName: zmini.string(),
@@ -299,7 +300,7 @@ interface StandardLike<O> {
   };
 }
 
-/** The sample shape a consumer would describe with a schema. */
+/** The sample shape a consumer describes with a schema. */
 interface Contact {
   firstName: string;
   orders: { id: string }[];
@@ -333,10 +334,10 @@ type DataOfRealZodMini = Expect<
   Equal<VariableDataOf<typeof miniSchema>, MiniOutput>
 >;
 
-/** A plain object type passes straight through. */
+/** A plain object type resolves to itself. */
 type DataOfPlain = Expect<Equal<VariableDataOf<Contact>, Contact>>;
 
-/** The loose default passes straight through as well. */
+/** The loose default also resolves to itself. */
 type DataOfLoose = Expect<
   Equal<VariableDataOf<Record<string, any>>, Record<string, any>>
 >;

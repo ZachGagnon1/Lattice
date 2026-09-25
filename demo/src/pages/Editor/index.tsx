@@ -50,8 +50,8 @@ const LOGIC_HELPERS = {
   },
 };
 
-// Register the helpers once, at module scope. A call on every render would
-// re-register the same helpers and waste work.
+// Register the helpers once, at module scope. A call on each render registers
+// the same helpers again, and that wastes work.
 Handlebars.registerHelper(LOGIC_HELPERS);
 
 /**

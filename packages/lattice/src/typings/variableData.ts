@@ -3,13 +3,13 @@
  *
  * A consumer gives the editor a sample object, or a schema, that describes the
  * variables a template can read. These types turn that shape into the set of
- * dotted paths the editor accepts, so a typo is a compile error instead of an
+ * dotted paths that the editor accepts, so a typo is a compile error, not an
  * empty render.
  *
  * The rules match the run time picker in
  * `src/extensions/utils/mergeTagScope.ts`. See `isExpandable` there: only a
- * plain object expands into child rows, so an array is terminal. You loop an
- * array, you never index into it.
+ * plain object expands into child rows, so an array is terminal. A template
+ * loops over an array and never indexes into it.
  *
  * The model covers JSON shaped data, because merge tag samples are JSON. A
  * class instance such as `Date` walks into its method names. Do not put one in
@@ -19,9 +19,9 @@
 /**
  * The recursion budget, as a decrement table.
  *
- * `Prev[3]` is `2`, and `Prev[0]` is `never`. Each recursive step spends one
- * unit. The step at `never` stops the walk, so a self referential shape cannot
- * hang the compiler.
+ * `Prev[3]` is `2`, and `Prev[0]` is `never`. Each recursive step uses one
+ * unit. The step at `never` stops the walk, so the compiler cannot loop
+ * forever on a self referential shape.
  *
  * The budget counts the steps BELOW the root keys. A budget of 0 gives the
  * root keys only. The default budget of 5 gives paths of up to 6 segments.
@@ -67,9 +67,9 @@ export type VariablePath<T, D extends number = 5> = [D] extends [never]
 /**
  * Every dotted path into `T` that resolves to an array.
  *
- * These are the valid loop sources. The walk still descends through plain
- * objects, so a nested array such as `"user.orders"` appears, but it never
- * descends through an array itself.
+ * These paths are the valid loop sources. The walk descends through plain
+ * objects but not through an array, so a nested array such as `"user.orders"`
+ * appears.
  *
  * `ArrayVariablePath<Record<string, any>>` is `string`, for the same reason as
  * {@link VariablePath}.
@@ -94,8 +94,8 @@ export type ArrayVariablePath<T, D extends number = 5> = [D] extends [never]
 /**
  * The type at a dotted path in `T`.
  *
- * The walk strips `null` and `undefined` off each container before it reads the
- * next segment, so `"user.email"` resolves on `{ user?: { email: string } }`.
+ * The walk strips `null` and `undefined` from each container before it reads
+ * the next segment. So `"user.email"` resolves on `{ user?: { email: string } }`.
  * It keeps `undefined` on the final value, so an optional leaf stays optional.
  *
  * A path that does not exist resolves to `never`.
@@ -130,7 +130,7 @@ export type LoopItem<T, P extends string> =
  * The output type of a zod like schema, read structurally.
  *
  * The editor must not import zod, because a consumer can use the editor with no
- * zod installed. These member paths are read off the real declaration files:
+ * zod installed. These member paths come from the real declaration files:
  *
  * - `_output` — zod 3 `ZodType`, and zod 4 classic `ZodType`, which keeps
  *   `_output` as a deprecated alias of `_zod["output"]`.
@@ -154,7 +154,7 @@ export type InferSchemaOutput<S> = S extends { _output: infer O }
  * The variable data type, from either a plain sample object or a schema.
  *
  * A consumer writes `variableData={mySample}` or `variableData={mySchema}`.
- * This picks the schema output when `S` is a schema, and `S` itself otherwise.
+ * This gives the schema output when `S` is a schema, and `S` otherwise.
  *
  * @typeParam S - The value the consumer passes as `variableData`.
  */

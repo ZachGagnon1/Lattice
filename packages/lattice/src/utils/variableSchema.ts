@@ -5,9 +5,9 @@
  * ## Why there is no zod import here
  *
  * The library never imports zod — not as a dependency, not as a peer
- * dependency, and not as a type-only import. A type-only import still has to
- * resolve at build time, so a consumer without zod installed would fail to
- * build. This module duck-types the public zod surface instead:
+ * dependency, and not as a type-only import. A type-only import must still
+ * resolve at build time, so a consumer without zod installed fails to build.
+ * This module duck-types the public zod surface instead:
  *
  * - an object schema exposes `shape`, a record of child schemas;
  * - an array schema exposes `element`, the item schema;
@@ -85,13 +85,12 @@ const MAX_UNWRAP_HOPS = 16;
  */
 const UNWRAP_METHODS = ["unwrap", "removeDefault", "removeCatch"] as const;
 
-/** Marks an unwrap attempt that produced no inner schema. */
+/** A marker for an unwrap attempt that produced no inner schema. */
 const UNWRAP_FAILED = Symbol("unwrapFailed");
 
 /**
  * Test whether a value can carry properties.
  *
- * @param value - The value to test.
  * @returns True for a non-null object or a function.
  */
 function isObjectLike(value: unknown): value is Record<string, unknown> {
@@ -106,8 +105,6 @@ function isObjectLike(value: unknown): value is Record<string, unknown> {
  * A schema can define `shape` as a getter. A getter can throw, for example on
  * a lazy schema with a broken factory.
  *
- * @param target - The object to read from.
- * @param name - The property name.
  * @returns The property value, or `undefined` when the read fails.
  */
 function readProp(target: unknown, name: string): unknown {
@@ -122,7 +119,6 @@ function readProp(target: unknown, name: string): unknown {
 /**
  * Test whether a value is a usable `shape` record.
  *
- * @param value - The candidate shape.
  * @returns True for a non-null, non-array object.
  */
 function isShapeRecord(value: unknown): value is Record<string, unknown> {
@@ -132,7 +128,6 @@ function isShapeRecord(value: unknown): value is Record<string, unknown> {
 /**
  * Test whether a value is a plain data object.
  *
- * @param value - The value to test.
  * @returns True for a non-null, non-array object.
  */
 function isPlainObject(value: unknown): value is Record<string, any> {
@@ -140,8 +135,7 @@ function isPlainObject(value: unknown): value is Record<string, any> {
 }
 
 /**
- * True when the value looks like a zod schema rather than a plain sample
- * object.
+ * Return true when a value looks like a zod schema, not a plain sample object.
  *
  * The heuristic, in order:
  *
@@ -160,7 +154,6 @@ function isPlainObject(value: unknown): value is Record<string, any> {
  * is far less likely than a data object with a `shape` key, so the ambiguous
  * case resolves to "plain data".
  *
- * @param value - The value to classify.
  * @returns True when the value looks like a schema.
  */
 export function isSchemaLike(value: unknown): boolean {
@@ -193,7 +186,7 @@ function unwrapOnce(node: unknown): unknown {
       if (inner === node) continue;
       return inner;
     } catch {
-      // A wrapper that throws is treated as a leaf. Try the next name.
+      // Treat a wrapper that throws as a leaf. Try the next name.
       continue;
     }
   }
@@ -238,7 +231,7 @@ function generate(
   for (let hop = 0; hop < MAX_UNWRAP_HOPS; hop++) {
     if (!isObjectLike(current)) return leafValue(key);
 
-    // An object schema wins over everything else.
+    // An object schema has priority over other checks.
     const shape = readProp(current, "shape");
     if (isShapeRecord(shape)) {
       const result: Record<string, unknown> = {};
@@ -248,9 +241,8 @@ function generate(
       return result;
     }
 
-    // An array schema is checked before unwrap. zod 4 gives its array schema
-    // an `unwrap` method as well, so unwrap-first would turn an array into a
-    // single item.
+    // Check for an array schema before unwrap. zod 4 also gives an array schema
+    // an `unwrap` method, so an unwrap first turns an array into a single item.
     const element = readProp(current, "element");
     if (element !== undefined && element !== null) {
       const items: unknown[] = [];

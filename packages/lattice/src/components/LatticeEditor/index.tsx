@@ -12,7 +12,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { toVariableSample } from "@/utils/variableSchema";
 import { VariableDataOf } from "@/typings/variableData";
 
-/** Layout and panel switches for the editor chrome. */
+/** Layout and panel switches for the editor user interface. */
 export interface LatticeEditorConfig {
   showSourceCode?: boolean;
   mjmlReadOnly?: boolean;
@@ -24,13 +24,13 @@ export interface LatticeEditorConfig {
 /**
  * The props of {@link LatticeEditor}.
  *
- * `TVar` is the type of the value the consumer passes as `variableData`. It is
- * either a plain sample object type or a schema type. `VariableDataOf<TVar>`
- * resolves both of them to the data shape, so every prop that speaks in terms
- * of the DATA uses `VariableDataOf<TVar>` and never `TVar`.
+ * The consumer passes `variableData` with the type `TVar`. This type is a
+ * plain sample object type or a schema type. `VariableDataOf<TVar>`
+ * resolves both types to the data shape. So each data prop uses
+ * `VariableDataOf<TVar>`, never `TVar`.
  *
  * @typeParam TVar - The `variableData` value type. The default keeps every
- *   existing consumer source compatible, and widens a path to `string`.
+ *   existing consumer source compatible. It widens a path to `string`.
  */
 export interface LatticeEditorProps<TVar = Record<string, any>> {
   data: IEmailTemplate;
@@ -42,10 +42,10 @@ export interface LatticeEditorProps<TVar = Record<string, any>> {
   /**
    * The variable data a template can read.
    *
-   * Pass a plain sample object, or pass a zod schema. The editor normalises a
-   * schema into sample data at this boundary. A schema carries no values, so
-   * every generated leaf is a string placeholder. Supply `previewOverride` to
-   * put real values into the preview.
+   * Pass a plain sample object, or pass a zod schema. The editor converts a
+   * schema to sample data at this boundary. A schema has no values, so each
+   * leaf is a string placeholder. Pass `previewOverride` to add real values to
+   * the preview.
    */
   variableData?: TVar;
   /** Data merged over `variableData` in the preview. */
@@ -68,8 +68,6 @@ export interface LatticeEditorProps<TVar = Record<string, any>> {
  *
  * @typeParam TVar - The `variableData` value type. See
  *   {@link LatticeEditorProps}.
- * @param props - The editor props.
- * @returns The editor element.
  */
 export function LatticeEditor<TVar = Record<string, any>>(
   props: LatticeEditorProps<TVar>,
@@ -140,17 +138,16 @@ export function LatticeEditor<TVar = Record<string, any>>(
   /**
    * The resolved sample data.
    *
-   * `toVariableSample` returns a plain object unchanged, and it walks a schema
-   * into a FRESH object. The memo pins that new object identity across
-   * renders. `PreviewEmailProvider` builds `injectData` with
-   * `useMemo(..., [variableData, previewOverride])`, and its preview effect
-   * depends on `injectData`. A new identity on every render therefore rebuilds
+   * `toVariableSample` returns a plain object unchanged. It walks a schema into
+   * a new object. The memo fixes the object identity across renders.
+   * `PreviewEmailProvider` builds `injectData` with
+   * `useMemo(..., [variableData, previewOverride])`. Its preview effect depends
+   * on `injectData`. Without the memo, a new identity on every render rebuilds
    * the MJML preview on every keystroke.
    *
-   * The generic stops here. React context cannot be generic per consumer, so
-   * `PropsProvider` keeps a plain, non generic
-   * `variableData?: Record<string, any>`, which holds this RESOLVED sample.
-   * Do not try to thread `TVar` through the context.
+   * The generic stops here. React context cannot be generic per consumer. So
+   * `PropsProvider` keeps a plain `variableData?: Record<string, any>`. It
+   * holds this resolved sample. Do not pass `TVar` through the context.
    */
   const resolvedVariableData = useMemo(
     () => toVariableSample(variableData),
