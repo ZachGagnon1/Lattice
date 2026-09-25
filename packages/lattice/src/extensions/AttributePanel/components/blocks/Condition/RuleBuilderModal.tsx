@@ -29,7 +29,7 @@ export function RuleBuilderModal(props: Readonly<RuleBuilderModalProps>) {
         initialValues={{ rulesTree: initialData }}
         onSubmit={(values) => onSave(values.rulesTree)}
         render={({ handleSubmit }) => (
-          // The form tag is required to natively handle the submit event from DialogActions
+          // DialogActions requires a form element for native submit events.
           <form
             onSubmit={handleSubmit}
             style={{
@@ -40,7 +40,7 @@ export function RuleBuilderModal(props: Readonly<RuleBuilderModalProps>) {
           >
             <DialogContent dividers sx={{ p: 3, bgcolor: "grey.50" }}>
               <Box sx={{ minHeight: 300 }}>
-                {/* The Root Rule Group starts at nesting level 0 */}
+                {/* Nesting level 0 marks the root rule group */}
                 <FilterRuleGroup name="rulesTree" nestingLevel={0} index={0} />
               </Box>
             </DialogContent>

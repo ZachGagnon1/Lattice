@@ -30,7 +30,6 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
     `${name}.logicalOperator`,
   );
 
-  // Determine if the current comparison operator doesn't require a value
   const isValueHidden =
     comparisonInput.value === "IS_EMPTY" ||
     comparisonInput.value === "IS_NOT_EMPTY";
@@ -75,9 +74,9 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
         <MenuItem value="IS_NOT_EMPTY">Is Not Empty</MenuItem>
       </Select>
 
-      {/* Value Input (Conditionally Rendered) */}
+      {/* Value input */}
       {isValueHidden ? (
-        // Render an empty box with the same flexGrow to prevent the UI from collapsing or shifting
+        // An empty box keeps the layout stable.
         <Box sx={{ flexGrow: 2 }} />
       ) : (
         <TextField

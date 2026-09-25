@@ -26,9 +26,9 @@ export interface LatticeEditorProps {
   fontList?: { label: string; value: string }[];
   mergeTags?: Record<string, any>;
   height?: string | number;
-  /** Include the If Condition block in the Logic palette category. Defaults to false. */
+  /** Add the If Condition block to the Logic category. Default is false. */
   allowCondition?: boolean;
-  /** Include the For Loop block in the Logic palette category. Defaults to false. */
+  /** Add the For Loop block to the Logic category. Default is false. */
   allowForLoop?: boolean;
 }
 
@@ -57,7 +57,7 @@ export function LatticeEditor(props: LatticeEditorProps) {
   const activeComponents = useMemo(() => {
     let cats = components;
 
-    // Strip image blocks when no upload handler is provided
+    // Image blocks require an upload handler.
     if (!onUploadImage) {
       cats = cats.map((category) => ({
         ...category,
@@ -70,7 +70,6 @@ export function LatticeEditor(props: LatticeEditorProps) {
       })) as ExtensionProps["categories"];
     }
 
-    // Filter the Logic category based on allowCondition / allowForLoop
     cats = cats
       .map((category) => {
         if (category.label !== "Logic") return category;
@@ -84,7 +83,7 @@ export function LatticeEditor(props: LatticeEditorProps) {
         return { ...category, blocks };
       })
       .filter((category) => {
-        // Drop the Logic category entirely if both flags are off and it would be empty
+        // Remove an empty Logic category.
         if (category.label === "Logic" && category.blocks.length === 0)
           return false;
         return true;

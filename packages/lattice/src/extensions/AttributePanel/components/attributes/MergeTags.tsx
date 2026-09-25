@@ -18,7 +18,7 @@ export const MergeTags: React.FC<{
   onChange: (v: string) => void;
   value: string;
   isSelect?: boolean;
-  /** When true, array/object nodes are selectable and the raw path is returned (no {{}} wrapping) */
+  /** When true, an array or object node is selectable, and the output is the raw path with no `{{}}`. */
   isArraySelect?: boolean;
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
@@ -83,7 +83,7 @@ export const MergeTags: React.FC<{
       const isNonLeaf = !value || isObject(value) || isArray(value);
 
       if (props.isArraySelect) {
-        // Array select: allow picking any node (including arrays), return raw path
+        // Array select mode returns the path without {{}} wrapping.
         props.onChange(itemId);
         if (props.isSelect) {
           setAnchorEl(null);
@@ -91,12 +91,10 @@ export const MergeTags: React.FC<{
         return;
       }
 
-      // Default: ignore folder selections
       if (isNonLeaf) {
         return;
       }
 
-      // Leaf node: apply merge tag and close popover if in Select mode
       props.onChange(mergeTagGenerate(itemId));
       if (props.isSelect) {
         setAnchorEl(null);

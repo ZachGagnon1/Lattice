@@ -24,7 +24,7 @@ export class BlockManager {
   ): IBlock<T> | undefined {
     const block = this.blocksMap[type];
     if (block) return block as IBlock<any> as IBlock<T>;
-    // Backward compat: map legacy "advanced_*" type strings to their basic equivalents
+    // Legacy advanced_ type strings map to the basic block type.
     if (type.startsWith("advanced_")) {
       const basicType = type.replace("advanced_", "");
       return this.blocksMap[basicType] as IBlock<any> as IBlock<T>;

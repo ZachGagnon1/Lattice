@@ -30,7 +30,7 @@ export enum BasicType {
 }
 
 // Deprecated: AdvancedType is now an alias for BasicType.
-// All advanced block variants have been merged into their basic counterparts.
+// The advanced blocks are part of BasicType now.
 export const AdvancedType = BasicType;
 export type AdvancedType = BasicType;
 

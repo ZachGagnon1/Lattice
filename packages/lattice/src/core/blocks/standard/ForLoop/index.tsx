@@ -92,7 +92,6 @@ export const ForLoop = createBlock<IForLoop>({
       );
     }
 
-    // Production mode
     if (data.children.length === 0) return null;
 
     if (!loopOpen) {

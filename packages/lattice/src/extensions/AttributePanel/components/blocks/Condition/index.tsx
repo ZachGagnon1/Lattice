@@ -6,7 +6,6 @@ import { useFocusIdx } from "@";
 import { RuleBuilderModal } from "./RuleBuilderModal";
 import { IConditionGroupNode, isConditionGroup } from "./types";
 
-// Helper to recursively count total individual rules in the AST
 const countTotalRules = (node: IConditionGroupNode): number => {
   let count = 0;
   if (!node?.rules) return count;
@@ -32,14 +31,12 @@ export function Condition() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Guarantee we always have a valid root group to pass to the modal,
-  // even if the block was just dragged onto the canvas.
+  // A block that is new on the canvas has no rules tree yet, so give the modal a root group.
   const currentData: IConditionGroupNode = input.value || {
     logicalOperator: "AND",
     rules: [],
   };
 
-  // Calculate rule count for the summary UI
   const totalRules = useMemo(() => countTotalRules(currentData), [currentData]);
 
   return (

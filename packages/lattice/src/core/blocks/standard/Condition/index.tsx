@@ -174,7 +174,6 @@ export const Condition = createBlock<IConditionBlock>({
       );
     }
 
-    // Production mode
     if (data.children.length === 0) return null;
 
     if (!hasCondition) {

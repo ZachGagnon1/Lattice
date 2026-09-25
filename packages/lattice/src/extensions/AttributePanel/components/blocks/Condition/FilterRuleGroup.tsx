@@ -22,12 +22,10 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
   const rulesFieldName = `${name}.rules`;
   const logicalOperatorFieldName = `${name}.logicalOperator`;
 
-  // Bind to the group's logical operator (if it's a sub-group)
   const { input: logicalOperatorInput } = useField<LogicalOperator>(
     logicalOperatorFieldName,
   );
 
-  // Bind to the array of rules/groups
   const { input: rulesInput } = useField<
     Array<IConditionRule | IConditionGroupNode>
   >(rulesFieldName, { subscription: { value: true } });

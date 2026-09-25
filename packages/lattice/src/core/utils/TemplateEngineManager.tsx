@@ -1,8 +1,7 @@
 import React from "react";
 
-// TemplateEngineManager is kept as a no-op stub for API compatibility.
-// Advanced blocks (which used this) have been removed in favor of the
-// first-class Condition and ForLoop blocks.
+// This stub does nothing. It stays so that old imports still compile.
+// Condition and ForLoop replace the advanced blocks that used it.
 
 export class TemplateEngineManager {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
