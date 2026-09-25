@@ -1,16 +1,15 @@
 import React from "react";
 import { IBlockData } from "@/core/typings";
-import { BasicType, EMAIL_BLOCK_CLASS_NAME } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { createBlock } from "@/core/utils/createBlock";
 import { merge } from "lodash";
-import {
-  getChildIdx,
-  getNodeIdxClassName,
-  getNodeTypeClassName,
-  t,
-} from "@/core/utils";
+import { getChildIdx, t } from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
 import { compileCondition, IConditionGroup } from "@/core/utils/handlebars";
+import { BasicBlock } from "@/core/components/BasicBlock";
+import { Section } from "../Section";
+import { Column } from "../Column";
+import he from "he";
 
 export type IConditionBlock = IBlockData<
   {},
@@ -31,20 +30,11 @@ export const Condition = createBlock<IConditionBlock>({
         value: { rulesTree: { logicalOperator: "AND", rules: [] } },
       },
       attributes: {},
-      children: [],
+      children: [Section.create({ children: [Column.create()] })],
     };
     return merge(defaultData, payload);
   },
-  validParentType: [
-    BasicType.PAGE,
-    BasicType.WRAPPER,
-    BasicType.SECTION,
-    BasicType.COLUMN,
-    BasicType.GROUP,
-    BasicType.HERO,
-    BasicType.CONDITION,
-    BasicType.FOR_LOOP,
-  ],
+  validParentType: [BasicType.PAGE, BasicType.WRAPPER],
   render(params) {
     const { data, idx, mode } = params;
     const compiled = compileCondition(data.data.value.rulesTree);
@@ -61,32 +51,30 @@ export const Condition = createBlock<IConditionBlock>({
     ));
 
     if (mode === "testing") {
-      const blockClass = [
-        EMAIL_BLOCK_CLASS_NAME,
-        idx && getNodeIdxClassName(idx),
-        getNodeTypeClassName(BasicType.CONDITION),
-      ]
-        .filter(Boolean)
-        .join(" ");
-
       const conditionLabel = hasCondition
         ? compiled.label
         : "(no condition set)";
+      const label = `IF: ${conditionLabel}`;
+      const wrapperAttributes = {
+        ...data.attributes,
+        padding: "0px",
+        border: "1px solid #ff8c00",
+      };
 
-      if (data.children.length === 0) {
-        return (
-          <>
-            {`<mj-raw><div class="${blockClass}" style="border: 2px dashed #d9d9d9; padding: 20px; text-align: center; color: #999; background: #fafafa; cursor: pointer;"><div style="margin-bottom: 6px; font-size: 11px; color: #ff8c00; font-weight: 500; font-family: monospace;">IF: ${conditionLabel}</div><div>Drop a block here</div></div></mj-raw>`}
-          </>
-        );
-      }
+      const labelMarkup = `<mj-section padding="0px"><mj-column padding="0px"><mj-text padding="16px" font-size="11px" color="#ff8c00">${he.escape(label)}</mj-text></mj-column></mj-section>`;
+      const placeholderMarkup = `<mj-section padding="0px"><mj-column><mj-text padding="20px">Drop a Section block here</mj-text></mj-column></mj-section>`;
 
       return (
-        <>
-          {`<mj-raw><div class="${blockClass}" style="border-left: 3px solid #ff8c00; background: rgba(255,140,0,0.05); padding: 3px 8px; font-size: 11px; font-family: monospace; color: #ff8c00;">IF: ${conditionLabel}</div></mj-raw>`}
-          {renderedChildren}
-          {`<mj-raw><div style="border-left: 3px solid #ff8c00; background: rgba(255,140,0,0.05); padding: 3px 8px; font-size: 11px; font-family: monospace; color: #ff8c00;">/IF</div></mj-raw>`}
-        </>
+        <BasicBlock
+          params={{
+            ...params,
+            data: { ...data, attributes: wrapperAttributes },
+          }}
+          tag="mj-wrapper"
+        >
+          {labelMarkup}
+          {data.children.length ? renderedChildren : placeholderMarkup}
+        </BasicBlock>
       );
     }
 

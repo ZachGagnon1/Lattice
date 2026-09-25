@@ -1,20 +1,19 @@
 import React from "react";
 import { IBlockData } from "@/core/typings";
-import { BasicType, EMAIL_BLOCK_CLASS_NAME } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { createBlock } from "@/core/utils/createBlock";
 import { merge } from "lodash";
-import {
-  getChildIdx,
-  getNodeIdxClassName,
-  getNodeTypeClassName,
-  t,
-} from "@/core/utils";
+import { getChildIdx, t } from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
 import {
   compileLoopLabel,
   compileLoopOpen,
   LOOP_CLOSE,
 } from "@/core/utils/handlebars";
+import { BasicBlock } from "@/core/components/BasicBlock";
+import { Section } from "../Section";
+import { Column } from "../Column";
+import he from "he";
 
 export type IForLoop = IBlockData<
   {},
@@ -36,20 +35,11 @@ export const ForLoop = createBlock<IForLoop>({
         value: { dataSource: "", itemAs: "" },
       },
       attributes: {},
-      children: [],
+      children: [Section.create({ children: [Column.create()] })],
     };
     return merge(defaultData, payload);
   },
-  validParentType: [
-    BasicType.PAGE,
-    BasicType.WRAPPER,
-    BasicType.SECTION,
-    BasicType.COLUMN,
-    BasicType.GROUP,
-    BasicType.HERO,
-    BasicType.CONDITION,
-    BasicType.FOR_LOOP,
-  ],
+  validParentType: [BasicType.PAGE, BasicType.WRAPPER],
   render(params) {
     const { data, idx, mode } = params;
     const { dataSource, itemAs } = data.data.value;
@@ -69,30 +59,27 @@ export const ForLoop = createBlock<IForLoop>({
     ));
 
     if (mode === "testing") {
-      const blockClass = [
-        EMAIL_BLOCK_CLASS_NAME,
-        idx && getNodeIdxClassName(idx),
-        getNodeTypeClassName(BasicType.FOR_LOOP),
-      ]
-        .filter(Boolean)
-        .join(" ");
-
       const loopLabel = compileLoopLabel(loopConfig);
+      const wrapperAttributes = {
+        ...data.attributes,
+        padding: "0px",
+        border: "1px solid #1976d2",
+      };
 
-      if (data.children.length === 0) {
-        return (
-          <>
-            {`<mj-raw><div class="${blockClass}" style="border: 2px dashed #d9d9d9; padding: 20px; text-align: center; color: #999; background: #fafafa; cursor: pointer;"><div style="margin-bottom: 6px; font-size: 11px; color: #1976d2; font-weight: 500; font-family: monospace;">${loopLabel}</div><div>Drop a block here</div></div></mj-raw>`}
-          </>
-        );
-      }
+      const labelMarkup = `<mj-section padding="0px"><mj-column padding="0px"><mj-text padding="16px" font-size="11px" color="#1976d2">${he.escape(loopLabel)}</mj-text></mj-column></mj-section>`;
+      const placeholderMarkup = `<mj-section padding="0px"><mj-column><mj-text padding="20px">Drop a Section block here</mj-text></mj-column></mj-section>`;
 
       return (
-        <>
-          {`<mj-raw><div class="${blockClass}" style="border-left: 3px solid #1976d2; background: rgba(25,118,210,0.05); padding: 3px 8px; font-size: 11px; font-family: monospace; color: #1976d2;">${loopLabel}</div></mj-raw>`}
-          {renderedChildren}
-          {`<mj-raw><div style="border-left: 3px solid #1976d2; background: rgba(25,118,210,0.05); padding: 3px 8px; font-size: 11px; font-family: monospace; color: #1976d2;">/FOR EACH</div></mj-raw>`}
-        </>
+        <BasicBlock
+          params={{
+            ...params,
+            data: { ...data, attributes: wrapperAttributes },
+          }}
+          tag="mj-wrapper"
+        >
+          {labelMarkup}
+          {data.children.length ? renderedChildren : placeholderMarkup}
+        </BasicBlock>
       );
     }
 
