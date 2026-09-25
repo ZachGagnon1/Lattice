@@ -7,12 +7,18 @@ import { MergeTags } from "@/extensions/AttributePanel/components/attributes/Mer
 
 export function ForLoop() {
   const { focusIdx } = useFocusIdx();
-  const { input: sourceInput } = useField<string>(`${focusIdx}.data.value.dataSource`, {
-    subscription: { value: true },
-  });
-  const { input: itemAsInput } = useField<string>(`${focusIdx}.data.value.itemAs`, {
-    subscription: { value: true },
-  });
+  const { input: sourceInput } = useField<string>(
+    `${focusIdx}.data.value.dataSource`,
+    {
+      subscription: { value: true },
+    },
+  );
+  const { input: itemAsInput } = useField<string>(
+    `${focusIdx}.data.value.itemAs`,
+    {
+      subscription: { value: true },
+    },
+  );
 
   const hasSource = Boolean(sourceInput.value);
 
@@ -20,7 +26,11 @@ export function ForLoop() {
     <AttributesPanelWrapper>
       <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
         <Box>
-          <Typography variant="subtitle2" sx={{ fontWeight: "bold" }} gutterBottom>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: "bold" }}
+            gutterBottom
+          >
             For Loop
           </Typography>
           <Divider />
@@ -49,7 +59,11 @@ export function ForLoop() {
 
         <Stack spacing={2}>
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
               Data Source (array merge tag)
             </Typography>
             <MergeTags
@@ -61,7 +75,11 @@ export function ForLoop() {
           </Box>
 
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
               Item Alias (optional)
             </Typography>
             <TextField

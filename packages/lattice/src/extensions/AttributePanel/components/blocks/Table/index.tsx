@@ -13,7 +13,14 @@ import {
 } from "@/extensions";
 import { HtmlEditor } from "../../UI/HtmlEditor";
 import { CollapsableItem } from "@/extensions/components/Collapse/CollapsableItem";
-import { Box, IconButton, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
 import { useField } from "react-final-form";
 import { useFocusIdx } from "@";
@@ -23,12 +30,18 @@ export function Table() {
   const [visible, setVisible] = useState(false);
   const { focusIdx } = useFocusIdx();
 
-  const { input: sourceInput } = useField<string>(`${focusIdx}.data.value.rowLoop.source`, {
-    subscription: { value: true },
-  });
-  const { input: itemAsInput } = useField<string>(`${focusIdx}.data.value.rowLoop.itemAs`, {
-    subscription: { value: true },
-  });
+  const { input: sourceInput } = useField<string>(
+    `${focusIdx}.data.value.rowLoop.source`,
+    {
+      subscription: { value: true },
+    },
+  );
+  const { input: itemAsInput } = useField<string>(
+    `${focusIdx}.data.value.rowLoop.itemAs`,
+    {
+      subscription: { value: true },
+    },
+  );
 
   return (
     <AttributesPanelWrapper
@@ -76,10 +89,15 @@ export function Table() {
       <CollapsableItem title={t("Row Loop")}>
         <Stack spacing={2}>
           <Typography variant="caption" color="text.secondary">
-            Wrap table rows in a Handlebars each loop to repeat them over an array.
+            Wrap table rows in a Handlebars each loop to repeat them over an
+            array.
           </Typography>
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
               Data Source (array merge tag)
             </Typography>
             <MergeTags
@@ -90,7 +108,11 @@ export function Table() {
             />
           </Box>
           <Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: "block" }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
               Item Alias (optional)
             </Typography>
             <TextField

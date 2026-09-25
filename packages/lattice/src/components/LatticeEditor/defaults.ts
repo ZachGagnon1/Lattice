@@ -47,10 +47,7 @@ export const defaultCategories: ExtensionProps["categories"] = [
     label: "Logic",
     active: true,
     displayType: "grid",
-    blocks: [
-      { type: BasicType.CONDITION },
-      { type: BasicType.FOR_LOOP },
-    ],
+    blocks: [{ type: BasicType.CONDITION }, { type: BasicType.FOR_LOOP }],
   },
 ];
 

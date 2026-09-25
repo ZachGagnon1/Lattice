@@ -41,7 +41,12 @@ export const Column = createBlock<IColumn>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.SECTION, BasicType.GROUP, BasicType.CONDITION, BasicType.FOR_LOOP],
+  validParentType: [
+    BasicType.SECTION,
+    BasicType.GROUP,
+    BasicType.CONDITION,
+    BasicType.FOR_LOOP,
+  ],
 
   render(params) {
     return <BasicBlock params={params} tag="mj-column" />;

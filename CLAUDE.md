@@ -55,6 +55,7 @@ IBlockData<Attr, Data> = {
 ```
 
 Block types live in two namespaces:
+
 - `BasicType` — standard MJML blocks (page, section, column, text, image, button, etc.)
 - `AdvancedType` — enhanced blocks with extra features (advanced_text, advanced_image, etc.)
 
@@ -74,6 +75,7 @@ IEmailTemplate (JSON) → JsonToMjml → MJML string → mjml-browser → HTML
 The editor uses **React Final Form** to manage the email template form state (fields: `subject`, `subTitle`, `content`). The content field holds the root `IPage` block.
 
 Multiple React contexts are composed in `EmailEditorProvider`:
+
 - `PropsProvider` — editor config (fonts, merge tags, upload handler)
 - `RecordProvider` — undo/redo history
 - `HoverIdxProvider` / `FocusBlockLayoutProvider` — selection state
@@ -82,6 +84,7 @@ Multiple React contexts are composed in `EmailEditorProvider`:
 ### UI Extensions
 
 The `StandardLayout` composes pluggable extension panels:
+
 - `AttributePanel` — property editor for the selected block
 - `BlockLayer` — block tree navigator
 - `SourceCodePanel` — MJML/JSON editor (CodeMirror 6)
@@ -114,8 +117,8 @@ npm install handlebars handlebars-helpers
 ```
 
 ```js
-import Handlebars from 'handlebars';
-import helpers from 'handlebars-helpers';
+import Handlebars from "handlebars";
+import helpers from "handlebars-helpers";
 
 helpers({ handlebars: Handlebars }); // registers eq, ne, gt, lt, and, or, not, contains, etc.
 
@@ -126,17 +129,17 @@ const { html } = mjml(mjmlString);
 
 **Operator → helper mapping:**
 
-| Rule operator | Helper used |
-|---|---|
-| Equals | `eq` |
-| Not Equals | `ne` |
-| Greater Than | `gt` |
-| Less Than | `lt` |
-| Contains | `contains` |
-| Is Empty | `not` |
-| Is Not Empty | (truthy — no helper needed) |
-| AND group | `and` |
-| OR group | `or` |
+| Rule operator | Helper used                 |
+| ------------- | --------------------------- |
+| Equals        | `eq`                        |
+| Not Equals    | `ne`                        |
+| Greater Than  | `gt`                        |
+| Less Than     | `lt`                        |
+| Contains      | `contains`                  |
+| Is Empty      | `not`                       |
+| Is Not Empty  | (truthy — no helper needed) |
+| AND group     | `and`                       |
+| OR group      | `or`                        |
 
 ### Key Implementation Details
 

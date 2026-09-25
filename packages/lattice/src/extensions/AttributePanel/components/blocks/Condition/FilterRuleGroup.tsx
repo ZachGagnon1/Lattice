@@ -2,7 +2,12 @@ import React from "react";
 import { useField } from "react-final-form";
 import { Box, Button, MenuItem, Select, Stack } from "@mui/material";
 import { FilterRule } from "./FilterRule";
-import { IConditionGroupNode, IConditionRule, isConditionGroup, LogicalOperator } from "./types";
+import {
+  IConditionGroupNode,
+  IConditionRule,
+  isConditionGroup,
+  LogicalOperator,
+} from "./types";
 
 export interface FilterRuleGroupProps {
   name: string;

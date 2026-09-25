@@ -9,7 +9,7 @@ import {
   exportToMjml,
   IEmailTemplate,
   LatticeEditor,
-  unlayerToLattice
+  unlayerToLattice,
 } from "lattice";
 import { TEMPLATE_DATA } from "@demo/pages/Editor/Arturia - Newsletter"; // Import the converter we created! Adjust the path to wherever you saved it.
 // Import the converter we created! Adjust the path to wherever you saved it.

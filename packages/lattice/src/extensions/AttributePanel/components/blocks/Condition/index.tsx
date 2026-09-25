@@ -23,9 +23,12 @@ const countTotalRules = (node: IConditionGroupNode): number => {
 
 export function Condition() {
   const { focusIdx } = useFocusIdx();
-  const { input } = useField<IConditionGroupNode>(`${focusIdx}.data.value.rulesTree`, {
-    subscription: { value: true },
-  });
+  const { input } = useField<IConditionGroupNode>(
+    `${focusIdx}.data.value.rulesTree`,
+    {
+      subscription: { value: true },
+    },
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 

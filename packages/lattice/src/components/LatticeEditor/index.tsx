@@ -75,7 +75,8 @@ export function LatticeEditor(props: LatticeEditorProps) {
       .map((category) => {
         if (category.label !== "Logic") return category;
         const blocks = category.blocks.filter((block) => {
-          if (!block || typeof block !== "object" || !("type" in block)) return true;
+          if (!block || typeof block !== "object" || !("type" in block))
+            return true;
           if (block.type === BasicType.CONDITION) return allowCondition;
           if (block.type === BasicType.FOR_LOOP) return allowForLoop;
           return true;
@@ -84,7 +85,8 @@ export function LatticeEditor(props: LatticeEditorProps) {
       })
       .filter((category) => {
         // Drop the Logic category entirely if both flags are off and it would be empty
-        if (category.label === "Logic" && category.blocks.length === 0) return false;
+        if (category.label === "Logic" && category.blocks.length === 0)
+          return false;
         return true;
       }) as ExtensionProps["categories"];
 

@@ -30,7 +30,12 @@ export const Spacer: IBlock<ISpacer> = createBlock({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.COLUMN, BasicType.HERO, BasicType.CONDITION, BasicType.FOR_LOOP],
+  validParentType: [
+    BasicType.COLUMN,
+    BasicType.HERO,
+    BasicType.CONDITION,
+    BasicType.FOR_LOOP,
+  ],
   render(params) {
     return <BasicBlock params={params} tag="mj-spacer" />;
   },

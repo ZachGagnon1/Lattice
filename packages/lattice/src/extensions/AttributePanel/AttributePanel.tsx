@@ -39,7 +39,7 @@ export function AttributePanel() {
         <Box sx={{ position: "absolute" }}>
           <RichTextField idx={focusIdx} />
         </Box>
-<>
+        <>
           {iframeDocument?.body &&
             ReactDOM.createPortal(
               <style>

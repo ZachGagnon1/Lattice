@@ -3,7 +3,12 @@ import { IBlockData } from "@/core/typings";
 import { BasicType, EMAIL_BLOCK_CLASS_NAME } from "@/core/constants";
 import { createBlock } from "@/core/utils/createBlock";
 import { merge } from "lodash";
-import { getChildIdx, getNodeIdxClassName, getNodeTypeClassName, t } from "@/core/utils";
+import {
+  getChildIdx,
+  getNodeIdxClassName,
+  getNodeTypeClassName,
+  t,
+} from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
 
 export type IForLoop = IBlockData<
