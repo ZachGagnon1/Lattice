@@ -181,7 +181,7 @@ function collectChain(idx: string, includeSelf: boolean): string[] {
 function resolveSource(
   source: string,
   outerScopes: LoopScope[],
-  mergeTags: Record<string, any>,
+  variableData: Record<string, any>,
 ): unknown {
   const segments = source.split(".");
   const head = segments[0];
@@ -200,7 +200,7 @@ function resolveSource(
     return rest ? get(innermost.sample, rest) : innermost.sample;
   }
 
-  return get(mergeTags, source);
+  return get(variableData, source);
 }
 
 /**
@@ -233,19 +233,18 @@ function shadowFilter(scopes: LoopScope[]): LoopScope[] {
  * It resolves the sources outermost first so an inner source can name an
  * outer alias. It skips malformed block data. It never throws.
  *
- * @param mergeTags - The root merge tag sample data.
+ * @param variableData - The root variable data sample.
  * @param context - The form values, that is `{ content: <page block> }`.
  * @param idx - The idx of the block in focus.
- * @param options - See {@link ScopeOptions}.
  * @returns The active scopes, innermost first, with unique prefixes.
  */
 export function getLoopScopes(
-  mergeTags: Record<string, any>,
+  variableData: Record<string, any>,
   context: { content: any },
   idx: string,
   options?: ScopeOptions,
 ): LoopScope[] {
-  const safeTags = isPlainObject(mergeTags) ? mergeTags : {};
+  const safeTags = isPlainObject(variableData) ? variableData : {};
   if (!idx || !context) return [];
 
   const includeSelf = options?.includeSelfLoop === true;
@@ -283,19 +282,19 @@ export function getLoopScopes(
  * 2. one folder per outer loop, innermost first;
  * 3. the global merge tags, in declaration order.
  *
- * @param mergeTags - The root merge tag sample data.
+ * @param variableData - The root variable data sample.
  * @param context - The form values, that is `{ content: <page block> }`.
  * @param idx - The idx of the block in focus.
  * @param options - See {@link ScopeOptions}.
  * @returns The roots, the active scopes, and a flat map of resolvable names.
  */
 export function getScopedMergeTags(
-  mergeTags: Record<string, any>,
+  variableData: Record<string, any>,
   context: { content: any },
   idx: string,
   options?: ScopeOptions,
 ): ScopedMergeTags {
-  const safeTags = isPlainObject(mergeTags) ? mergeTags : {};
+  const safeTags = isPlainObject(variableData) ? variableData : {};
   const scopes = getLoopScopes(safeTags, context, idx, options);
 
   const roots: ScopedMergeTagEntry[] = [];

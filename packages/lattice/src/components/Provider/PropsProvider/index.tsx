@@ -56,13 +56,13 @@ export interface PropsProviderProps {
     value: string;
   }) => React.ReactNode;
   enabledMergeTagsBadge?: boolean;
-  mergeTags?: Record<string, any>;
-  previewInjectData?: Record<string, any>;
+  variableData?: Record<string, any>;
+  previewOverride?: Record<string, any>;
   onBeforePreview?: (
     html: string,
-    mergeTags:
-      | PropsProviderProps["previewInjectData"]
-      | PropsProviderProps["mergeTags"],
+    variableData:
+      | PropsProviderProps["previewOverride"]
+      | PropsProviderProps["variableData"],
   ) => string | Promise<string>;
   /**
    * The function runs on the MJML string before mjml() compiles it.

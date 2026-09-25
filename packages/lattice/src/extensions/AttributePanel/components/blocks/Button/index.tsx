@@ -32,7 +32,7 @@ export function Button() {
     parse: (v) => v,
   });
 
-  const { mergeTags } = useEditorProps();
+  const { variableData } = useEditorProps();
 
   // MUI Popover requires local state to anchor the popup to the button
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -56,7 +56,7 @@ export function Button() {
             label={
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <span>{t("Content")}</span>
-                {mergeTags && (
+                {variableData && (
                   <>
                     <IconButton
                       aria-describedby={id}

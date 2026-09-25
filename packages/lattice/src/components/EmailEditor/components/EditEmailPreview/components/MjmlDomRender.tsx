@@ -17,7 +17,7 @@ export function MjmlDomRender() {
   const [isTextFocus, setIsTextFocus] = useState(false);
 
   const { pageData: content } = useEditorContext();
-  const { dashed, mergeTags, enabledMergeTagsBadge } = useEditorProps();
+  const { dashed, variableData, enabledMergeTagsBadge } = useEditorProps();
   const [html, setHtml] = useState<string>("");
 
   const isTextFocusing =
@@ -85,7 +85,7 @@ export function MjmlDomRender() {
       idx: getPageIdx(),
       context: pageData,
       mode: "testing",
-      dataSource: cloneDeep(mergeTags),
+      dataSource: cloneDeep(variableData),
     });
 
     // Call mjml and wait for the Promise to resolve
@@ -102,7 +102,7 @@ export function MjmlDomRender() {
     return () => {
       isMounted = false;
     };
-  }, [mergeTags, pageData]);
+  }, [variableData, pageData]);
 
   return useMemo(() => {
     return (

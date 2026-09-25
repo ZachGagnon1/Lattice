@@ -37,7 +37,7 @@ export interface ImageUploaderProps {
 }
 
 export function ImageUploader(props: ImageUploaderProps) {
-  const { mergeTags } = useEditorProps();
+  const { variableData } = useEditorProps();
 
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState(false);
@@ -261,7 +261,7 @@ export function ImageUploader(props: ImageUploaderProps) {
           spacing={0}
           sx={{ width: "100%", alignItems: "flex-start", mt: 1 }}
         >
-          {mergeTags && (
+          {variableData && (
             <Box>
               {/* STYLED Merge Tags Trigger to match image_1.png */}
               <Button
@@ -312,8 +312,8 @@ export function ImageUploader(props: ImageUploaderProps) {
               helperText={errorMsg}
               sx={{
                 "& .MuiOutlinedInput-root": {
-                  borderTopLeftRadius: mergeTags ? 0 : undefined,
-                  borderBottomLeftRadius: mergeTags ? 0 : undefined,
+                  borderTopLeftRadius: variableData ? 0 : undefined,
+                  borderBottomLeftRadius: variableData ? 0 : undefined,
                 },
               }}
             />

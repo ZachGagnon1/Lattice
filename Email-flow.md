@@ -9,11 +9,11 @@ graph TB
     <br/> mode: 'production',
     <br/>data: pageData,
     <br/> context: pageData,
-    <br/>  dataSource: previewInjectData || mergeTags,
+    <br/>  dataSource: {...variableData, ...previewOverride},
     <br/> })
     ")
     C-->D("html = mjml-browser(mjmlString)")
-    D-->E("onBeforePreview(html, previewInjectData || mergeTags)")
+    D-->E("onBeforePreview(html, {...variableData, ...previewOverride})")
     E-->F("Final html")
 
     Condition-->|Server-side send email|G("

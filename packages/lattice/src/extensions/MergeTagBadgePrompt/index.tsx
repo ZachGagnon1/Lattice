@@ -26,7 +26,7 @@ const removeAllActiveBadge = () => {
 export function MergeTagBadgePrompt() {
   const { initialized } = useEditorContext();
   const popoverRef = useRef<HTMLDivElement | null>(null);
-  const { onChangeMergeTag, mergeTags } = useEditorProps();
+  const { onChangeMergeTag, variableData } = useEditorProps();
   const [text, setText] = useState("");
   const { setRangeByElement } = useSelectionRange();
 
@@ -84,7 +84,7 @@ export function MergeTagBadgePrompt() {
           focusMergeTag(target);
           return;
         }
-        setText(get(mergeTags, namePath, ""));
+        setText(get(variableData, namePath, ""));
         setTarget(target);
       } else {
         if (popoverRef.current?.contains(e.target as any)) return;
@@ -96,7 +96,7 @@ export function MergeTagBadgePrompt() {
     return () => {
       root.body.removeEventListener("click", onClick);
     };
-  }, [focusMergeTag, mergeTags, onChangeMergeTag, root]);
+  }, [focusMergeTag, variableData, onChangeMergeTag, root]);
 
   const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
     (ev) => {

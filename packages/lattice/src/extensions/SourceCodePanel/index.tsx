@@ -42,7 +42,7 @@ export function SourceCodePanel({
   const [dirtyMode, setDirtyMode] = useState<"json" | "mjml" | null>(null);
 
   const { pageData } = useEditorContext();
-  const { mergeTags } = useEditorProps();
+  const { variableData } = useEditorProps();
 
   const onChangeCodeText = useCallback(
     (value: string) => {
@@ -117,7 +117,7 @@ export function SourceCodePanel({
           data: focusBlock,
           context: pageData,
           mode: "production",
-          dataSource: cloneDeep(mergeTags),
+          dataSource: cloneDeep(variableData),
           beautify: true,
         }),
       );
@@ -126,11 +126,11 @@ export function SourceCodePanel({
     setDirtyMode(null);
     setCodeError(undefined);
     setMjmlError(undefined);
-  }, [focusBlock, focusIdx, pageData, mergeTags]);
+  }, [focusBlock, focusIdx, pageData, variableData]);
 
   useEffect(() => {
     onCancel();
-  }, [focusBlock, focusIdx, pageData, mergeTags, onCancel]);
+  }, [focusBlock, focusIdx, pageData, variableData, onCancel]);
 
   if (!focusBlock) return null;
 

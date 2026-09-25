@@ -108,35 +108,62 @@ The `StandardLayout` composes pluggable extension panels:
 
 **Valid children:** Section, Wrapper, Column, and all content blocks (Text, Image, Button, etc.) drop directly into a Condition block.
 
-**Value quotes:** The compiler does not always quote a value. `handlebars-helpers` compares with `===`, so `(eq age '18')` is false against numeric data. A canonical number goes out bare: `(gt age 18)`. A value that is not a canonical number stays quoted. This keeps a zip code such as `01234` and a price such as `1.50` as strings. The keywords `true`, `false`, `null`, and `undefined` also go out bare. `packages/lattice/src/core/utils/handlebars/literals.ts` holds this logic.
+**Value quotes:** The compiler does not always quote a value. The `eq` helper compares with `===`, so `(eq age '18')` is false against numeric data. A canonical number goes out bare: `(gt age 18)`. A value that is not a canonical number stays quoted. This keeps a zip code such as `01234` and a price such as `1.50` as strings. The keywords `true`, `false`, `null`, and `undefined` also go out bare. `packages/lattice/src/core/utils/handlebars/literals.ts` holds this logic.
 
 **Setting up Handlebars on the consumer side:**
 
-The library has no dependency on `handlebars`. Install the engine in your own app:
+The library has no dependency on `handlebars`. Install the engine in your own
+app:
 
 ```bash
-npm install handlebars handlebars-helpers
+npm install handlebars
 ```
 
-```js
-import Handlebars from "handlebars";
-import helpers from "handlebars-helpers";
+The compiler emits exactly seven helpers: `eq`, `gt`, `lt`, `not`, `contains`,
+`and`, and `or`. Register them by hand. Each one is a single line.
 
-helpers({ handlebars: Handlebars }); // registers eq, gt, lt, and, or, not, contains
+```ts
+// The helpers the Lattice compiler emits. Register them by hand on purpose:
+// handlebars-helpers is CommonJS and calls require() at module scope, which
+// throws "require is not defined" in a browser bundle.
+const LOGIC_HELPERS = {
+  eq: (a: unknown, b: unknown) => a === b,
+  gt: (a: any, b: any) => a > b,
+  lt: (a: any, b: any) => a < b,
+  not: (v: unknown) => !v,
+  contains: (haystack: unknown, needle: any) =>
+    Array.isArray(haystack) || typeof haystack === "string"
+      ? (haystack as any).includes(needle)
+      : false,
+  and: (...args: unknown[]) => {
+    args.pop();
+    return args.every(Boolean);
+  },
+  or: (...args: unknown[]) => {
+    args.pop();
+    return args.some(Boolean);
+  },
+};
+
+Handlebars.registerHelper(LOGIC_HELPERS);
 ```
 
-The compiler emits only helpers that `handlebars-helpers` provides. Note that
-`handlebars-helpers` has no `ne` helper, so Not Equals compiles to
-`(not (eq a b))`. That is the exact negation of Equals. Its `isnt` helper exists,
-but it compares with `!=` while `eq` compares with `===`, so the pair would not
-agree.
+Register the helpers once, at module scope. A call on every render repeats the
+same work.
 
-In a browser bundle, import only the comparison group. The package root also loads groups that require the Node `fs`, `path`, and `url` modules:
+`and` and `or` take any number of arguments. Handlebars appends an `options`
+object as the last argument, so each one removes that argument first.
 
-```js
-import comparisonHelpers from "handlebars-helpers/lib/comparison";
-Handlebars.registerHelper(comparisonHelpers);
-```
+**Do not use `handlebars-helpers` in a browser bundle.** The package is
+CommonJS, and its `lazy-cache` dependency calls a bare `require()` at module
+scope. A browser has no `require`, so the module throws
+`ReferenceError: require is not defined` when the page loads. A narrow import
+of `handlebars-helpers/lib/comparison` does not help, because that file still
+pulls in `lib/utils/utils.js`. The package works on a Node backend, where
+`require` exists.
+
+**There is no `ne` helper.** `Not Equals` compiles to `(not (eq a b))`, which
+is the exact negation of `Equals`. The two operators therefore always agree.
 
 **Operator → helper mapping:**
 
@@ -162,7 +189,7 @@ The editor gives you two places to run a template engine. Both are optional.
 
 This prop on `LatticeEditor` runs between `JsonToMjml()` and `mjml()`. Prefer it for `{{#each}}`. The engine expands the loop first, so MJML computes the column widths on the final markup. `onBeforePreview` runs after `mjml()`, so a loop over columns renders wrong there.
 
-The second argument is the preview data. It is `previewInjectData` when you set that prop, and `mergeTags` when you do not.
+The second argument is the preview data. It is the `variableData` prop. The `previewOverride` prop merges over it.
 
 ```tsx
 const handleBeforeMjmlCompile = useCallback(
@@ -179,22 +206,96 @@ const handleBeforeMjmlCompile = useCallback(
 
 <LatticeEditor
   data={template}
-  previewInjectData={PREVIEW_DATA}
+  previewOverride={PREVIEW_DATA}
   onBeforeMjmlCompile={handleBeforeMjmlCompile}
 />;
 ```
 
 Memoise the callback. `PreviewEmailProvider` lists `onBeforeMjmlCompile` in the dependency array of its preview effect. An inline arrow rebuilds the preview on every render.
 
-Give `mergeTags` real sample values. One object does both jobs.
+Give `variableData` real sample values. One object does both jobs.
 
 The picker reads the KEYS to build its tree, and it wraps a picked path with
 `mergeTagGenerate`. A value never has to be a `"{{firstName}}"` placeholder.
 Real values work, and they also let the preview render. Put two or three
 entries in each array, so a loop visibly repeats.
 
-Set `previewInjectData` only when the preview needs different data from the
-picker sample. The editor falls back to `mergeTags` when you omit it.
+Set `previewOverride` only when the preview needs different data from the
+picker sample. The editor merges it over `variableData`. It replaces only the
+keys that it names.
+
+### The `variableData` Prop
+
+`variableData` accepts a plain sample object, or a zod schema. `LatticeEditor`
+normalises the value at its boundary, so nothing inside the editor ever sees a
+schema.
+
+**The library has no zod dependency.** zod is not a dependency, not a peer
+dependency, and not a type-only import. A type-only import still has to
+resolve at build time, so a consumer without zod would fail to build. The
+editor duck-types the public zod surface instead:
+
+- an object schema exposes `shape`, a record of child schemas;
+- an array schema exposes `element`, the item schema;
+- a wrapper schema exposes `unwrap()`, `removeDefault()`, or `removeCatch()`.
+
+These members are public API in zod 3 and zod 4.
+`packages/lattice/src/utils/variableSchema.ts` holds this logic. zod is a
+devDependency of `packages/lattice`, and only the type tests use it.
+
+**A schema carries no values.** The editor therefore generates placeholder
+data from the schema, and every placeholder is ALWAYS A STRING. The public zod
+API does not report the primitive type of a leaf, so the editor cannot tell a
+number from a string. Each leaf becomes its own field name, such as
+`"firstName"`.
+
+The consequence: a numeric Condition previews against a string. `(gt age 18)`
+compares the string `"age"` with the number `18`. Pass `previewOverride` with
+real values for the fields that need them. The plain object form has this
+problem nowhere, because it already holds real values.
+
+**Three usage modes.**
+
+1. Pass nothing. The paths widen to `string`, and the picker is empty.
+
+   ```tsx
+   <LatticeEditor data={template} />
+   ```
+
+2. Pass a plain object. TypeScript infers the shape from the literal. You
+   write no type argument.
+
+   ```tsx
+   <LatticeEditor data={template} variableData={{ firstName: "John" }} />
+   ```
+
+3. Pass an explicit type argument. The paths are typed, but the picker is
+   empty at run time, because TypeScript erases a type.
+
+   ```tsx
+   <LatticeEditor<Contact> data={template} />
+   ```
+
+A schema works like mode 2. The type flows through `VariableDataOf`.
+
+```tsx
+<LatticeEditor
+  data={template}
+  variableData={contactSchema}
+  previewOverride={{ age: 34 }}
+/>
+```
+
+`previewOverride` is `Partial<VariableDataOf<TVar>>`, so it speaks in terms of
+the DATA in every mode. A key that the shape does not hold is a compile error.
+
+**The generic stops at the boundary.** React context cannot be generic per
+consumer, so `PropsProvider` keeps a plain
+`variableData?: Record<string, any>`, which holds the resolved sample.
+
+`packages/lattice/src/typings/variableData.ts` holds the path types:
+`VariablePath`, `ArrayVariablePath`, `VariableAt`, `LoopItem`,
+`InferSchemaOutput`, and `VariableDataOf`.
 
 **`exportToHtml(template, { transformMjml })` — the export seam.**
 

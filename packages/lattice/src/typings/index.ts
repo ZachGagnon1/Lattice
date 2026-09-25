@@ -1,6 +1,15 @@
 import { IPage } from "@";
 import { ReactNode } from "react";
 
+export type {
+  ArrayVariablePath,
+  InferSchemaOutput,
+  LoopItem,
+  VariableAt,
+  VariableDataOf,
+  VariablePath,
+} from "./variableData";
+
 export interface IEmailTemplate {
   content: IPage;
   subject: string;

@@ -30,19 +30,19 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
   const [mobileWidth, setMobileWidth] = useState(MOBILE_WIDTH);
 
   const { pageData } = useEditorContext();
-  const { onBeforePreview, onBeforeMjmlCompile, mergeTags, previewInjectData } =
-    useEditorProps();
+  const {
+    onBeforePreview,
+    onBeforeMjmlCompile,
+    variableData,
+    previewOverride,
+  } = useEditorProps();
   const [errMsg, setErrMsg] = useState<React.ReactNode>("");
   const [html, setHtml] = useState("");
   const lazyPageData = useLazyState(pageData, 0);
 
   const injectData = useMemo(() => {
-    if (previewInjectData) {
-      return previewInjectData;
-    }
-    if (mergeTags) return mergeTags;
-    return {};
-  }, [mergeTags, previewInjectData]);
+    return { ...variableData, ...previewOverride };
+  }, [variableData, previewOverride]);
 
   useEffect(() => {
     let isMounted = true;
