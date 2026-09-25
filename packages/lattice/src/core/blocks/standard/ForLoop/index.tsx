@@ -39,7 +39,7 @@ export const ForLoop = createBlock<IForLoop>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.PAGE, BasicType.WRAPPER],
+  validParentType: [BasicType.PAGE],
   render(params) {
     const { data, idx, mode } = params;
     const { dataSource, itemAs } = data.data.value;

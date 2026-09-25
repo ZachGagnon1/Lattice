@@ -34,7 +34,7 @@ export const Condition = createBlock<IConditionBlock>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.PAGE, BasicType.WRAPPER],
+  validParentType: [BasicType.PAGE],
   render(params) {
     const { data, idx, mode } = params;
     const compiled = compileCondition(data.data.value.rulesTree);

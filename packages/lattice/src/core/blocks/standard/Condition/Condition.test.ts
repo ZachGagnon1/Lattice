@@ -79,16 +79,13 @@ describe("Condition.create()", () => {
 });
 
 describe("Condition.validParentType", () => {
-  it("accepts a page or a wrapper as parent", () => {
+  it("accepts a page as parent", () => {
     expect(Condition.validParentType).toContain(BasicType.PAGE);
-    expect(Condition.validParentType).toContain(BasicType.WRAPPER);
+    expect(Condition.validParentType).not.toContain(BasicType.WRAPPER);
   });
 
   it("refuses every other parent type", () => {
-    expect(Condition.validParentType).toEqual([
-      BasicType.PAGE,
-      BasicType.WRAPPER,
-    ]);
+    expect(Condition.validParentType).toEqual([BasicType.PAGE]);
   });
 
   it("is admitted by a Section but not by a Column", () => {
