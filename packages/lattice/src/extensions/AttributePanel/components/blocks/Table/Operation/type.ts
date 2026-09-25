@@ -7,6 +7,13 @@ export interface IOperationData extends ITableCellData {
   right: number;
 }
 
+export interface IElementRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
 export interface IBoundaryRect {
   left: number;
   top: number;

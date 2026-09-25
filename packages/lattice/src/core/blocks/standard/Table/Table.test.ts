@@ -14,7 +14,7 @@ describe("Table.create", () => {
   it("replaces the default grid with a payload grid", () => {
     const block = Table.create({
       data: { value: { tableSource: [[{ content: "A" }, { content: "B" }]] } },
-    } as any);
+    });
     expect(block.data.value.tableSource).toEqual([
       [{ content: "A" }, { content: "B" }],
     ]);
