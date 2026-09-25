@@ -13,12 +13,7 @@ type Spacing = "extraTight" | "tight" | "loose" | "extraLoose" | "none";
 type Alignment = "leading" | "trailing" | "center" | "fill" | "baseline";
 
 type Distribution =
-  | "equalSpacing"
-  | "leading"
-  | "trailing"
-  | "center"
-  | "fill"
-  | "fillEvenly";
+  "equalSpacing" | "leading" | "trailing" | "center" | "fill" | "fillEvenly";
 
 export interface StackProps {
   /** Elements to display inside stack */
