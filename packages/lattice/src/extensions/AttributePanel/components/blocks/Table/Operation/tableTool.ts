@@ -22,10 +22,10 @@ class TableColumnTool {
   dragging = false;
   showBorderTool = false;
 
-  selectedLeftTopCell: Element | undefined = undefined;
-  selectedBottomRightCell: Element | undefined = undefined;
-  startDom: Element | undefined = undefined;
-  endDom: Element | undefined = undefined;
+  selectedLeftTopCell: HTMLElement | undefined = undefined;
+  selectedBottomRightCell: HTMLElement | undefined = undefined;
+  startDom: HTMLElement | undefined = undefined;
+  endDom: HTMLElement | undefined = undefined;
   hoveringTable: ParentNode | null = null;
   root: Element | undefined = undefined;
 
@@ -114,12 +114,9 @@ class TableColumnTool {
   };
 
   renderBorder = () => {
-    if (!this.borderTool.top) return;
+    if (!this.borderTool.top || !this.startDom || !this.endDom) return;
     this.visibleBorder(true);
-    const result = getBoundaryRectAndElement(
-      this.startDom as Element,
-      this.endDom as Element,
-    );
+    const result = getBoundaryRectAndElement(this.startDom, this.endDom);
     if (!result) return;
 
     const { left, top, width, height } = result.boundary;
@@ -129,7 +126,7 @@ class TableColumnTool {
     const borderStyles = {
       backgroundColor: "rgb(65, 68, 77)",
       position: "absolute",
-      zIndex: 9999,
+      zIndex: "9999",
       pointerEvents: "none",
     };
 
@@ -164,15 +161,14 @@ class TableColumnTool {
   };
 
   handleContextmenu = (event: MouseEvent) => {
-    if (this.showBorderTool) {
+    const leftTopCell = this.selectedLeftTopCell;
+    const bottomRightCell = this.selectedBottomRightCell;
+    if (this.showBorderTool && leftTopCell && bottomRightCell) {
       const selectedBoundary = getElementsBoundary(
-        this.selectedLeftTopCell as Element,
-        this.selectedBottomRightCell as Element,
+        leftTopCell,
+        bottomRightCell,
       );
-      const tdBoundaryIndex = getTdBoundaryIndex(
-        this.selectedLeftTopCell as Element,
-        this.selectedBottomRightCell as Element,
-      );
+      const tdBoundaryIndex = getTdBoundaryIndex(leftTopCell, bottomRightCell);
       if (
         tdBoundaryIndex &&
         checkEventInBoundingRect(selectedBoundary, event)
@@ -181,7 +177,7 @@ class TableColumnTool {
 
         if (!this.tableMenu) this.tableMenu = new TableOperationMenu();
 
-        this.tableMenu.setTableData(this.tableData as any);
+        this.tableMenu.setTableData(this.tableData);
         this.tableMenu.changeTableData = this.changeTableData;
         this.tableMenu.setTableIndexBoundary(tdBoundaryIndex);
         this.tableMenu.showMenu({ x: event.clientX, y: event.clientY });
@@ -213,8 +209,9 @@ class TableColumnTool {
           );
 
           this.dragging = true;
-          this.startDom = target;
-          this.endDom = target;
+          // A node from the iframe fails instanceof against this window's HTMLElement.
+          this.startDom = target as HTMLElement;
+          this.endDom = target as HTMLElement;
           this.hoveringTable = getCurrentTable(target);
           this.renderBorder();
           return;
@@ -242,7 +239,7 @@ class TableColumnTool {
         const hoveringTable = getCurrentTable(target);
         if (this.endDom === target || this.hoveringTable !== hoveringTable)
           return;
-        this.endDom = target;
+        this.endDom = target as HTMLElement;
         this.renderBorder();
         return;
       }

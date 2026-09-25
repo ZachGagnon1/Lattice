@@ -10,7 +10,8 @@ import {
 } from "@mui/material";
 import { getIframeDocument } from "@";
 import { IBoundingPosition, IOperationData } from "./type";
-import MENU_CONFIG from "./tableMenuConfig";
+import { ITableCellData } from "@/core/blocks";
+import MENU_CONFIG, { newCell } from "./tableMenuConfig";
 import { getCorrectTableIndexBoundary, getMaxTdCount } from "./util";
 import { CellBackgroundSelector } from "./tableCellBgSelector";
 import { IframeCacheProvider } from "@/components/Provider/IframeCacheProvider";
@@ -19,7 +20,6 @@ const MENU_HEIGHT = 305;
 const MENU_WIDTH = 250;
 
 export default class TableOperationMenu {
-  menuItems = MENU_CONFIG;
   domNode: HTMLDivElement | null = null;
   root: Root | null = null;
   visible = false;
@@ -74,15 +74,16 @@ export default class TableOperationMenu {
   }
 
   addRow(insertIndex: number, colCount: number) {
-    const newRow = Array.from({ length: colCount }).map(
-      () => ({ content: "-" }) as any,
-    );
+    const newRow = Array.from({ length: colCount }, newCell);
     this.tableData.splice(insertIndex, 0, newRow);
     this.changeTableData?.(this.tableData);
   }
 
-  setTableData(tableData: IOperationData[][]) {
-    this.tableData = tableData || [];
+  setTableData(tableData: ITableCellData[][]) {
+    // setTableIndexBoundary fills in the real positions.
+    this.tableData = tableData.map((row) =>
+      row.map((cell) => ({ ...cell, top: 0, bottom: 0, left: 0, right: 0 })),
+    );
     this.maxTdCount = getMaxTdCount(this.tableData);
   }
 
@@ -116,22 +117,13 @@ export default class TableOperationMenu {
 
   renderReact() {
     if (!this.root) return;
+    const { setCellBg, ...operations } = MENU_CONFIG;
 
     this.root.render(
       <IframeCacheProvider>
         <Paper elevation={3} sx={{ width: MENU_WIDTH, overflow: "visible" }}>
           <MenuList dense sx={{ py: 1 }}>
-            {Object.entries(this.menuItems).map(([key, config]) => {
-              if (key === "setCellBg") {
-                return (
-                  <CellBackgroundSelector
-                    key={key}
-                    bgColorHandler={config.handler.bind(this)}
-                    rootDom={getIframeDocument()?.body}
-                  />
-                );
-              }
-
+            {Object.entries(operations).map(([key, config]) => {
               const isDividing = ["insertRowDown", "deleteRow"].includes(key);
 
               return (
@@ -139,7 +131,7 @@ export default class TableOperationMenu {
                   <MenuItem
                     onClick={(e) => {
                       e.stopPropagation();
-                      config.handler.bind(this)();
+                      config.handler.call(this);
                       this.hide();
                     }}
                     sx={{ py: 1 }}
@@ -156,6 +148,10 @@ export default class TableOperationMenu {
                 </React.Fragment>
               );
             })}
+            <CellBackgroundSelector
+              bgColorHandler={(color) => setCellBg.handler.call(this, color)}
+              rootDom={getIframeDocument()?.body}
+            />
           </MenuList>
         </Paper>
       </IframeCacheProvider>,

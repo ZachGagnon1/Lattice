@@ -1,25 +1,33 @@
 import { DATA_CONTENT_EDITABLE_IDX } from "@";
 import { ITableCellData } from "@/core/blocks";
-import { IBoundaryRect, IBoundingPosition, IOperationData } from "./type";
+import {
+  IBoundaryRect,
+  IBoundingPosition,
+  IElementRect,
+  IOperationData,
+} from "./type";
 
-const getEditorElementClientRect = (target: any) => {
+const getEditorElementClientRect = (target: HTMLElement): IElementRect => {
   let left = target.offsetLeft;
   let top = target.offsetTop;
   const width = target.clientWidth;
   const height = target.clientHeight;
-  let parentNode = target.offsetParent;
+  let parentNode = target.offsetParent as HTMLElement | null;
   while (parentNode && parentNode.offsetParent) {
     if (parentNode.classList.contains("shadow-container")) {
       return { left, top, height, width };
     }
     left += parentNode.offsetLeft;
     top += parentNode.offsetTop;
-    parentNode = parentNode.offsetParent;
+    parentNode = parentNode.offsetParent as HTMLElement | null;
   }
   return { left, top, height, width };
 };
 
-const getBoundaryFromRects = (startRect: any, endRect: any) => {
+const getBoundaryFromRects = (
+  startRect: IElementRect,
+  endRect: IElementRect,
+): IBoundaryRect => {
   const left = Math.min(
     startRect.left,
     endRect.left,
@@ -56,7 +64,10 @@ const getBoundaryFromRects = (startRect: any, endRect: any) => {
 
 const ERROR_LIMIT = 2;
 
-const getCorrectBoundary = (el: Element, currentBoundary: IBoundaryRect) => {
+const getCorrectBoundary = (
+  el: HTMLElement,
+  currentBoundary: IBoundaryRect,
+) => {
   const tableEl = el.parentElement?.parentElement?.parentElement;
   if (!tableEl) return null;
 
@@ -66,7 +77,7 @@ const getCorrectBoundary = (el: Element, currentBoundary: IBoundaryRect) => {
   let bottomRightRect = leftTopRect;
 
   const tableCells = tableEl.querySelectorAll("td");
-  const tableCellRects: any[] = [];
+  const tableCellRects: IElementRect[] = [];
   tableCells.forEach((tableCell) => {
     const { left, top, height, width } = getEditorElementClientRect(tableCell);
     tableCellRects.push({ left, top, height, width });
@@ -127,19 +138,21 @@ const getCorrectBoundary = (el: Element, currentBoundary: IBoundaryRect) => {
   return { leftTopCell, bottomRightCell, boundary: currentBoundary };
 };
 
-export const getBoundaryRectAndElement = (el1: Element, el2: Element) => {
+export const getBoundaryRectAndElement = (
+  el1: HTMLElement,
+  el2: HTMLElement,
+) => {
   const rect1 = getEditorElementClientRect(el1);
   const rect2 = getEditorElementClientRect(el2);
   const boundary = getBoundaryFromRects(rect1, rect2);
   return getCorrectBoundary(el1, boundary);
 };
 
-export function setStyle(domNode: any, rules: any) {
-  if (typeof rules === "object") {
-    for (const prop in rules) {
-      domNode.style[prop] = rules[prop];
-    }
-  }
+export function setStyle(
+  domNode: HTMLElement,
+  rules: Partial<CSSStyleDeclaration>,
+) {
+  Object.assign(domNode.style, rules);
 }
 
 export const getCurrentTable = (target: Element) => {
