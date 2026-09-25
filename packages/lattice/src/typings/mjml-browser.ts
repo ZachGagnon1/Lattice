@@ -10,7 +10,12 @@ declare module "mjml-browser" {
     // Change the return type to a Promise
     json: MjmlBlockItem;
     html: string;
-    errors: string[];
+    errors: Array<{
+      line: number;
+      message: string;
+      tagName: string;
+      formattedMessage: string;
+    }>;
   }>;
   export default transform;
 }

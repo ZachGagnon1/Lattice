@@ -70,16 +70,13 @@ describe("ForLoop.create()", () => {
 });
 
 describe("ForLoop.validParentType", () => {
-  it("accepts a page or a wrapper as parent", () => {
+  it("accepts a page as parent", () => {
     expect(ForLoop.validParentType).toContain(BasicType.PAGE);
-    expect(ForLoop.validParentType).toContain(BasicType.WRAPPER);
+    expect(ForLoop.validParentType).not.toContain(BasicType.WRAPPER);
   });
 
   it("refuses every other parent type", () => {
-    expect(ForLoop.validParentType).toEqual([
-      BasicType.PAGE,
-      BasicType.WRAPPER,
-    ]);
+    expect(ForLoop.validParentType).toEqual([BasicType.PAGE]);
   });
 
   it("is admitted by a Section but not by a Column", () => {

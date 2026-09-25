@@ -106,7 +106,9 @@ The `StandardLayout` composes pluggable extension panels:
    ```
 4. In **editor/testing mode** it renders a visible orange-bordered region with a human-readable label (`firstName equals "John" AND age > 18`). The author sees which condition applies.
 
-**Valid children:** Section, Wrapper, Column, and all content blocks (Text, Image, Button, etc.) drop directly into a Condition block.
+**Valid children:** A Condition block holds Section blocks only. A new Condition block starts with one Section that holds one Column. Add more Columns to that Section, or add more Sections, for example a two-column Section above a one-column Section.
+
+**Valid parent:** A Condition block goes only at page level. In the editor it renders an `mj-wrapper`, and MJML does not allow an `mj-wrapper` inside an `mj-wrapper`. The For Loop block follows the same rules. `logicBlocks.mjml.test.ts` compiles both blocks with real MJML and fails on an invalid parent.
 
 **Value quotes:** The compiler does not always quote a value. The `eq` helper compares with `===`, so `(eq age '18')` is false against numeric data. A canonical number goes out bare: `(gt age 18)`. A value that is not a canonical number stays quoted. This keeps a zip code such as `01234` and a price such as `1.50` as strings. The keywords `true`, `false`, `null`, and `undefined` also go out bare. `packages/lattice/src/core/utils/handlebars/literals.ts` holds this logic.
 

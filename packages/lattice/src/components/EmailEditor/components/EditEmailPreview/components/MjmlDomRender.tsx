@@ -10,6 +10,7 @@ import { HtmlStringToReactNodes } from "@/utils/HtmlStringToReactNodes";
 import { createPortal } from "react-dom";
 
 let count = 0;
+let reportedMjmlErrors = "";
 
 export function MjmlDomRender() {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -91,6 +92,16 @@ export function MjmlDomRender() {
     // Call mjml and wait for the Promise to resolve
     mjml(mjmlString)
       .then((result) => {
+        // MJML still renders on a soft error, so without this check an invalid
+        // block tree gives no message.
+        const messages = (result.errors ?? []).map(
+          (error) => error.formattedMessage,
+        );
+        const report = messages.join("\n");
+        if (report && report !== reportedMjmlErrors) {
+          console.warn("MJML validation errors:", messages);
+        }
+        reportedMjmlErrors = report;
         if (isMounted) {
           setHtml(result.html);
         }
