@@ -24,7 +24,8 @@ const withValue = (value: any) => ({
 
 const empty = () => ({ ...Condition.create(), children: [] });
 
-// The circular import leaves the block map empty, so register the blocks we render.
+// The circular import leaves the block map empty, so the test registers
+// the blocks that it renders.
 beforeAll(() => {
   BlockManager.registerBlocks({
     [Condition.type]: Condition,
