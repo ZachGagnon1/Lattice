@@ -1,6 +1,7 @@
 import { BasicType, BlockManager, IBlockData, IPage } from "@";
 import { identity, isString, pickBy } from "lodash";
 import { parseXMLtoBlock } from "./parseXMLtoBlock";
+import { htmlToTableSource } from "@/core/blocks/standard/Table/tableSource";
 
 export async function MjmlToJson(data: MjmlBlockItem | string): Promise<IPage> {
   if (isString(data)) return await parseXMLtoBlock(data);
@@ -90,7 +91,11 @@ export async function MjmlToJson(data: MjmlBlockItem | string): Promise<IPage> {
           children: [],
         };
 
-        if (item.content) {
+        if (block.type === BasicType.TABLE) {
+          payload.data.value.tableSource = htmlToTableSource(
+            item.content ?? "",
+          );
+        } else if (item.content) {
           payload.data.value.content = item.content;
         }
 

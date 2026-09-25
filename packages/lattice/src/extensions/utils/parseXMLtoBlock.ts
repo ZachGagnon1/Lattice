@@ -1,5 +1,6 @@
 import mjml from "mjml-browser";
 import { BasicType, BlockManager, BlockType, IBlockData, MjmlToJson } from "@";
+import { htmlToTableSource } from "@/core/blocks/standard/Table/tableSource";
 
 const domParser = new DOMParser();
 
@@ -40,15 +41,23 @@ export async function parseXMLtoBlock(text: string) {
           content: node.textContent?.trim(),
         },
       },
-      children: [...node.children]
-        .filter((item) => item instanceof Element)
-        .map(transform as any),
+      // Table rows are cells of the block, not child blocks.
+      children:
+        type === BasicType.TABLE
+          ? []
+          : [...node.children]
+              .filter((item) => item instanceof Element)
+              .map(transform as any),
     };
 
     switch (type) {
       case BasicType.TEXT:
         block.data.value.content = node.innerHTML;
         block.children = [];
+        break;
+      case BasicType.TABLE:
+        block.data.value = { tableSource: htmlToTableSource(node.innerHTML) };
+        break;
     }
 
     return block;
