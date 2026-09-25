@@ -89,7 +89,9 @@ export function compileLoopLabel(cfg: ILoopConfig | undefined): string {
  * @param cfg - The loop configuration, or `undefined`.
  * @returns The issues, in report order. The `path` is always `""`.
  */
-export function compileLoopIssues(cfg: ILoopConfig | undefined): ConditionIssue[] {
+export function compileLoopIssues(
+  cfg: ILoopConfig | undefined,
+): ConditionIssue[] {
   const issues: ConditionIssue[] = [];
 
   if (normalizeFieldPath(cfg?.source ?? "") === "") {

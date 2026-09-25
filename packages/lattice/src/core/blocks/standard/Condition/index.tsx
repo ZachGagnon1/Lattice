@@ -69,7 +69,9 @@ export const Condition = createBlock<IConditionBlock>({
         .filter(Boolean)
         .join(" ");
 
-      const conditionLabel = hasCondition ? compiled.label : "(no condition set)";
+      const conditionLabel = hasCondition
+        ? compiled.label
+        : "(no condition set)";
 
       if (data.children.length === 0) {
         return (

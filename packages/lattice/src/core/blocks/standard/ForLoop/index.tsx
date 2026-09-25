@@ -10,7 +10,11 @@ import {
   t,
 } from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
-import { compileLoopLabel, compileLoopOpen, LOOP_CLOSE } from "@/core/utils/handlebars";
+import {
+  compileLoopLabel,
+  compileLoopOpen,
+  LOOP_CLOSE,
+} from "@/core/utils/handlebars";
 
 export type IForLoop = IBlockData<
   {},

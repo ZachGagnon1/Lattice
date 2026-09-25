@@ -72,7 +72,9 @@ describe("compileCondition single rule operators", () => {
   });
 
   it("compiles IS_EMPTY as a not subexpression", () => {
-    const result = compileCondition(group("AND", [rule("nickname", "IS_EMPTY")]));
+    const result = compileCondition(
+      group("AND", [rule("nickname", "IS_EMPTY")]),
+    );
 
     expect(result.expression).toBe("(not nickname)");
     expect(result.label).toBe("nickname is empty");
@@ -90,7 +92,9 @@ describe("compileCondition single rule operators", () => {
   });
 
   it("keeps IS_EMPTY valid when the value is empty", () => {
-    const result = compileCondition(group("AND", [rule("nickname", "IS_EMPTY", "")]));
+    const result = compileCondition(
+      group("AND", [rule("nickname", "IS_EMPTY", "")]),
+    );
 
     expect(result.expression).toBe("(not nickname)");
     expect(result.issues).toEqual([]);
@@ -165,7 +169,10 @@ describe("compileCondition grouping", () => {
     const result = compileCondition(
       group("AND", [
         rule("country", "EQUALS", "US"),
-        group("OR", [rule("", "EQUALS", "x"), rule("age", "GREATER_THAN", "18")]),
+        group("OR", [
+          rule("", "EQUALS", "x"),
+          rule("age", "GREATER_THAN", "18"),
+        ]),
       ]),
     );
 
@@ -203,7 +210,10 @@ describe("compileCondition ruleCount", () => {
 describe("compileCondition invalid rules", () => {
   it("reports MISSING_FIELD and excludes the rule", () => {
     const result = compileCondition(
-      group("AND", [rule("", "EQUALS", "John"), rule("age", "GREATER_THAN", "18")]),
+      group("AND", [
+        rule("", "EQUALS", "John"),
+        rule("age", "GREATER_THAN", "18"),
+      ]),
     );
 
     expect(result.expression).toBe("(gt age 18)");
@@ -214,7 +224,10 @@ describe("compileCondition invalid rules", () => {
 
   it("reports MISSING_OPERATOR and excludes the rule", () => {
     const result = compileCondition(
-      group("AND", [rule("firstName", "", "John"), rule("age", "GREATER_THAN", "18")]),
+      group("AND", [
+        rule("firstName", "", "John"),
+        rule("age", "GREATER_THAN", "18"),
+      ]),
     );
 
     expect(result.expression).toBe("(gt age 18)");
@@ -241,16 +254,22 @@ describe("compileCondition invalid rules", () => {
     // The old compiler had a `default:` branch that returned the bare field
     // id, so a malformed operator became a silent `{{#if firstName}}`.
     const result = compileCondition(
-      group("AND", [rule("firstName", "BETWEEN" as ComparisonOperator, "John")]),
+      group("AND", [
+        rule("firstName", "BETWEEN" as ComparisonOperator, "John"),
+      ]),
     );
 
     expect(result.expression).toBe("");
     expect(result.expression).not.toContain("firstName");
-    expect(result.issues.map((issue) => issue.code)).toContain("UNKNOWN_OPERATOR");
+    expect(result.issues.map((issue) => issue.code)).toContain(
+      "UNKNOWN_OPERATOR",
+    );
   });
 
   it("excludes GREATER_THAN when the value is empty", () => {
-    const result = compileCondition(group("AND", [rule("age", "GREATER_THAN", "")]));
+    const result = compileCondition(
+      group("AND", [rule("age", "GREATER_THAN", "")]),
+    );
 
     expect(result.expression).toBe("");
     expect(result.expression).not.toContain("gt");
@@ -258,7 +277,9 @@ describe("compileCondition invalid rules", () => {
   });
 
   it("excludes a rule whose value is only whitespace", () => {
-    const result = compileCondition(group("AND", [rule("age", "GREATER_THAN", "   ")]));
+    const result = compileCondition(
+      group("AND", [rule("age", "GREATER_THAN", "   ")]),
+    );
 
     expect(result.expression).toBe("");
     expect(result.issues[0].code).toBe("MISSING_VALUE");
@@ -306,7 +327,9 @@ describe("compileCondition robustness", () => {
   });
 
   it("handles a root with no rules array", () => {
-    const result = compileCondition({ logicalOperator: "AND" } as IConditionGroup);
+    const result = compileCondition({
+      logicalOperator: "AND",
+    } as IConditionGroup);
 
     expect(result.expression).toBe("");
     expect(result.issues[0].code).toBe("EMPTY_GROUP");

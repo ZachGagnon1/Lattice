@@ -51,9 +51,9 @@ describe("compileLoopOpen", () => {
   });
 
   it("bracket quotes a hyphenated source segment", () => {
-    expect(compileLoopOpen({ source: "order.line-items", itemAs: "item" })).toBe(
-      "{{#each order.[line-items] as |item|}}",
-    );
+    expect(
+      compileLoopOpen({ source: "order.line-items", itemAs: "item" }),
+    ).toBe("{{#each order.[line-items] as |item|}}");
   });
 });
 
@@ -124,7 +124,11 @@ describe("wrapTableRowsInEach", () => {
 
   it("wraps every row when headerRows is zero", () => {
     expect(
-      wrapTableRowsInEach(rows, { source: "items", itemAs: "item", headerRows: 0 }),
+      wrapTableRowsInEach(rows, {
+        source: "items",
+        itemAs: "item",
+        headerRows: 0,
+      }),
     ).toBe(`{{#each items as |item|}}${rows}${LOOP_CLOSE}`);
   });
 
@@ -136,7 +140,11 @@ describe("wrapTableRowsInEach", () => {
 
   it("keeps the first row outside the loop when headerRows is one", () => {
     expect(
-      wrapTableRowsInEach(rows, { source: "items", itemAs: "item", headerRows: 1 }),
+      wrapTableRowsInEach(rows, {
+        source: "items",
+        itemAs: "item",
+        headerRows: 1,
+      }),
     ).toBe(
       "<tr><td>A</td></tr>" +
         "{{#each items as |item|}}" +
@@ -170,25 +178,40 @@ describe("wrapTableRowsInEach", () => {
 
   it("returns the content unchanged when headerRows equals the row count", () => {
     expect(
-      wrapTableRowsInEach(rows, { source: "items", itemAs: "item", headerRows: 3 }),
+      wrapTableRowsInEach(rows, {
+        source: "items",
+        itemAs: "item",
+        headerRows: 3,
+      }),
     ).toBe(rows);
   });
 
   it("returns the content unchanged when headerRows is larger than the row count", () => {
     expect(
-      wrapTableRowsInEach(rows, { source: "items", itemAs: "item", headerRows: 9 }),
+      wrapTableRowsInEach(rows, {
+        source: "items",
+        itemAs: "item",
+        headerRows: 9,
+      }),
     ).toBe(rows);
   });
 
   it("returns the content unchanged when there are no rows", () => {
     expect(
-      wrapTableRowsInEach("<p>no rows here</p>", { source: "items", itemAs: "item" }),
+      wrapTableRowsInEach("<p>no rows here</p>", {
+        source: "items",
+        itemAs: "item",
+      }),
     ).toBe("<p>no rows here</p>");
   });
 
   it("treats a negative headerRows as zero", () => {
     expect(
-      wrapTableRowsInEach(rows, { source: "items", itemAs: "item", headerRows: -2 }),
+      wrapTableRowsInEach(rows, {
+        source: "items",
+        itemAs: "item",
+        headerRows: -2,
+      }),
     ).toBe(`{{#each items as |item|}}${rows}${LOOP_CLOSE}`);
   });
 
@@ -196,7 +219,11 @@ describe("wrapTableRowsInEach", () => {
     const upper = "<TR><TD>A</TD></TR><TR><TD>B</TD></TR>";
 
     expect(
-      wrapTableRowsInEach(upper, { source: "items", itemAs: "item", headerRows: 1 }),
+      wrapTableRowsInEach(upper, {
+        source: "items",
+        itemAs: "item",
+        headerRows: 1,
+      }),
     ).toBe(
       "<TR><TD>A</TD></TR>" +
         "{{#each items as |item|}}" +
