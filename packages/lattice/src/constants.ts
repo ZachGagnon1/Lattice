@@ -14,6 +14,7 @@ export const DATA_ATTRIBUTE_DROP_CONTAINER = "data-drop-container";
 
 export const DATA_CONTENT_EDITABLE_TYPE = "data-content_editable-type";
 export const DATA_CONTENT_EDITABLE_IDX = "data-content_editable-idx";
+export const DATA_TABLE_CELL = "data-table-cell";
 
 export const CONTENT_EDITABLE_CLASS_NAME =
   "easy-email-content_editable_text_only";

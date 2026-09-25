@@ -42,15 +42,11 @@ export function Table() {
 
   const { input: sourceInput } = useField<string>(
     `${focusIdx}.data.value.rowLoop.source`,
-    {
-      subscription: { value: true },
-    },
+    { subscription: { value: true } },
   );
   const { input: itemAsInput } = useField<string>(
     `${focusIdx}.data.value.rowLoop.itemAs`,
-    {
-      subscription: { value: true },
-    },
+    { subscription: { value: true } },
   );
   const { input: headerRowsInput } = useField<number>(
     `${focusIdx}.data.value.rowLoop.headerRows`,
@@ -87,7 +83,7 @@ export function Table() {
   return (
     <AttributesPanelWrapper
       extra={
-        <Tooltip title={t("Edit")} placement="top">
+        <Tooltip title={t("Edit HTML")} placement="top">
           <IconButton
             onClick={() => setVisible(true)}
             size="small"
