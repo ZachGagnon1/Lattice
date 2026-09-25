@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack, TextStyle } from "@";
-import { AdvancedType, ISpacer, RecursivePartial } from "@";
+import { BasicType, ISpacer, RecursivePartial } from "@";
 
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
 
@@ -14,7 +14,7 @@ export function SpacerBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.SPACER}
+              type={BasicType.SPACER}
               payload={
                 {
                   attributes: {

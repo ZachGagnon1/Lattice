@@ -1,5 +1,5 @@
 import React from "react";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 import { Stack } from "@";
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
 import { getImg } from "@/extensions/ShortcutToolbar/utils/getImg";
@@ -9,7 +9,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_08"),
     payload: {
-      type: AdvancedType.ACCORDION,
+      type: BasicType.ACCORDION,
       data: {
         value: {},
       },
@@ -123,7 +123,7 @@ export function AccordionBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.ACCORDION}
+              type={BasicType.ACCORDION}
               payload={item.payload}
             >
               <div style={{ position: "relative" }}>

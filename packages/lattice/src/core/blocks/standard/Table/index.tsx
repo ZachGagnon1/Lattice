@@ -6,7 +6,16 @@ import { merge } from "lodash";
 import { BasicBlock } from "@/core/components/BasicBlock";
 import { t } from "@/core/utils";
 
-export type ITable = IBlockData<{}, { content: string }>;
+export type ITable = IBlockData<
+  {},
+  {
+    content: string;
+    rowLoop?: {
+      source: string;
+      itemAs: string;
+    };
+  }
+>;
 
 export const Table = createBlock<ITable>({
   get name() {
@@ -19,6 +28,7 @@ export const Table = createBlock<ITable>({
       data: {
         value: {
           content: "",
+          rowLoop: { source: "", itemAs: "" },
         },
       },
       attributes: {},
@@ -26,12 +36,20 @@ export const Table = createBlock<ITable>({
     };
     return merge(defaultData, payload);
   },
-  validParentType: [BasicType.COLUMN],
+  validParentType: [BasicType.COLUMN, BasicType.FOR_LOOP],
   render(params) {
     const { data } = params;
+    const { content, rowLoop } = data.data.value;
+
+    let innerContent = content;
+    if (rowLoop?.source) {
+      const alias = rowLoop.itemAs ? ` as |${rowLoop.itemAs}|` : "";
+      innerContent = `{{#each ${rowLoop.source}${alias}}}${content}{{/each}}`;
+    }
+
     return (
       <BasicBlock params={params} tag="mj-table">
-        {data.data.value.content}
+        {innerContent}
       </BasicBlock>
     );
   },

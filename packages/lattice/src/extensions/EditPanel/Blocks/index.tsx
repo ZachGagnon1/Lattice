@@ -1,6 +1,6 @@
 import { Box, Grid, Paper, Typography } from "@mui/material";
 import {
-  AdvancedType,
+  BasicType,
   BlockAvatarWrapper,
   BlockManager,
   getIconNameByBlockType,
@@ -149,10 +149,10 @@ function LayoutItem({
         {columns.map((item, index) => {
           const hide = !visible && index !== 0;
           const payload = {
-            type: AdvancedType.SECTION,
+            type: BasicType.SECTION,
             attributes: {},
             children: item.map((col) => ({
-              type: AdvancedType.COLUMN,
+              type: BasicType.COLUMN,
               attributes: {
                 width: col,
               },
@@ -173,7 +173,7 @@ function LayoutItem({
                 cursor: "grab !important",
               }}
             >
-              <BlockAvatarWrapper type={AdvancedType.SECTION} payload={payload}>
+              <BlockAvatarWrapper type={BasicType.SECTION} payload={payload}>
                 <Box
                   sx={{
                     border: "1px solid #e0e0e0",

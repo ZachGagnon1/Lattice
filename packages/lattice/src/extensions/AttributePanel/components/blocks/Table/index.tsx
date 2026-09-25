@@ -13,11 +13,35 @@ import {
 } from "@/extensions";
 import { HtmlEditor } from "../../UI/HtmlEditor";
 import { CollapsableItem } from "@/extensions/components/Collapse/CollapsableItem";
-import { Box, IconButton, Stack, Tooltip } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
+import { useField } from "react-final-form";
+import { useFocusIdx } from "@";
+import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
 
 export function Table() {
   const [visible, setVisible] = useState(false);
+  const { focusIdx } = useFocusIdx();
+
+  const { input: sourceInput } = useField<string>(
+    `${focusIdx}.data.value.rowLoop.source`,
+    {
+      subscription: { value: true },
+    },
+  );
+  const { input: itemAsInput } = useField<string>(
+    `${focusIdx}.data.value.rowLoop.itemAs`,
+    {
+      subscription: { value: true },
+    },
+  );
 
   return (
     <AttributesPanelWrapper
@@ -26,7 +50,7 @@ export function Table() {
           <IconButton
             onClick={() => setVisible(true)}
             size="small"
-            sx={{ p: 0.5 }} // Keeps the icon neatly aligned within the header
+            sx={{ p: 0.5 }}
           >
             <CodeIcon />
           </IconButton>
@@ -39,7 +63,6 @@ export function Table() {
             <Box sx={{ flex: 1 }}>
               <Width />
             </Box>
-            {/* Acts as the empty Stack.Item spacer to keep Width at 50% */}
             <Box sx={{ flex: 1 }} />
           </Stack>
           <Padding />
@@ -47,7 +70,6 @@ export function Table() {
       </CollapsableItem>
 
       <CollapsableItem title={t("Decoration")}>
-        {/* Added a vertical stack to give these fields consistent breathing room */}
         <Stack spacing={2}>
           <Color />
           <ContainerBackgroundColor />
@@ -61,6 +83,65 @@ export function Table() {
           <FontSize />
           <FontStyle />
           <TextAlign />
+        </Stack>
+      </CollapsableItem>
+
+      <CollapsableItem title={t("Row Loop")}>
+        <Stack spacing={2}>
+          <Typography variant="caption" color="text.secondary">
+            Wrap table rows in a Handlebars each loop to repeat them over an
+            array.
+          </Typography>
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
+              Data Source (array merge tag)
+            </Typography>
+            <MergeTags
+              isSelect
+              isArraySelect
+              value={sourceInput.value}
+              onChange={sourceInput.onChange}
+            />
+          </Box>
+          <Box>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mb: 0.5, display: "block" }}
+            >
+              Item Alias (optional)
+            </Typography>
+            <TextField
+              {...itemAsInput}
+              size="small"
+              fullWidth
+              placeholder="e.g. row"
+              helperText='Name for each item. Leave blank to use "this".'
+            />
+          </Box>
+          {sourceInput.value && (
+            <Box
+              sx={{
+                p: 1.5,
+                bgcolor: "grey.50",
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: "grey.200",
+                fontFamily: "monospace",
+                fontSize: 12,
+                color: "text.secondary",
+                wordBreak: "break-all",
+              }}
+            >
+              <code>
+                {`{{#each ${sourceInput.value}${itemAsInput.value ? ` as |${itemAsInput.value}|` : ""}}}...{{/each}}`}
+              </code>
+            </Box>
+          )}
         </Stack>
       </CollapsableItem>
 

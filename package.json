@@ -17,13 +17,13 @@
     "file-saver": "^2.0.5",
     "lerna": "^9.0.7",
     "liquidjs": "10.25.7",
-    "posthog-js": "^1.372.6"
+    "posthog-js": "^1.373.2"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.24",
-    "@types/node": "^25.6.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "@types/node": "^25.7.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
     "dotenv": "^17.4.2",
     "prettier": "^3.8.3"
   }

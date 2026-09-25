@@ -4,7 +4,6 @@ import {
   components,
   createCustomBlock,
   getPreviewClassName,
-  AdvancedType,
   mergeBlock,
 } from "easy-email-core";
 
@@ -40,7 +39,7 @@ const productPlaceholder = {
 export const ProductRecommendation = createCustomBlock<IProductRecommendation>({
   name: "Product recommendation",
   type: CustomBlocksType.PRODUCT_RECOMMENDATION,
-  validParentType: [BasicType.PAGE, AdvancedType.WRAPPER, BasicType.WRAPPER],
+  validParentType: [BasicType.PAGE, BasicType.WRAPPER],
   create: (payload) => {
     const defaultData: IProductRecommendation = {
       type: CustomBlocksType.PRODUCT_RECOMMENDATION,

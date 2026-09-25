@@ -19,8 +19,9 @@ import { Hero } from "./Hero";
 import { Navbar } from "./Navbar";
 import { Social } from "./Social";
 import { Table } from "./Table";
-import { BasicType, AdvancedType } from "@";
-import { AdvancedTable } from "./AdvancedTable";
+import { BasicType } from "@";
+import { Condition } from "@/extensions/AttributePanel/components/blocks/Condition";
+import { ForLoop } from "@/extensions/AttributePanel/components/blocks/ForLoop";
 
 export const blocks = {
   [BasicType.PAGE]: Page,
@@ -43,21 +44,6 @@ export const blocks = {
   [BasicType.NAVBAR]: Navbar,
   [BasicType.SOCIAL]: Social,
   [BasicType.TABLE]: Table,
-
-  [AdvancedType.TEXT]: Text,
-  [AdvancedType.IMAGE]: Image,
-  [AdvancedType.BUTTON]: Button,
-  [AdvancedType.DIVIDER]: Divider,
-  [AdvancedType.SPACER]: Spacer,
-  [AdvancedType.ACCORDION]: Accordion,
-  [AdvancedType.CAROUSEL]: Carousel,
-  [AdvancedType.NAVBAR]: Navbar,
-  [AdvancedType.SOCIAL]: Social,
-  [AdvancedType.TABLE]: AdvancedTable,
-
-  [AdvancedType.HERO]: Hero,
-  [AdvancedType.WRAPPER]: Wrapper,
-  [AdvancedType.SECTION]: Section,
-  [AdvancedType.GROUP]: Group,
-  [AdvancedType.COLUMN]: Column,
+  [BasicType.CONDITION]: Condition,
+  [BasicType.FOR_LOOP]: ForLoop,
 };

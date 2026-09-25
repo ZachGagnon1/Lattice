@@ -23,28 +23,16 @@ export enum BasicType {
   SOCIAL = "social",
   // TODO
   TABLE = "table",
+  CONDITION = "condition",
+  FOR_LOOP = "for-loop",
 
   TEMPLATE = "template",
 }
 
-// 高级组件
-export enum AdvancedType {
-  TEXT = "advanced_text",
-  IMAGE = "advanced_image",
-  DIVIDER = "advanced_divider",
-  SPACER = "advanced_spacer",
-  BUTTON = "advanced_button",
-  NAVBAR = "advanced_navbar",
-  SOCIAL = "advanced_social",
-  ACCORDION = "advanced_accordion",
-  CAROUSEL = "advanced_carousel",
-  TABLE = "advanced_table",
-  WRAPPER = "advanced_wrapper",
-  SECTION = "advanced_section",
-  COLUMN = "advanced_column",
-  GROUP = "advanced_group",
-  HERO = "advanced_hero",
-}
+// Deprecated: AdvancedType is now an alias for BasicType.
+// The advanced blocks are part of BasicType now.
+export const AdvancedType = BasicType;
+export type AdvancedType = BasicType;
 
 export const MERGE_TAG_CLASS_NAME = "easy-email-merge-tag-container";
 export const EMAIL_BLOCK_CLASS_NAME = "email-block";

@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack, TextStyle } from "@";
-import { AdvancedType, IDivider, RecursivePartial } from "@";
+import { BasicType, IDivider, RecursivePartial } from "@";
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
 
 const dividerList = [
@@ -31,7 +31,7 @@ export function DividerBlockItem() {
           return (
             <BlockMaskWrapper
               key={index}
-              type={AdvancedType.DIVIDER}
+              type={BasicType.DIVIDER}
               payload={
                 {
                   attributes: { ...item, padding: "10px 0px" },

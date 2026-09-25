@@ -5,7 +5,7 @@ import { EmailEditor } from "@/components/EmailEditor";
 import { defaultCategories, defaultFontList } from "./defaults";
 import { IEmailTemplate } from "@/typings";
 import { FormSpy } from "react-final-form";
-import { AdvancedType, BasicType } from "@/core/constants";
+import { BasicType } from "@/core/constants";
 import { ExtensionProps } from "@/extensions";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -26,6 +26,10 @@ export interface LatticeEditorProps {
   fontList?: { label: string; value: string }[];
   mergeTags?: Record<string, any>;
   height?: string | number;
+  /** Add the If Condition block to the Logic category. Default is false. */
+  allowCondition?: boolean;
+  /** Add the For Loop block to the Logic category. Default is false. */
+  allowForLoop?: boolean;
 }
 
 export function LatticeEditor(props: LatticeEditorProps) {
@@ -38,6 +42,8 @@ export function LatticeEditor(props: LatticeEditorProps) {
     fontList = defaultFontList,
     mergeTags,
     height = "calc(100vh - 108px)",
+    allowCondition = false,
+    allowForLoop = false,
   } = props;
 
   const {
@@ -49,21 +55,42 @@ export function LatticeEditor(props: LatticeEditorProps) {
   } = config;
 
   const activeComponents = useMemo(() => {
-    if (onUploadImage) return components;
+    let cats = components;
 
-    // Otherwise, map through the categories and strip out the image blocks
-    return components.map((category) => ({
-      ...category,
-      blocks: category.blocks.filter((block) => {
-        if (block && typeof block === "object" && "type" in block) {
-          return (
-            block.type !== AdvancedType.IMAGE && block.type !== BasicType.IMAGE
-          );
-        }
+    // Image blocks require an upload handler.
+    if (!onUploadImage) {
+      cats = cats.map((category) => ({
+        ...category,
+        blocks: category.blocks.filter((block) => {
+          if (block && typeof block === "object" && "type" in block) {
+            return block.type !== BasicType.IMAGE;
+          }
+          return true;
+        }),
+      })) as ExtensionProps["categories"];
+    }
+
+    cats = cats
+      .map((category) => {
+        if (category.label !== "Logic") return category;
+        const blocks = category.blocks.filter((block) => {
+          if (!block || typeof block !== "object" || !("type" in block))
+            return true;
+          if (block.type === BasicType.CONDITION) return allowCondition;
+          if (block.type === BasicType.FOR_LOOP) return allowForLoop;
+          return true;
+        });
+        return { ...category, blocks };
+      })
+      .filter((category) => {
+        // Remove an empty Logic category.
+        if (category.label === "Logic" && category.blocks.length === 0)
+          return false;
         return true;
-      }),
-    })) as ExtensionProps["categories"];
-  }, [components, onUploadImage]);
+      }) as ExtensionProps["categories"];
+
+    return cats;
+  }, [components, onUploadImage, allowCondition, allowForLoop]);
 
   const onValueChange = (values: IEmailTemplate) => {
     if (onChange) {

@@ -5,8 +5,6 @@ import { RichTextField } from "../components/Form/RichTextField";
 import { PresetColorsProvider } from "./components/provider/PresetColorsProvider";
 import { BlockAttributeConfigurationManager } from "./utils/BlockAttributeConfigurationManager";
 import { SelectionRangeProvider } from "./components/provider/SelectionRangeProvider";
-import { TableOperation } from "./components/blocks/AdvancedTable/Operation";
-
 // MUI Components
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -41,7 +39,6 @@ export function AttributePanel() {
         <Box sx={{ position: "absolute" }}>
           <RichTextField idx={focusIdx} />
         </Box>
-        <TableOperation />
         <>
           {iframeDocument?.body &&
             ReactDOM.createPortal(

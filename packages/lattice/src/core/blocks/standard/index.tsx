@@ -21,6 +21,10 @@ import { AccordionTitle, IAccordionTitle } from "./AccordionTitle";
 import { AccordionText, IAccordionText } from "./AccordionText";
 import { ITable, Table } from "./Table";
 import { BasicType } from "@/core/constants";
+import { Condition } from "@/core/blocks/standard/Condition";
+import { ForLoop, IForLoop } from "@/core/blocks/standard/ForLoop";
+
+export type { IConditionBlock } from "@/core/blocks/standard/Condition";
 
 export const standardBlocks = {
   [BasicType.PAGE]: Page,
@@ -38,6 +42,8 @@ export const standardBlocks = {
   [BasicType.HERO]: Hero,
   [BasicType.NAVBAR]: Navbar,
   [BasicType.SOCIAL]: Social,
+  [BasicType.CONDITION]: Condition,
+  [BasicType.FOR_LOOP]: ForLoop,
 
   // spacial block, render string
   [BasicType.TEMPLATE]: Template,
@@ -51,6 +57,8 @@ export const standardBlocks = {
 
   [BasicType.TABLE]: Table,
 };
+
+export type { IForLoop };
 
 export type {
   IPage,

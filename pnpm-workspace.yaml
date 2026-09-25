@@ -1,3 +1,9 @@
 packages:
   - "packages/*"
   - "demo"
+allowBuilds:
+  '@parcel/watcher': false
+  core-js: false
+  esbuild: false
+  nx: false
+  protobufjs: false

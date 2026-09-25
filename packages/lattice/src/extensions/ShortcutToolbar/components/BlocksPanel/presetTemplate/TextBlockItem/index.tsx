@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack } from "@";
-import { AdvancedType } from "@";
+import { BasicType } from "@";
 
 import { BlockMaskWrapper } from "@/extensions/ShortcutToolbar/components/BlockMaskWrapper";
 
@@ -14,7 +14,7 @@ export function TextBlockItem() {
           return (
             <Stack.Item fill key={index}>
               <BlockMaskWrapper
-                type={AdvancedType.TEXT}
+                type={BasicType.TEXT}
                 payload={{
                   attributes: {
                     "font-size": item + "px",

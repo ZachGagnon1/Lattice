@@ -1,17 +1,17 @@
-import { AdvancedType, ExtensionProps } from "@";
+import { BasicType, ExtensionProps } from "@";
 
 export const defaultCategories: ExtensionProps["categories"] = [
   {
     label: "Content",
     active: true,
     blocks: [
-      { type: AdvancedType.TEXT },
-      { type: AdvancedType.IMAGE },
-      { type: AdvancedType.BUTTON },
-      { type: AdvancedType.SOCIAL },
-      { type: AdvancedType.DIVIDER },
-      { type: AdvancedType.SPACER },
-      { type: AdvancedType.TABLE },
+      { type: BasicType.TEXT },
+      { type: BasicType.IMAGE },
+      { type: BasicType.BUTTON },
+      { type: BasicType.SOCIAL },
+      { type: BasicType.DIVIDER },
+      { type: BasicType.SPACER },
+      { type: BasicType.TABLE },
     ],
   },
   {
@@ -43,7 +43,16 @@ export const defaultCategories: ExtensionProps["categories"] = [
       },
     ],
   },
+  {
+    label: "Logic",
+    active: true,
+    displayType: "grid",
+    blocks: [{ type: BasicType.CONDITION }, { type: BasicType.FOR_LOOP }],
+  },
 ];
+
+// LatticeEditor filters the Logic category by `allowCondition` and `allowForLoop`.
+// When both flags are false, LatticeEditor hides the Logic category.
 
 export const defaultFontList = [
   { label: "Arial", value: "Arial" },

@@ -18,6 +18,8 @@ export const MergeTags: React.FC<{
   onChange: (v: string) => void;
   value: string;
   isSelect?: boolean;
+  /** When true, an array or object node is selectable, and the output is the raw path with no `{{}}`. */
+  isArraySelect?: boolean;
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -78,13 +80,21 @@ export const MergeTags: React.FC<{
       }
 
       const value = get(contextMergeTags, itemId);
+      const isNonLeaf = !value || isObject(value) || isArray(value);
 
-      // Ignore folder selections entirely (prevents keyboard Enter from selecting a folder)
-      if (!value || isObject(value) || isArray(value)) {
+      if (props.isArraySelect) {
+        // Array select mode returns the path without {{}} wrapping.
+        props.onChange(itemId);
+        if (props.isSelect) {
+          setAnchorEl(null);
+        }
         return;
       }
 
-      // It's a leaf node! Apply the merge tag and close the popover if in Select mode
+      if (isNonLeaf) {
+        return;
+      }
+
       props.onChange(mergeTagGenerate(itemId));
       if (props.isSelect) {
         setAnchorEl(null);
@@ -199,12 +209,16 @@ export const MergeTags: React.FC<{
             onClose={() => setAnchorEl(null)}
             anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
             transformOrigin={{ vertical: "top", horizontal: "left" }}
-            sx={{ maxHeight: 400, maxWidth: 400, overflow: "auto" }}
             slotProps={{
               paper: {
                 sx: {
-                  width: anchorEl?.clientWidth, // Match the width of the input exactly
-                  p: 1,
+                  minWidth: anchorEl
+                    ? Math.max(anchorEl.clientWidth, 280)
+                    : 280,
+                  maxWidth: 450,
+                  maxHeight: 350,
+                  overflow: "auto",
+                  p: 1.5,
                 },
               },
             }}

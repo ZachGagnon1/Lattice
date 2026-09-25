@@ -1,4 +1,4 @@
-import { AdvancedType, BasicType } from "@";
+import { BasicType } from "@";
 import { get } from "lodash";
 import TagIcon from "@mui/icons-material/Tag";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
@@ -16,6 +16,8 @@ import SplitscreenIcon from "@mui/icons-material/Splitscreen";
 import WebIcon from "@mui/icons-material/Web";
 import ViewDayIcon from "@mui/icons-material/ViewDay";
 import TableRowsIcon from "@mui/icons-material/TableRows";
+import AltRouteIcon from "@mui/icons-material/AltRoute";
+import LoopIcon from "@mui/icons-material/Loop";
 
 // TODO I don't really like this as a fix for the icon stuff. It's kind of scuffed but oh well.
 let iconsMap = {
@@ -35,23 +37,8 @@ let iconsMap = {
   [BasicType.CAROUSEL]: <ViewCarouselIcon />,
   [BasicType.ACCORDION]: <TableRowsIcon />,
   [BasicType.TABLE]: <TableChartIcon />,
-
-  [AdvancedType.TEXT]: <TextFieldsIcon />,
-  [AdvancedType.DIVIDER]: <HorizontalRuleIcon />,
-  [AdvancedType.IMAGE]: <ImageIcon />,
-  [AdvancedType.BUTTON]: <Crop169Icon />,
-  [AdvancedType.NAVBAR]: <MenuIcon />,
-  [AdvancedType.SPACER]: <DensityLargeIcon />,
-  [AdvancedType.SOCIAL]: <TagIcon />,
-  [AdvancedType.CAROUSEL]: <ViewCarouselIcon />,
-  [AdvancedType.ACCORDION]: <TableRowsIcon />,
-  [AdvancedType.TABLE]: <TableChartIcon />,
-
-  [AdvancedType.WRAPPER]: <ViewDayIcon />,
-  [AdvancedType.SECTION]: <SplitscreenIcon />,
-  [AdvancedType.COLUMN]: <ViewColumnIcon />,
-  [AdvancedType.GROUP]: <DataArrayIcon />,
-  [AdvancedType.HERO]: <WebIcon />,
+  [BasicType.CONDITION]: <AltRouteIcon />,
+  [BasicType.FOR_LOOP]: <LoopIcon />,
 };
 
 export function getIconNameByBlockType(type: string) {

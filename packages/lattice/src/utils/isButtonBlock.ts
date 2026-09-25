@@ -1,5 +1,5 @@
-import { BasicType, AdvancedType } from "@";
+import { BasicType } from "@";
 
 export function isButtonBlock(blockType: any) {
-  return blockType === BasicType.BUTTON || blockType === AdvancedType.BUTTON;
+  return blockType === BasicType.BUTTON;
 }
