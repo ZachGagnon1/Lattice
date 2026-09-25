@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   BasicType,
   getIframeDocument,
@@ -11,12 +11,14 @@ import {
 import { useAddToCollection } from "@/extensions/hooks/useAddToCollection";
 import { getBlockTitle } from "@/extensions/utils/getBlockTitle";
 import { IframeCacheProvider } from "@/components/Provider/IframeCacheProvider";
+import { AddBlockMenu } from "@/extensions/components/AddBlockMenu";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
+import AddIcon from "@mui/icons-material/Add";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
@@ -27,6 +29,7 @@ export function Toolbar() {
   const { focusIdx, setFocusIdx } = useFocusIdx();
   const { modal, setModalVisible } = useAddToCollection();
   const props = useEditorProps();
+  const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
 
   const isPage = focusBlock?.type === BasicType.PAGE;
   const isText = isTextBlock(focusBlock?.type);
@@ -113,7 +116,7 @@ export function Toolbar() {
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(ev) => ev.preventDefault()}
               sx={{
-                display: isPage ? "none" : "flex",
+                display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 pointerEvents: "auto",
@@ -122,12 +125,13 @@ export function Toolbar() {
               }}
             >
               <Tooltip
-                title="Select Parent"
+                title="Add Block"
                 slotProps={{ popper: { container: iframeBody } }}
               >
                 <IconButton
-                  aria-label="Select Parent"
-                  onClick={handleSelectParent}
+                  aria-label="Add Block"
+                  aria-haspopup="menu"
+                  onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}
                   sx={{
                     color: "inherit",
                     p: 0,
@@ -136,71 +140,99 @@ export function Toolbar() {
                     borderRadius: 0,
                   }}
                 >
-                  <ArrowUpwardIcon sx={{ fontSize: 16 }} />
+                  <AddIcon sx={{ fontSize: 16 }} />
                 </IconButton>
               </Tooltip>
 
-              <Tooltip
-                title="Copy"
-                slotProps={{ popper: { container: iframeBody } }}
-              >
-                <IconButton
-                  aria-label="Copy Block"
-                  onClick={handleCopy}
-                  sx={{
-                    color: "inherit",
-                    p: 0,
-                    width: 22,
-                    height: 22,
-                    borderRadius: 0,
-                  }}
-                >
-                  <ContentCopyIcon sx={{ fontSize: 14 }} />
-                </IconButton>
-              </Tooltip>
-
-              {props.onAddCollection && (
-                <Tooltip
-                  title="Add to Collection"
-                  slotProps={{ popper: { container: iframeBody } }}
-                >
-                  <IconButton
-                    aria-label="Add to Collection"
-                    onClick={handleAddToCollection}
-                    sx={{
-                      color: "inherit",
-                      p: 0,
-                      width: 22,
-                      height: 22,
-                      borderRadius: 0,
-                    }}
+              {!isPage && (
+                <>
+                  <Tooltip
+                    title="Select Parent"
+                    slotProps={{ popper: { container: iframeBody } }}
                   >
-                    <LibraryAddIcon sx={{ fontSize: 14 }} />
-                  </IconButton>
-                </Tooltip>
-              )}
+                    <IconButton
+                      aria-label="Select Parent"
+                      onClick={handleSelectParent}
+                      sx={{
+                        color: "inherit",
+                        p: 0,
+                        width: 22,
+                        height: 22,
+                        borderRadius: 0,
+                      }}
+                    >
+                      <ArrowUpwardIcon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  </Tooltip>
 
-              <Tooltip
-                title="Delete"
-                slotProps={{ popper: { container: iframeBody } }}
-              >
-                <IconButton
-                  aria-label="Delete Block"
-                  onClick={handleDelete}
-                  sx={{
-                    color: "inherit",
-                    p: 0,
-                    width: 22,
-                    height: 22,
-                    borderRadius: 0,
-                  }}
-                >
-                  <DeleteIcon sx={{ fontSize: 14 }} />
-                </IconButton>
-              </Tooltip>
+                  <Tooltip
+                    title="Copy"
+                    slotProps={{ popper: { container: iframeBody } }}
+                  >
+                    <IconButton
+                      aria-label="Copy Block"
+                      onClick={handleCopy}
+                      sx={{
+                        color: "inherit",
+                        p: 0,
+                        width: 22,
+                        height: 22,
+                        borderRadius: 0,
+                      }}
+                    >
+                      <ContentCopyIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Tooltip>
+
+                  {props.onAddCollection && (
+                    <Tooltip
+                      title="Add to Collection"
+                      slotProps={{ popper: { container: iframeBody } }}
+                    >
+                      <IconButton
+                        aria-label="Add to Collection"
+                        onClick={handleAddToCollection}
+                        sx={{
+                          color: "inherit",
+                          p: 0,
+                          width: 22,
+                          height: 22,
+                          borderRadius: 0,
+                        }}
+                      >
+                        <LibraryAddIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+
+                  <Tooltip
+                    title="Delete"
+                    slotProps={{ popper: { container: iframeBody } }}
+                  >
+                    <IconButton
+                      aria-label="Delete Block"
+                      onClick={handleDelete}
+                      sx={{
+                        color: "inherit",
+                        p: 0,
+                        width: 22,
+                        height: 22,
+                        borderRadius: 0,
+                      }}
+                    >
+                      <DeleteIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
             </Box>
           </Box>
         </Box>
+        <AddBlockMenu
+          anchorEl={addMenuAnchor}
+          onClose={() => setAddMenuAnchor(null)}
+          container={iframeBody}
+        />
       </IframeCacheProvider>
       {modal}
     </>
