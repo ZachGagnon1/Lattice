@@ -248,7 +248,6 @@ export function compileCondition(
   };
 }
 
-/** The tag that starts the else branch of a condition. */
 export const CONDITION_ELSE = "{{else}}";
 
 /** The closing tag of every condition this module opens. */

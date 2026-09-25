@@ -47,7 +47,7 @@ export const ConditionBranch = createBlock<IConditionBranch>({
     if (mode !== "testing") return <>{renderedChildren}</>;
 
     // MJML rejects an mj-wrapper inside the Condition's mj-wrapper, so the
-    // strip carries the branch classes and gives an empty branch a drop target.
+    // strip holds the branch classes and gives an empty branch a drop target.
     const className = [
       EMAIL_BLOCK_CLASS_NAME,
       idx && getNodeIdxClassName(idx),

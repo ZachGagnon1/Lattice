@@ -36,7 +36,7 @@ export const Condition = createBlock<IConditionBlock>({
         value: { rulesTree: { logicalOperator: "AND", rules: [] } },
       },
       attributes: {},
-      // The two branches stay in this order: the "if" branch, then the "else" branch.
+      // The "if" branch comes before the "else" branch. The order matters.
       children: [
         {
           ...ConditionBranch.create({ data: { value: { branch: "if" } } }),
@@ -100,7 +100,7 @@ export const Condition = createBlock<IConditionBlock>({
     const hasIf = Boolean(ifBranch?.children.length);
     const hasElse = Boolean(elseBranch?.children.length);
 
-    // With no rule set the "if" branch always shows, so the "else" branch never can.
+    // With no rule, the "if" branch always shows, so the "else" branch never shows.
     if (!hasCondition) return hasIf ? <>{ifMarkup}</> : null;
     if (!hasIf && !hasElse) return null;
 

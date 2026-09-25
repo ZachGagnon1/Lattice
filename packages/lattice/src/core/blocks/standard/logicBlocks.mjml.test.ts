@@ -46,7 +46,7 @@ const sectionWith = (content: string) => ({
   ],
 });
 
-// A Condition keeps its Sections in its branches; a ForLoop holds them directly.
+// A Condition holds its Sections in its branches. A ForLoop holds them directly.
 function holding(block: any, sections: any[], elseSections: any[] = []) {
   const tree = block.create();
   if (block.type !== BasicType.CONDITION)
@@ -179,7 +179,7 @@ describe.each([
     expect(logic).not.toBeNull();
     expect(logic!.querySelectorAll(".node-type-column")).toHaveLength(3);
   });
-  // The template engine gates only what sits between the tags.
+  // The template engine shows or hides only the content between the tags.
   it("puts the content between the open and close tags in production", async () => {
     const { html } = await compile(
       inParent(BasicType.PAGE, configured(block)),
