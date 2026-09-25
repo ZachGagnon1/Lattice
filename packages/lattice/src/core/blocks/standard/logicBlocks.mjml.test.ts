@@ -18,7 +18,8 @@ const TYPE_CLASS: Record<string, string> = {
   [BasicType.FOR_LOOP]: "node-type-for-loop",
 };
 
-// The circular import leaves the block map empty, so register every block.
+// The circular import leaves the block map empty, so the test registers
+// every block.
 beforeAll(() => {
   BlockManager.registerBlocks(standardBlocks);
 });
@@ -93,8 +94,8 @@ describe.each([
   ["Condition", Condition],
   ["ForLoop", ForLoop],
 ])("%s in real MJML", (_name, block) => {
-  // The block renders an mj-wrapper in testing mode, and MJML rejects an mj-wrapper
-  // inside an mj-wrapper, so a WRAPPER parent must never come back.
+  // The block renders an mj-wrapper in testing mode, and MJML rejects a
+  // nested mj-wrapper. So a WRAPPER parent must never return.
   it("compiles without errors in every parent it allows", async () => {
     for (const parentType of block.validParentType) {
       const { errors } = await compile(
@@ -115,7 +116,8 @@ describe.each([
     }
   });
 
-  // The editor finds a child's logic block by DOM ancestry, so the child element must sit inside it.
+  // The editor finds the logic block of a child by DOM ancestry, so the child
+  // element must be inside the logic block element.
   it("renders its content inside its own element", async () => {
     const { html } = await compile(
       inParent(BasicType.PAGE, logicBlock(block)),
@@ -126,7 +128,8 @@ describe.each([
     expect(text!.closest("." + TYPE_CLASS[block.type])).not.toBeNull();
   });
 
-  // Selection, typing, and drops all read these classes; MJML drops them outside a column.
+  // Selection, typing, and drops all read these classes, and MJML drops them
+  // outside a column.
   it("keeps the editor classes on every child block", async () => {
     const { html } = await compile(
       inParent(BasicType.PAGE, logicBlock(block)),
