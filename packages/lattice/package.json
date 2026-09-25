@@ -21,6 +21,10 @@
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js",
       "require": "./lib/index.js"
+    },
+    "./handlebars": {
+      "types": "./lib/handlebars.d.ts",
+      "import": "./lib/handlebars.js"
     }
   },
   "scripts": {
@@ -96,6 +100,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "handlebars": "^4.7.9",
     "jsdom": "^29.1.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
@@ -115,7 +120,13 @@
     "@mui/material": "^9.0.0",
     "@mui/x-tree-view": "^9.0.4",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "handlebars": "^4.7.0"
+  },
+  "peerDependenciesMeta": {
+    "handlebars": {
+      "optional": true
+    }
   },
   "gitHead": "2a08e8af15766344de708d891c1c8ea31bb77646"
 }
