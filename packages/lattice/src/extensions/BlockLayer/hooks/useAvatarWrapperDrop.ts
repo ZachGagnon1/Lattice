@@ -76,7 +76,7 @@ export function useAvatarWrapperDrop() {
           };
         } else if (
           dropNode.parent &&
-          dragBlock.validParentType.includes(dropNode.parent.type)
+          BlockManager.isValidParent(dragBlock, dropNode.parent.type)
         ) {
           // drop to next sibling
           return {
@@ -87,7 +87,7 @@ export function useAvatarWrapperDrop() {
       } else {
         if (
           dropNode.parent &&
-          dragBlock.validParentType.includes(dropNode.parent.type)
+          BlockManager.isValidParent(dragBlock, dropNode.parent.type)
         ) {
           return {
             position: dropPosition,

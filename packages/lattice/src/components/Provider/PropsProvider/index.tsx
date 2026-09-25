@@ -101,20 +101,26 @@ export const EditorPropsContext = React.createContext<
   onAddCollection: undefined,
   onRemoveCollection: undefined,
   onUploadImage: undefined,
-  autoComplete: false,
+  autoComplete: true,
   dashed: true,
   mergeTagGenerate: defaultMergeTagGenerate,
 });
 
 export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
-  const { dashed = true, mergeTagGenerate = defaultMergeTagGenerate } = props;
+  const {
+    dashed = true,
+    mergeTagGenerate = defaultMergeTagGenerate,
+    // The drop target always accepts an ancestor such as the page, so a drop fails without the wrap.
+    autoComplete = true,
+  } = props;
   const formatProps = useMemo(() => {
     return {
       ...props,
       mergeTagGenerate,
       dashed,
+      autoComplete,
     };
-  }, [mergeTagGenerate, props, dashed]);
+  }, [mergeTagGenerate, props, dashed, autoComplete]);
 
   return (
     <EditorPropsContext.Provider value={formatProps}>
