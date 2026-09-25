@@ -184,7 +184,8 @@ class TableColumnTool {
         this.tableMenu.setTableData(this.tableData as any);
         this.tableMenu.changeTableData = this.changeTableData;
         this.tableMenu.setTableIndexBoundary(tdBoundaryIndex);
-        this.tableMenu.showMenu({ x: event.clientX, y: event.clientY });
+        // The menu node is absolute in the iframe body, so it needs page coordinates.
+        this.tableMenu.showMenu({ x: event.pageX, y: event.pageY });
         return;
       }
     }
