@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { Form } from "react-final-form";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
 import { EMAIL_BLOCK_CLASS_NAME, getIframeDocument } from "@";
 import { SearchField, SwitchField } from "@/extensions/components/Form";
 import { ToolItem } from "../ToolItem";
@@ -105,83 +105,70 @@ export function Link(props: Readonly<LinkProps>) {
     [activeNode, onChange, savedRange],
   );
 
+  const methods = useForm<Omit<LinkParams, "linkNode">>({
+    defaultValues: initialValues,
+  });
+  const { reset, setValue, handleSubmit } = methods;
+
+  useEffect(() => {
+    reset(initialValues);
+  }, [initialValues, reset]);
+
   return (
-    <Form
-      key={initialValues.link}
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-    >
-      {({ form }) => {
-        return (
-          <>
-            <span
-              style={{
-                height: "27px",
+    <FormProvider {...methods}>
+      <span
+        style={{
+          height: "27px",
+        }}
+        onMouseDown={(e) => e.preventDefault()}
+      >
+        <ToolItem
+          onClick={handleClick}
+          isActive={Boolean(initialValues.link) || open}
+          title="Link"
+          icon={<LinkIcon />}
+        />
+      </span>
+
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        container={anchorEl?.ownerDocument.body}
+        disableAutoFocus
+        disableEnforceFocus
+        disableRestoreFocus
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Box
+          sx={{ p: 2, width: 320 }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Stack spacing={2}>
+            <SearchField
+              size="small"
+              name="link"
+              label="Link"
+              labelHidden
+              searchButton="Apply"
+              placeholder="https://www.example.com"
+              onSearch={(val) => {
+                // Skip the 300ms field debounce, so the submit reads the value just typed.
+                setValue("link", val);
+                void handleSubmit(onSubmit)();
               }}
-              onMouseDown={(e) => e.preventDefault()}
-            >
-              <ToolItem
-                onClick={handleClick}
-                isActive={Boolean(initialValues.link) || open}
-                title="Link"
-                icon={<LinkIcon />}
-              />
-            </span>
+            />
 
-            <Popover
-              id={id}
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              container={anchorEl?.ownerDocument.body}
-              disableAutoFocus
-              disableEnforceFocus
-              disableRestoreFocus
-              anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-              transformOrigin={{ vertical: "top", horizontal: "center" }}
-            >
-              <Box
-                sx={{ p: 2, width: 320 }}
-                onMouseDown={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Stack spacing={2}>
-                  <SearchField
-                    size="small"
-                    name="link"
-                    label="Link"
-                    labelHidden
-                    searchButton="Apply"
-                    placeholder="https://www.example.com"
-                    onSearch={(val) => {
-                      // Bypass the 300ms debounce, inject the string directly, and fire submit!
-                      form.change("link", val);
-                      setTimeout(() => form.submit(), 0);
-                    }}
-                  />
-
-                  <Stack
-                    direction="row"
-                    spacing={3}
-                    sx={{ alignItems: "center" }}
-                  >
-                    <SwitchField
-                      size="small"
-                      label="Target Blank"
-                      name="blank"
-                    />
-                    <SwitchField
-                      size="small"
-                      label="Underline"
-                      name="underline"
-                    />
-                  </Stack>
-                </Stack>
-              </Box>
-            </Popover>
-          </>
-        );
-      }}
-    </Form>
+            <Stack direction="row" spacing={3} sx={{ alignItems: "center" }}>
+              <SwitchField size="small" label="Target Blank" name="blank" />
+              <SwitchField size="small" label="Underline" name="underline" />
+            </Stack>
+          </Stack>
+        </Box>
+      </Popover>
+    </FormProvider>
   );
 }

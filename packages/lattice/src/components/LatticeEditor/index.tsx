@@ -1,10 +1,10 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { EmailEditorProvider } from "@/components/Provider/EmailEditorProvider";
 import { StandardLayout } from "@/extensions/StandardLayout";
 import { EmailEditor } from "@/components/EmailEditor";
 import { defaultCategories, defaultFontList } from "./defaults";
 import { IEmailTemplate } from "@/typings";
-import { FormSpy } from "react-final-form";
+import { useEditorContext } from "@/hooks/useEditorContext";
 import { BasicType } from "@/core/constants";
 import { ExtensionProps } from "@/extensions";
 import { PropsProviderProps } from "@/components/Provider/PropsProvider";
@@ -168,7 +168,6 @@ export function LatticeEditor<TVar = Record<string, any>>(
       height={typeof height === "string" ? height : `${height}px`}
       onUploadImage={onUploadImage}
       dashed={dashed}
-      compact={compact}
       variableData={resolvedVariableData}
       previewOverride={previewOverride as PropsProviderProps["previewOverride"]}
       onBeforePreview={onBeforePreview}
@@ -178,14 +177,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
     >
       {() => (
         <>
-          {onChange && (
-            <FormSpy
-              subscription={{ values: true }}
-              onChange={(state) =>
-                debouncedOnChange(state.values as IEmailTemplate)
-              }
-            />
-          )}
+          {onChange && <ValuesListener onChange={debouncedOnChange} />}
           <StandardLayout
             categories={activeComponents}
             showSourceCode={showSourceCode}
@@ -198,4 +190,20 @@ export function LatticeEditor<TVar = Record<string, any>>(
       )}
     </EmailEditorProvider>
   );
+}
+
+function ValuesListener({
+  onChange,
+}: {
+  onChange: (values: IEmailTemplate) => void;
+}) {
+  const {
+    formState: { values },
+  } = useEditorContext();
+
+  useEffect(() => {
+    onChange(values);
+  }, [onChange, values]);
+
+  return null;
 }

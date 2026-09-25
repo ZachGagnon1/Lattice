@@ -1,5 +1,5 @@
 import React from "react";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import {
   Box,
   IconButton,
@@ -40,7 +40,9 @@ export function RuleConnector(props: Readonly<RuleConnectorProps>) {
 
   // Bind the GROUP operator, not the row operator. The compiler reads only the
   // group operator. A per-row field shows a value that never reaches the output.
-  const { input } = useField<LogicalOperator>(`${groupName}.logicalOperator`);
+  const { input } = useEditorField<LogicalOperator>(
+    `${groupName}.logicalOperator`,
+  );
   const operator: LogicalOperator = input.value === "OR" ? "OR" : "AND";
 
   if (index === 0) {
@@ -88,11 +90,11 @@ export interface FilterRuleProps {
 export function FilterRule(props: Readonly<FilterRuleProps>) {
   const { name, groupName, index, onRemove } = props;
 
-  const { input: fieldInput } = useField<string>(`${name}.fieldId`);
-  const { input: comparisonInput } = useField<ComparisonOperator | "">(
+  const { input: fieldInput } = useEditorField<string>(`${name}.fieldId`);
+  const { input: comparisonInput } = useEditorField<ComparisonOperator | "">(
     `${name}.comparisonOperator`,
   );
-  const { input: valueInput } = useField<string>(`${name}.value`);
+  const { input: valueInput } = useEditorField<string>(`${name}.value`);
 
   // `IS_EMPTY` and `IS_NOT_EMPTY` take no right-hand value. The compiler owns
   // that list. The panel reads it, not a copy.

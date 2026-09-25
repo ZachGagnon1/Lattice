@@ -25,7 +25,7 @@ import {
   Typography,
 } from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import { useFocusIdx } from "@";
 import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
 import {
@@ -40,19 +40,14 @@ export function Table() {
   const [visible, setVisible] = useState(false);
   const { focusIdx } = useFocusIdx();
 
-  const { input: sourceInput } = useField<string>(
+  const { input: sourceInput } = useEditorField<string>(
     `${focusIdx}.data.value.rowLoop.source`,
-    { subscription: { value: true } },
   );
-  const { input: itemAsInput } = useField<string>(
+  const { input: itemAsInput } = useEditorField<string>(
     `${focusIdx}.data.value.rowLoop.itemAs`,
-    { subscription: { value: true } },
   );
-  const { input: headerRowsInput } = useField<number>(
+  const { input: headerRowsInput } = useEditorField<number>(
     `${focusIdx}.data.value.rowLoop.headerRows`,
-    {
-      subscription: { value: true },
-    },
   );
 
   // The field holds a row count, but the panel offers one checkbox.

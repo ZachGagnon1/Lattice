@@ -1,5 +1,5 @@
 import React from "react";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import { Box, Button, Stack } from "@mui/material";
 import { FilterRule, RuleConnector } from "./FilterRule";
 import {
@@ -39,9 +39,8 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
 
   const rulesFieldName = `${name}.rules`;
 
-  const { input: rulesInput } = useField<
-    Array<IConditionRule | IConditionGroup>
-  >(rulesFieldName, { subscription: { value: true } });
+  const { input: rulesInput } =
+    useEditorField<Array<IConditionRule | IConditionGroup>>(rulesFieldName);
 
   const rules = rulesInput.value || [];
 

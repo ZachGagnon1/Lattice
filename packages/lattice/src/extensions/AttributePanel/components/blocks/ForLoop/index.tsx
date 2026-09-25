@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import {
   Alert,
   Box,
@@ -21,17 +21,11 @@ import {
 
 export function ForLoop() {
   const { focusIdx } = useFocusIdx();
-  const { input: sourceInput } = useField<string>(
+  const { input: sourceInput } = useEditorField<string>(
     `${focusIdx}.data.value.dataSource`,
-    {
-      subscription: { value: true },
-    },
   );
-  const { input: itemAsInput } = useField<string>(
+  const { input: itemAsInput } = useEditorField<string>(
     `${focusIdx}.data.value.itemAs`,
-    {
-      subscription: { value: true },
-    },
   );
 
   // The block stores `dataSource`, but the shared compiler takes `source`.

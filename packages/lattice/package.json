@@ -74,6 +74,7 @@
     "react-colorful": "^5.8.1",
     "react-final-form": "^6.5.9",
     "react-final-form-arrays": "^3.1.4",
+    "react-hook-form": "^7.88.0",
     "react-is": "18.2.0",
     "react-use": "^17.6.0",
     "use-debounce": "^10.1.1",

@@ -13,7 +13,7 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 import { InlineText, InlineTextProps } from "../InlineTextField";
 import { RichTextToolBar } from "../RichTextToolBar";
-import { Field, FieldInputProps } from "react-final-form";
+import { useEditorField } from "../useEditorField";
 import { debounce } from "lodash";
 
 export const RichTextField = (
@@ -94,25 +94,23 @@ export const RichTextField = (
   if (!contentEditableName) return null;
 
   return (
-    <Field name={contentEditableName} parse={(v) => v}>
-      {({ input }) => (
-        <FieldWrapper
-          {...props}
-          contentEditableType={contentEditableType}
-          input={input}
-        />
-      )}
-    </Field>
+    <FieldWrapper
+      key={contentEditableName}
+      {...props}
+      name={contentEditableName}
+      contentEditableType={contentEditableType}
+    />
   );
 };
 
 function FieldWrapper(
   props: Omit<InlineTextProps, "onChange"> & {
-    input: FieldInputProps<any, HTMLElement>;
+    name: string;
     contentEditableType: string | null;
   },
 ) {
-  const { input, contentEditableType, ...rest } = props;
+  const { name, contentEditableType, ...rest } = props;
+  const { input } = useEditorField<string>(name);
   const { mergeTagGenerate, enabledMergeTagsBadge } = useEditorProps();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

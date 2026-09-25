@@ -22,7 +22,7 @@ import { scrollBlockEleIntoView } from "@/utils";
 export function useBlock() {
   const {
     formState: { values },
-    formHelpers: { getState, change },
+    formHelpers: { getValues, change },
   } = useEditorContext();
 
   const { focusIdx, setFocusIdx } = useFocusIdx();
@@ -45,7 +45,7 @@ export function useBlock() {
 
       let { type, parentIdx, positionIndex, payload } = params;
       let nextFocusIdx: string;
-      const values = cloneDeep(getState().values) as IEmailTemplate;
+      const values = cloneDeep(getValues());
       const parent = get(values, parentIdx) as IBlockData | null;
       if (!parent) {
         console.error(`Invalid ${type} block`);
@@ -110,7 +110,7 @@ export function useBlock() {
       });
       console.timeEnd();
     },
-    [autoComplete, change, getState, setFocusIdx],
+    [autoComplete, change, getValues, setFocusIdx],
   );
 
   const moveBlock = useCallback(
@@ -119,7 +119,7 @@ export function useBlock() {
 
       let nextFocusIdx: string;
 
-      const values = cloneDeep(getState().values) as IEmailTemplate;
+      const values = cloneDeep(getValues());
       const source = getValueByIdx(values, sourceIdx)!;
       const sourceParentIdx = getParentIdx(sourceIdx);
       const destinationParentIdx = getParentIdx(destinationIdx);
@@ -170,13 +170,13 @@ export function useBlock() {
         idx: nextFocusIdx,
       });
     },
-    [autoComplete, change, getState, setFocusIdx],
+    [autoComplete, change, getValues, setFocusIdx],
   );
 
   const copyBlock = useCallback(
     (idx: string) => {
       let nextFocusIdx: string;
-      const values = cloneDeep(getState().values) as IEmailTemplate;
+      const values = cloneDeep(getValues());
 
       const parentIdx = getParentIdx(idx);
       if (!parentIdx) return;
@@ -194,13 +194,13 @@ export function useBlock() {
 
       setFocusIdx(nextFocusIdx);
     },
-    [change, getState, setFocusIdx],
+    [change, getValues, setFocusIdx],
   );
 
   const removeBlock = useCallback(
     (idx: string) => {
       let nextFocusIdx: string;
-      const values = cloneDeep(getState().values) as IEmailTemplate;
+      const values = cloneDeep(getValues());
 
       const block = getValueByIdx(values, idx);
       if (!block) {
@@ -224,7 +224,7 @@ export function useBlock() {
       change(parentIdx, parent);
       setFocusIdx(nextFocusIdx);
     },
-    [change, getState, setFocusIdx],
+    [change, getValues, setFocusIdx],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps

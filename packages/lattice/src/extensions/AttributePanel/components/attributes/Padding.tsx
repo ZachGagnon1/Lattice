@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { InputWithUnitField } from "../../../components/Form";
 import { createBlockDataByType, TextStyle, useBlock, useFocusIdx } from "@";
-import { Form, useFormState } from "react-final-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { get } from "lodash";
 import { pixelAdapter } from "../adapter";
 import { IconButton, Stack, Tooltip } from "@mui/material";
@@ -80,94 +80,90 @@ export function Padding(props: PaddingProps = {}) {
     }
   }, [name, change, focusIdx, attributeName]);
 
+  const methods = useForm({ defaultValues: paddingFormValues });
+  const { reset } = methods;
+
+  useEffect(() => {
+    reset(paddingFormValues);
+  }, [paddingFormValues, reset]);
+
   return (
-    <Form<{ top: string; right: string; left: string; bottom: string }>
-      initialValues={paddingFormValues}
-      subscription={{ submitting: true, pristine: true }}
-      enableReinitialize
-      onSubmit={() => {}}
-    >
-      {() => {
-        return (
-          <>
-            <Stack spacing={2}>
-              <Stack
-                direction="row"
-                sx={{
-                  alignItems: "center",
-                }}
-                spacing={2}
+    <FormProvider {...methods}>
+      <Stack spacing={2}>
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: "center",
+          }}
+          spacing={2}
+        >
+          <TextStyle variation="strong">{title}</TextStyle>
+          {showResetAll && (
+            <Tooltip title="Remove all padding" placement="top">
+              <IconButton
+                onClick={onResetPadding}
+                size="small"
+                sx={{ p: 0.5 }} // Keeps it tight like Arco's "mini"
               >
-                <TextStyle variation="strong">{title}</TextStyle>
-                {showResetAll && (
-                  <Tooltip title="Remove all padding" placement="top">
-                    <IconButton
-                      onClick={onResetPadding}
-                      size="small"
-                      sx={{ p: 0.5 }} // Keeps it tight like Arco's "mini"
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Stack>
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
 
-              <Stack
-                direction="row"
-                sx={{
-                  alignItems: "center",
-                }}
-                spacing={2}
-              >
-                <InputWithUnitField
-                  label={t("Top (px)")}
-                  name="top"
-                  autoComplete="off"
-                  config={pixelAdapter}
-                />
-                <InputWithUnitField
-                  label={t("Left (px)")}
-                  name="left"
-                  autoComplete="off"
-                  config={pixelAdapter}
-                />
-              </Stack>
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: "center",
+          }}
+          spacing={2}
+        >
+          <InputWithUnitField
+            label={t("Top (px)")}
+            name="top"
+            autoComplete="off"
+            config={pixelAdapter}
+          />
+          <InputWithUnitField
+            label={t("Left (px)")}
+            name="left"
+            autoComplete="off"
+            config={pixelAdapter}
+          />
+        </Stack>
 
-              <Stack
-                direction="row"
-                sx={{
-                  alignItems: "center",
-                }}
-                spacing={2}
-              >
-                <InputWithUnitField
-                  label={t("Bottom (px)")}
-                  name="bottom"
-                  config={pixelAdapter}
-                  autoComplete="off"
-                />
-                <InputWithUnitField
-                  label={t("Right (px)")}
-                  name="right"
-                  autoComplete="off"
-                  config={pixelAdapter}
-                />
-              </Stack>
-            </Stack>
-            <PaddingChangeWrapper onChange={onChancePadding} />
-          </>
-        );
-      }}
-    </Form>
+        <Stack
+          direction="row"
+          sx={{
+            alignItems: "center",
+          }}
+          spacing={2}
+        >
+          <InputWithUnitField
+            label={t("Bottom (px)")}
+            name="bottom"
+            config={pixelAdapter}
+            autoComplete="off"
+          />
+          <InputWithUnitField
+            label={t("Right (px)")}
+            name="right"
+            autoComplete="off"
+            config={pixelAdapter}
+          />
+        </Stack>
+      </Stack>
+      <PaddingChangeWrapper onChange={onChancePadding} />
+    </FormProvider>
   );
 }
 
 const PaddingChangeWrapper: React.FC<{ onChange: (val: string) => void }> = (
   props,
 ) => {
-  const {
-    values: { top, right, bottom, left },
-  } = useFormState();
+  const [top, right, bottom, left] = useWatch({
+    name: ["top", "right", "bottom", "left"],
+  });
   const { onChange } = props;
 
   useEffect(() => {

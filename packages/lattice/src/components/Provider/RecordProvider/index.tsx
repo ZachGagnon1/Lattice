@@ -1,5 +1,5 @@
 import { IEmailTemplate } from "@/typings";
-import { useForm, useFormState } from "react-final-form";
+import { useEditorForm } from "../EditorFormProvider";
 import { cloneDeep, isEqual } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRefState } from "@/hooks/useRefState";
@@ -27,7 +27,10 @@ export const RecordContext = React.createContext<{
 export const RecordProvider: React.FC<{ children?: React.ReactNode }> = (
   props,
 ) => {
-  const formState = useFormState<IEmailTemplate>();
+  const {
+    formState: { values },
+    formHelpers,
+  } = useEditorForm();
   const [data, setData] = useState<Array<IEmailTemplate>>([]);
   const [index, setIndex] = useState(-1);
   const indexRef = useRefState(index);
@@ -38,8 +41,6 @@ export const RecordProvider: React.FC<{ children?: React.ReactNode }> = (
   if (index >= 0 && data.length > 0) {
     currentData.current = data[index];
   }
-
-  const form = useForm("RecordProvider");
 
   const value = useMemo(() => {
     return {
@@ -52,21 +53,21 @@ export const RecordProvider: React.FC<{ children?: React.ReactNode }> = (
         );
         statusRef.current = "redo";
         setIndex(nextIndex);
-        form.reset(data[nextIndex]);
+        formHelpers.reset(data[nextIndex]);
       },
       undo: () => {
         const prevIndex = Math.max(0, index - 1);
         statusRef.current = "undo";
         setIndex(prevIndex);
-        form.reset(data[prevIndex]);
+        formHelpers.reset(data[prevIndex]);
       },
       reset: () => {
-        form.reset();
+        formHelpers.reset();
       },
       undoable: index > 0,
       redoable: index < data.length - 1,
     };
-  }, [data, form, index]);
+  }, [data, formHelpers, index]);
 
   useEffect(() => {
     if (statusRef.current === "redo" || statusRef.current === "undo") {
@@ -77,26 +78,24 @@ export const RecordProvider: React.FC<{ children?: React.ReactNode }> = (
 
     const isChanged = !(
       currentItem &&
-      isEqual(formState.values.content, currentItem.content) &&
-      formState.values.subTitle === currentItem.subTitle &&
-      formState.values.subTitle === currentItem.subTitle
+      isEqual(values.content, currentItem.content) &&
+      values.subject === currentItem.subject &&
+      values.subTitle === currentItem.subTitle
     );
 
     if (isChanged) {
-      currentData.current = formState.values;
+      currentData.current = values;
       statusRef.current = "add";
       setData((oldData) => {
         const list = oldData.slice(0, indexRef.current + 1);
 
-        const newData = [...list, cloneDeep(formState.values)].slice(
-          -MAX_RECORD_SIZE,
-        );
+        const newData = [...list, cloneDeep(values)].slice(-MAX_RECORD_SIZE);
 
         return newData;
       });
       setIndex(Math.min(indexRef.current + 1, MAX_RECORD_SIZE - 1));
     }
-  }, [formState, indexRef]);
+  }, [values, indexRef]);
 
   return (
     <RecordContext.Provider value={value}>

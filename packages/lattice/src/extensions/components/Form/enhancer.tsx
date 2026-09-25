@@ -1,13 +1,22 @@
-import { Field, UseFieldConfig } from "react-final-form";
+import { useController } from "react-hook-form";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRefState } from "@";
 import { debounce } from "lodash";
+import { toFieldPath } from "@/utils/formValues";
+
+/** Maps between the stored value and the value that the input shows. */
+export interface FieldAdapter {
+  // Method syntax on purpose: it lets an adapter declare a narrower parameter, such as `string`.
+  format?(value: unknown): unknown;
+  parse?(value: unknown): unknown;
+}
 
 export interface EnhancerProps {
   name: string;
-  onChangeAdapter?: (value: any) => any;
-  validate?: (value: any) => string | undefined | Promise<string | undefined>;
-  config?: UseFieldConfig<any, any>;
+  onChangeAdapter?(value: unknown): unknown;
+  /** Returns an error message, or `undefined` when the value is valid. */
+  validate?(value: unknown): string | undefined | Promise<string | undefined>;
+  config?: FieldAdapter;
   changeOnBlur?: boolean;
   label?: React.ReactNode;
   required?: boolean;
@@ -18,7 +27,8 @@ export interface EnhancerProps {
   labelHidden?: boolean;
 }
 
-const parse = (v: any) => v;
+// final-form showed an undefined value as "", so a controlled input never became uncontrolled.
+const defaultFormat = (value: unknown) => (value === undefined ? "" : value);
 
 export default function enhancer<
   P extends { onChange?: (...rest: any) => any },
@@ -27,9 +37,9 @@ export default function enhancer<
   changeAdapter: (args: Parameters<NonNullable<P["onChange"]>>) => any,
   option?: { debounceTime: number },
 ) {
-  return (
-    props: EnhancerProps & Omit<P, "value" | "onChange" | "mutators">,
-  ) => {
+  type FieldProps = EnhancerProps & Omit<P, "value" | "onChange" | "mutators">;
+
+  function BoundField(props: FieldProps) {
     const {
       name,
       validate,
@@ -41,100 +51,90 @@ export default function enhancer<
       helpText,
       autoComplete,
       labelHidden,
-      config: configProp,
+      config,
+      debounceTime: debounceTimeProp,
       ...rest
     } = props;
 
-    const debounceTime = props.debounceTime || option?.debounceTime || 300;
+    const debounceTime = debounceTimeProp || option?.debounceTime || 300;
 
-    const config = useMemo(() => {
-      return {
-        ...configProp,
-        validate: validate,
-        parse: configProp?.parse || parse,
-      };
-    }, [configProp, validate]);
+    const { field, fieldState, formState } = useController({
+      name: toFieldPath(name),
+      rules: validate
+        ? { validate: async (value) => (await validate(value)) ?? true }
+        : undefined,
+    });
 
-    const [currentValue, setCurrentValue] = useState("");
+    const format = config?.format ?? defaultFormat;
+    const parse = config?.parse;
+    const formatted = format(field.value);
+
+    const [currentValue, setCurrentValue] = useState(formatted);
     const currentValueRef = useRefState(currentValue);
 
-    return useMemo(() => {
-      return (
-        <Field name={name} {...config}>
-          {({ input: { onBlur, onChange, value }, meta }) => {
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+      setCurrentValue(formatted);
+    }, [formatted]);
 
-            const debounceCallbackChange = useCallback(
-              debounce((val) => {
-                onChange(val);
-                onBlur();
-              }, debounceTime),
-              [onChange, onBlur],
-            );
+    const { onChange, onBlur } = field;
+    const commit = useCallback(
+      (value: unknown) => {
+        onChange(parse ? parse(value) : value);
+        onBlur();
+      },
+      [onBlur, onChange, parse],
+    );
 
-            const onFieldChange: P["onChange"] = useCallback(
-              (e: any) => {
-                const newVal = onChangeAdapter
-                  ? onChangeAdapter(changeAdapter(e))
-                  : changeAdapter(e);
+    const debouncedCommit = useMemo(
+      () => debounce(commit, debounceTime),
+      [commit, debounceTime],
+    );
+    // A focus change unmounts the field. Flush, so the last keystrokes still reach the form.
+    useEffect(() => () => debouncedCommit.flush(), [debouncedCommit]);
 
-                setCurrentValue(newVal);
-                if (!changeOnBlur) {
-                  debounceCallbackChange(newVal);
-                }
-              },
-              [debounceCallbackChange],
-            );
+    const onFieldChange = useCallback(
+      (...args: Parameters<NonNullable<P["onChange"]>>) => {
+        const adapted = changeAdapter(args[0]);
+        const newValue = onChangeAdapter ? onChangeAdapter(adapted) : adapted;
+        setCurrentValue(newValue);
+        if (!changeOnBlur) {
+          debouncedCommit(newValue);
+        }
+      },
+      [changeOnBlur, debouncedCommit, onChangeAdapter],
+    );
 
-            const onFieldBlur = useCallback(() => {
-              if (changeOnBlur) {
-                onChange(currentValueRef.current);
-                onBlur();
-              }
-            }, [onBlur, onChange]);
+    const onFieldBlur = useCallback(() => {
+      if (changeOnBlur) {
+        commit(currentValueRef.current);
+      }
+    }, [changeOnBlur, commit, currentValueRef]);
 
-            useEffect(() => {
-              setCurrentValue(value);
-            }, [value]);
+    // final-form marked every field touched on submit. react-hook-form does not, so check the submit too.
+    const isError = Boolean(
+      fieldState.error && (fieldState.isTouched || formState.isSubmitted),
+    );
 
-            const isError = Boolean(meta.touched && meta.error);
-            const currentHelperText = isError ? meta.error : helpText;
+    return (
+      <Component
+        autoComplete={autoComplete}
+        {...rest}
+        name={name}
+        checked={currentValue}
+        value={currentValue}
+        onChange={onFieldChange}
+        onBlur={onFieldBlur}
+        label={labelHidden ? undefined : label}
+        error={isError}
+        helperText={isError ? fieldState.error?.message : helpText}
+        required={required}
+        style={style}
+      />
+    );
+  }
 
-            return (
-              <Component
-                autoComplete={autoComplete}
-                {...rest}
-                name={name}
-                checked={currentValue}
-                value={currentValue}
-                onChange={onFieldChange}
-                onBlur={onFieldBlur}
-                // --- Forwarded MUI Props ---
-                label={labelHidden ? undefined : label}
-                error={isError}
-                helperText={currentHelperText}
-                required={required}
-                style={style}
-              />
-            );
-          }}
-        </Field>
-      );
-    }, [
-      autoComplete,
-      changeOnBlur,
-      config,
-      currentValue,
-      currentValueRef,
-      debounceTime,
-      helpText,
-      label,
-      labelHidden,
-      name,
-      onChangeAdapter,
-      required,
-      rest,
-      style,
-    ]);
+  return function EnhancedField(props: FieldProps) {
+    // A new name is a new field. The key resets the local value and the pending debounce.
+    return <BoundField key={props.name} {...props} />;
   };
 }
