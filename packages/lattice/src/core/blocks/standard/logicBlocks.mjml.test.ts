@@ -261,6 +261,16 @@ describe("Condition else branch in real MJML", () => {
     expect(html).not.toContain("{{else}}");
   });
 
+  it("leaves out the else tag when the else branch holds only empty columns", async () => {
+    const emptySection = { ...Section.create(), children: [Column.create()] };
+    const { html } = await compile(
+      inParent(BasicType.PAGE, withElse([emptySection])),
+      "production",
+    );
+    expect(html).toContain("{{#if ");
+    expect(html).not.toContain("{{else}}");
+  });
+
   it("shows only the if branch when no rule is set", async () => {
     const tree = holding(
       Condition,
