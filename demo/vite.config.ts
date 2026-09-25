@@ -14,10 +14,6 @@ export default defineConfig({
     tsconfigPaths: true,
     alias: {
       react: path.resolve("./node_modules/react"),
-      "react-final-form": path.resolve(
-        __dirname,
-        "./node_modules/react-final-form",
-      ),
       "@demo": path.resolve(__dirname, "./src"),
       "@": path.resolve("../packages/lattice/src"),
       lattice: path.resolve("../packages/lattice/src/index.tsx"),
