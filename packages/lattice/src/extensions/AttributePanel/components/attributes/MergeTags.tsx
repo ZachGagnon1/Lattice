@@ -30,7 +30,6 @@ export interface TreeNode {
   selectable: boolean;
   /** `true` when the row is a folder. */
   expandable: boolean;
-  /** What the row represents. */
   kind: ScopedMergeTagEntry["kind"];
   children: TreeNode[];
 }
@@ -45,11 +44,11 @@ export const MergeTags: React.FC<{
   onChange: (v: string) => void;
   value: string;
   isSelect?: boolean;
-  /** When true, the raw path is returned. It is not wrapped in `{{ }}`. */
+  /** When true, the picker emits the raw path, with no `{{ }}` around it. */
   rawPath?: boolean;
-  /** When true, only arrays are selectable. Use it for a loop source picker. */
+  /** When true, only an array is selectable. Use it for a loop source picker. */
   arraysOnly?: boolean;
-  /** When true, a loop declared by the focused block itself is in scope. */
+  /** When true, the loop of the focused block itself is in scope. */
   includeSelfLoop?: boolean;
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
@@ -181,7 +180,7 @@ export const MergeTags: React.FC<{
     return nodes.map((node) => {
       const isFolder = node.expandable;
       // A folder must stay enabled, because x-tree-view v9 cannot expand a
-      // disabled item. Grey the label instead. Only a leaf gets `disabled`.
+      // disabled item. Dim the label instead. Only a leaf gets `disabled`.
       const dimLabel = !node.selectable && isFolder;
       const showHint = node.kind === "loop-field";
 

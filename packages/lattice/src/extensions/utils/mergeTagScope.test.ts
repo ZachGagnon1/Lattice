@@ -8,12 +8,11 @@ import {
   isExpandable,
 } from "./mergeTagScope";
 
-/** Build a plain block shaped like the real form state. */
+/** Build a block that has the shape of the real form state. */
 function block(type: string, value: any, children: any[] = []) {
   return { type, data: { value }, attributes: {}, children };
 }
 
-/** Build a for-loop block. */
 function forLoop(dataSource: string, itemAs: string, children: any[] = []) {
   return block(BasicType.FOR_LOOP, { dataSource, itemAs }, children);
 }
@@ -27,12 +26,11 @@ function table(source: string, itemAs: string, children: any[] = []) {
   );
 }
 
-/** Build a text block. */
 function text() {
   return block(BasicType.TEXT, { content: "hello" });
 }
 
-/** Build the form values around a page whose children are given. */
+/** Build the form values that hold a page with the given children. */
 function values(children: any[]) {
   return { content: block(BasicType.PAGE, {}, children) };
 }

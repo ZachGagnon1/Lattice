@@ -4,10 +4,10 @@ import { BasicType } from "@/core/constants";
 import { getParentIdx } from "@/core/utils/block";
 
 /**
- * NOTE: a merge tag key that contains a literal `.` (for example `{ "a.b": 1 }`)
- * cannot be addressed, because every path here goes through lodash `get`, which
- * reads a `.` as a path separator. This is a pre-existing limitation of the
- * merge tag system and is out of scope for this module.
+ * NOTE: no path can address a merge tag key that contains a literal `.`, such
+ * as `{ "a.b": 1 }`. Each path here goes through lodash `get`, which reads a
+ * `.` as a path separator. The limit is older than this module, and this
+ * module does not fix it.
  */
 
 /**
@@ -26,7 +26,10 @@ export interface LoopScope {
   itemAs: string;
   /** The path segment we emit for the loop item. This is `itemAs` or `"this"`. */
   prefix: string;
-  /** The sample for one ITEM of the array, that is element 0. It is `undefined` when the source does not resolve. */
+  /**
+   * The sample for one ITEM of the array, that is element 0. It is
+   * `undefined` when the source does not resolve.
+   */
   sample: any;
   /** `true` only when the source resolves to a non-empty array. */
   resolved: boolean;
@@ -60,7 +63,6 @@ export interface ScopedMergeTagEntry {
   emitPath: string;
   /** The sample value. The picker uses it to decide leaf, array, or object. */
   value: any;
-  /** What this entry represents. */
   kind: ScopedMergeTagKind;
   /** The loop that owns this entry. It is absent for a global. */
   scope?: LoopScope;
@@ -82,7 +84,7 @@ export interface ScopedMergeTags {
  * Options for {@link getLoopScopes} and {@link getScopedMergeTags}.
  */
 export interface ScopeOptions {
-  /** Include a loop declared by the block AT `idx` itself. Default false. */
+  /** Include the loop that the block at `idx` declares. Default false. */
   includeSelfLoop?: boolean;
 }
 
@@ -98,7 +100,7 @@ export interface ScopeOptions {
  */
 export const isExpandable = (value: unknown): boolean => isPlainObject(value);
 
-/** A loop declaration read off a block, before the source is resolved. */
+/** A loop declaration from a block, before the source is resolved. */
 interface LoopDeclaration {
   idx: string;
   source: string;
@@ -111,7 +113,7 @@ function readString(value: unknown): string {
 }
 
 /**
- * Read the loop declaration off one block.
+ * Read the loop declaration from one block.
  *
  * A Table declares its loop through `rowLoop`. That loop wraps the Table's own
  * rows and `Table.children` is always empty, so it must never reach a
@@ -228,9 +230,8 @@ function shadowFilter(scopes: LoopScope[]): LoopScope[] {
 /**
  * Find every `{{#each}}` loop that is active at a block position.
  *
- * The function walks up the block tree, reads each loop declaration, and
- * resolves the sources outermost first so that an inner source can name an
- * outer alias. It never throws on malformed block data; it skips it.
+ * It resolves the sources outermost first so an inner source can name an
+ * outer alias. It skips malformed block data. It never throws.
  *
  * @param mergeTags - The root merge tag sample data.
  * @param context - The form values, that is `{ content: <page block> }`.
