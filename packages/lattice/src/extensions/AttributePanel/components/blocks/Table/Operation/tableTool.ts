@@ -92,8 +92,8 @@ class TableColumnTool {
   }
 
   hideBorder = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === "TD" || target.tagName === "TH") return;
+    // The click after a drag lands on the row that holds both cells, not on a td.
+    if (this.hoveringTable?.contains(e.target as Node)) return;
     this.visibleBorder(false);
   };
 
@@ -184,8 +184,7 @@ class TableColumnTool {
         this.tableMenu.setTableData(this.tableData as any);
         this.tableMenu.changeTableData = this.changeTableData;
         this.tableMenu.setTableIndexBoundary(tdBoundaryIndex);
-        // The menu node is absolute in the iframe body, so it needs page coordinates.
-        this.tableMenu.showMenu({ x: event.pageX, y: event.pageY });
+        this.tableMenu.showMenu({ x: event.clientX, y: event.clientY });
         return;
       }
     }
