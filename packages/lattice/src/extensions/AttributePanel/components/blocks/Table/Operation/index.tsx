@@ -1,5 +1,5 @@
 import { cloneDeep, pick } from "lodash";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import TableColumnTool from "./tableTool";
 import { ITableCellData } from "@/core/blocks";
 import {
@@ -7,6 +7,7 @@ import {
   DATA_RENDER_COUNT,
   getIframeDocument,
   useBlock,
+  useEditorContext,
   useFocusIdx,
 } from "@";
 
@@ -18,8 +19,15 @@ const TABLE_CELL_KEYS: (keyof ITableCellData)[] = [
 ];
 
 export function TableOperation() {
-  const iframeDocument = getIframeDocument();
-  const element = iframeDocument?.querySelector(`[${DATA_RENDER_COUNT}]`);
+  const { initialized } = useEditorContext();
+  // Read the node after the editor starts. During the first render the iframe holds no content.
+  const element = useMemo(
+    () =>
+      initialized
+        ? getIframeDocument()?.querySelector(`[${DATA_RENDER_COUNT}]`)
+        : null,
+    [initialized],
+  );
   const { focusIdx } = useFocusIdx();
   const { focusBlock, change } = useBlock();
   const tool = useRef<TableColumnTool | null>(null);

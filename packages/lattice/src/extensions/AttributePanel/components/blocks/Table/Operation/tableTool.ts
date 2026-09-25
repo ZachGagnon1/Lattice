@@ -92,8 +92,8 @@ class TableColumnTool {
   }
 
   hideBorder = (e: MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === "TD" || target.tagName === "TH") return;
+    // The click after a drag lands on the row that holds both cells, not on a td.
+    if (this.hoveringTable?.contains(e.target as Node)) return;
     this.visibleBorder(false);
   };
 
