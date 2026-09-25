@@ -21,13 +21,6 @@ class TableColumnTool {
   borderTool = {} as IBorderTool;
   dragging = false;
   showBorderTool = false;
-  startRect = {} as { width: number; height: number };
-  startTdTop = 0;
-  startTdLeft = 0;
-  endTdTop = 0;
-  endTdLeft = 0;
-  width = 0;
-  height = 0;
 
   selectedLeftTopCell: Element | undefined = undefined;
   selectedBottomRightCell: Element | undefined = undefined;
@@ -54,7 +47,7 @@ class TableColumnTool {
     );
     this.root?.addEventListener(
       "mousedown",
-      this.handleMousedown.bind(this) as EventListener,
+      this.handleMousedown as EventListener,
     );
     getIframeDocument()?.body.addEventListener(
       "click",
@@ -79,7 +72,7 @@ class TableColumnTool {
     );
     this.root?.removeEventListener(
       "mousedown",
-      this.handleMousedown.bind(this) as EventListener,
+      this.handleMousedown as EventListener,
     );
     getIframeDocument()?.body.removeEventListener(
       "click",
@@ -176,19 +169,21 @@ class TableColumnTool {
         this.selectedLeftTopCell as Element,
         this.selectedBottomRightCell as Element,
       );
-      if (checkEventInBoundingRect(selectedBoundary, event)) {
+      const tdBoundaryIndex = getTdBoundaryIndex(
+        this.selectedLeftTopCell as Element,
+        this.selectedBottomRightCell as Element,
+      );
+      if (
+        tdBoundaryIndex &&
+        checkEventInBoundingRect(selectedBoundary, event)
+      ) {
         event.preventDefault();
 
         if (!this.tableMenu) this.tableMenu = new TableOperationMenu();
 
         this.tableMenu.setTableData(this.tableData as any);
         this.tableMenu.changeTableData = this.changeTableData;
-        this.tableMenu.setTableIndexBoundary(
-          getTdBoundaryIndex(
-            this.selectedLeftTopCell as Element,
-            this.selectedBottomRightCell as Element,
-          ),
-        );
+        this.tableMenu.setTableIndexBoundary(tdBoundaryIndex);
         this.tableMenu.showMenu({ x: event.clientX, y: event.clientY });
         return;
       }
@@ -197,7 +192,7 @@ class TableColumnTool {
     this.visibleBorder(false);
   };
 
-  handleMousedown(event: MouseEvent) {
+  handleMousedown = (event: MouseEvent) => {
     if (event.button === 2) return;
 
     let target = event.target as Element | null;
@@ -232,7 +227,7 @@ class TableColumnTool {
       }
     }
     this.visibleBorder(false);
-  }
+  };
 
   handleDrag = (e: MouseEvent) => {
     e.preventDefault();

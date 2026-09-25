@@ -170,18 +170,23 @@ export const checkEventInBoundingRect = (
   { x, y }: { x: number; y: number },
 ) => x >= rect.left && x <= rect.right && y <= rect.bottom && y >= rect.top;
 
-const getCellIndex = (cellElement: Element) => {
-  let idxName = cellElement.getAttribute(DATA_CONTENT_EDITABLE_IDX) as string;
-  idxName = idxName.split("data.value.tableSource.")[1].split(".content")[0];
-  return idxName.split(".").map((e) => Number(e));
+const CELL_INDEX_PATTERN = /data\.value\.tableSource\.(\d+)\.(\d+)\.content$/;
+
+const getCellIndex = (cellElement: Element): [number, number] | null => {
+  const match = cellElement
+    .getAttribute(DATA_CONTENT_EDITABLE_IDX)
+    ?.match(CELL_INDEX_PATTERN);
+  return match ? [Number(match[1]), Number(match[2])] : null;
 };
 
+// Returns null when a cell is not a table source cell, for example a td from nested HTML.
 export const getTdBoundaryIndex = (
   leftTopCell: Element,
   bottomRightCell: Element,
-) => {
+): IBoundingPosition | null => {
   const idx1 = getCellIndex(leftTopCell);
   const idx2 = getCellIndex(bottomRightCell);
+  if (!idx1 || !idx2) return null;
   return { top: idx1[0], left: idx1[1], right: idx2[1], bottom: idx2[0] };
 };
 
