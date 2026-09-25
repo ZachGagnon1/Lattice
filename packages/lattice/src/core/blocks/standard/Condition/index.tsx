@@ -24,6 +24,18 @@ export type IConditionBlock = IBlockData<
   }
 >;
 
+const LAYOUT_TYPES: string[] = [
+  BasicType.SECTION,
+  BasicType.GROUP,
+  BasicType.COLUMN,
+];
+
+// A Section with only empty Columns renders as blank space, so it does not count as content.
+const holdsContent = (block: IBlockData): boolean =>
+  block.children.some((child) =>
+    LAYOUT_TYPES.includes(child.type) ? holdsContent(child) : true,
+  );
+
 export const Condition = createBlock<IConditionBlock>({
   get name() {
     return t("If Condition");
@@ -46,6 +58,7 @@ export const Condition = createBlock<IConditionBlock>({
         {
           ...ConditionBranch.create({ data: { value: { branch: "else" } } }),
           title: t("Else"),
+          children: [Section.create({ children: [Column.create()] })],
         },
       ],
     };
@@ -98,7 +111,7 @@ export const Condition = createBlock<IConditionBlock>({
     const [ifBranch, elseBranch] = data.children;
     const [ifMarkup, elseMarkup] = renderedChildren;
     const hasIf = Boolean(ifBranch?.children.length);
-    const hasElse = Boolean(elseBranch?.children.length);
+    const hasElse = Boolean(elseBranch && holdsContent(elseBranch));
 
     // With no rule, the "if" branch always shows, so the "else" branch never shows.
     if (!hasCondition) return hasIf ? <>{ifMarkup}</> : null;

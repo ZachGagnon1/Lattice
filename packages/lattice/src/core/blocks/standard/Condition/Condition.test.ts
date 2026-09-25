@@ -65,10 +65,15 @@ describe("Condition.create()", () => {
     ]);
   });
 
-  it("leaves the else branch empty", () => {
+  it("puts one Section with one Column in the else branch", () => {
     const [, elseBranch] = Condition.create().children!;
+    const section = elseBranch.children![0];
 
-    expect(elseBranch.children).toEqual([]);
+    expect(elseBranch.children).toHaveLength(1);
+    expect(section.type).toBe(BasicType.SECTION);
+    expect(section.children!.map((child) => child.type)).toEqual([
+      BasicType.COLUMN,
+    ]);
   });
 
   it("defaults the rules tree to an empty AND group", () => {
@@ -192,8 +197,8 @@ describe("Condition render in testing mode", () => {
   it("renders the default Section and Column instead of the placeholder", () => {
     const output = render(Condition.create(), "testing");
 
-    expect(output).toContain("ELSE: Drop a Section block here");
-    expect(output.split("Drop a Section block here")).toHaveLength(2);
+    expect(output).toContain(">ELSE<");
+    expect(output).not.toContain("Drop a Section block here");
     expect(output).toContain("node-type-condition-branch");
     expect(output).toContain("node-type-section");
     expect(output).toContain("node-type-column");
