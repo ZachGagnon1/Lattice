@@ -36,21 +36,33 @@ const CONFIG: Record<string, any> = {
   [BasicType.FOR_LOOP]: { dataSource: "products", itemAs: "product" },
 };
 
-function logicBlock(block: any) {
+const sectionWith = (content: string) => ({
+  ...Section.create(),
+  children: [
+    {
+      ...Column.create(),
+      children: [Text.create({ data: { value: { content } } })],
+    },
+  ],
+});
+
+// A Condition keeps its Sections in its branches; a ForLoop holds them directly.
+function holding(block: any, sections: any[], elseSections: any[] = []) {
+  const tree = block.create();
+  if (block.type !== BasicType.CONDITION)
+    return { ...tree, children: sections };
+  const [ifBranch, elseBranch] = tree.children;
   return {
-    ...block.create(),
+    ...tree,
     children: [
-      {
-        ...Section.create(),
-        children: [
-          {
-            ...Column.create(),
-            children: [Text.create({ data: { value: { content: "Hello" } } })],
-          },
-        ],
-      },
+      { ...ifBranch, children: sections },
+      { ...elseBranch, children: elseSections },
     ],
   };
+}
+
+function logicBlock(block: any) {
+  return holding(block, [sectionWith("Hello")]);
 }
 
 const configured = (block: any) => {
@@ -154,13 +166,10 @@ describe.each([
       ...Column.create(),
       children: [Text.create({ data: { value: { content: "Hello" } } })],
     });
-    const tree = {
-      ...block.create(),
-      children: [
-        { ...Section.create(), children: [column(), column()] },
-        { ...Section.create(), children: [column()] },
-      ],
-    };
+    const tree = holding(block, [
+      { ...Section.create(), children: [column(), column()] },
+      { ...Section.create(), children: [column()] },
+    ]);
     const { errors, html } = await compile(
       inParent(BasicType.PAGE, tree),
       "testing",
@@ -182,5 +191,88 @@ describe.each([
     expect(open).toBeGreaterThan(-1);
     expect(open).toBeLessThan(content);
     expect(content).toBeLessThan(close);
+  });
+});
+
+describe("Condition else branch in real MJML", () => {
+  const withElse = (elseSections: any[]) => {
+    const tree = holding(Condition, [sectionWith("Hello")], elseSections);
+    return {
+      ...tree,
+      data: { ...tree.data, value: CONFIG[BasicType.CONDITION] },
+    };
+  };
+
+  it("compiles both branches without errors in the editor", async () => {
+    const { errors, html } = await compile(
+      inParent(BasicType.PAGE, withElse([sectionWith("Bye")])),
+      "testing",
+    );
+    expect(errors).toEqual([]);
+    const document = parse(html);
+    const branches = document.querySelectorAll(".node-type-condition-branch");
+    expect(branches).toHaveLength(1);
+    expect(branches[0].textContent).toContain("ELSE");
+    const texts = Array.from(document.querySelectorAll(".node-type-text"));
+    expect(texts.map((text) => text.textContent?.trim())).toEqual([
+      "Hello",
+      "Bye",
+    ]);
+    for (const text of texts) {
+      expect(text.closest(".node-type-condition")).not.toBeNull();
+    }
+  });
+
+  // The else strip is the only drop target of an empty else branch.
+  it("gives an empty else branch a drop target with its own classes", async () => {
+    const { html } = await compile(
+      inParent(BasicType.PAGE, withElse([])),
+      "testing",
+    );
+    const strip = parse(html).querySelector(".node-type-condition-branch");
+    expect(strip?.textContent).toContain("ELSE: Drop a Section block here");
+    expect(strip?.classList.contains("email-block")).toBe(true);
+    expect(
+      Array.from(strip!.classList).some((name) =>
+        name.endsWith(".children.[1]"),
+      ),
+    ).toBe(true);
+  });
+
+  it("puts the else content between the else and close tags", async () => {
+    const { errors, html } = await compile(
+      inParent(BasicType.PAGE, withElse([sectionWith("Bye")])),
+      "production",
+    );
+    expect(errors).toEqual([]);
+    const order = ["{{#if ", "Hello", "{{else}}", "Bye", "{{/if}}"].map(
+      (needle) => html.indexOf(needle),
+    );
+    expect(order.every((index) => index > -1)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
+  it("leaves out the else tag when the else branch is empty", async () => {
+    const { html } = await compile(
+      inParent(BasicType.PAGE, withElse([])),
+      "production",
+    );
+    expect(html).toContain("{{#if ");
+    expect(html).not.toContain("{{else}}");
+  });
+
+  it("shows only the if branch when no rule is set", async () => {
+    const tree = holding(
+      Condition,
+      [sectionWith("Hello")],
+      [sectionWith("Bye")],
+    );
+    const { html } = await compile(
+      inParent(BasicType.PAGE, tree),
+      "production",
+    );
+    expect(html).toContain("Hello");
+    expect(html).not.toContain("Bye");
+    expect(html).not.toContain("{{#if");
   });
 });

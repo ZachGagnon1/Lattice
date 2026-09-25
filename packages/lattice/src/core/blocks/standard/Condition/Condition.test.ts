@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { BasicType } from "@/core/constants";
 import { Condition } from "./index";
+import { ConditionBranch } from "../ConditionBranch";
 import { BlockManager } from "@/core/utils";
 import { Section } from "../Section";
 import { Column } from "../Column";
@@ -29,6 +30,7 @@ const empty = () => ({ ...Condition.create(), children: [] });
 beforeAll(() => {
   BlockManager.registerBlocks({
     [Condition.type]: Condition,
+    [ConditionBranch.type]: ConditionBranch,
     [Section.type]: Section,
     [Column.type]: Column,
   });
@@ -39,18 +41,34 @@ describe("Condition.create()", () => {
     expect(Condition.create().type).toBe(BasicType.CONDITION);
   });
 
-  it("ships one Section child", () => {
-    const block = Condition.create();
+  it("ships an if branch and an else branch, in that order", () => {
+    const branches = Condition.create().children!;
 
-    expect(block.children).toHaveLength(1);
-    expect(block.children![0].type).toBe(BasicType.SECTION);
+    expect(branches.map((branch) => branch.type)).toEqual([
+      BasicType.CONDITION_BRANCH,
+      BasicType.CONDITION_BRANCH,
+    ]);
+    expect(branches.map((branch) => branch.data.value.branch)).toEqual([
+      "if",
+      "else",
+    ]);
   });
 
-  it("ships a Section that holds one Column", () => {
-    const section = Condition.create().children![0];
+  it("puts one Section with one Column in the if branch", () => {
+    const [ifBranch] = Condition.create().children!;
+    const section = ifBranch.children![0];
 
-    expect(section.children).toHaveLength(1);
-    expect(section.children![0].type).toBe(BasicType.COLUMN);
+    expect(ifBranch.children).toHaveLength(1);
+    expect(section.type).toBe(BasicType.SECTION);
+    expect(section.children!.map((child) => child.type)).toEqual([
+      BasicType.COLUMN,
+    ]);
+  });
+
+  it("leaves the else branch empty", () => {
+    const [, elseBranch] = Condition.create().children!;
+
+    expect(elseBranch.children).toEqual([]);
   });
 
   it("defaults the rules tree to an empty AND group", () => {
@@ -88,8 +106,10 @@ describe("Condition.validParentType", () => {
     expect(Condition.validParentType).toEqual([BasicType.PAGE]);
   });
 
-  it("is admitted by a Section but not by a Column", () => {
-    expect(Section.validParentType).toContain(BasicType.CONDITION);
+  it("holds branches, and only a branch holds a Section", () => {
+    expect(ConditionBranch.validParentType).toEqual([BasicType.CONDITION]);
+    expect(Section.validParentType).toContain(BasicType.CONDITION_BRANCH);
+    expect(Section.validParentType).not.toContain(BasicType.CONDITION);
     expect(Column.validParentType).not.toContain(BasicType.CONDITION);
   });
 });
@@ -172,7 +192,9 @@ describe("Condition render in testing mode", () => {
   it("renders the default Section and Column instead of the placeholder", () => {
     const output = render(Condition.create(), "testing");
 
-    expect(output).not.toContain("Drop a Section block here");
+    expect(output).toContain("ELSE: Drop a Section block here");
+    expect(output.split("Drop a Section block here")).toHaveLength(2);
+    expect(output).toContain("node-type-condition-branch");
     expect(output).toContain("node-type-section");
     expect(output).toContain("node-type-column");
   });

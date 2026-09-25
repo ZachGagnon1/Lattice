@@ -24,6 +24,7 @@ export enum BasicType {
   // Lattice adds the TABLE, CONDITION, and FOR_LOOP blocks.
   TABLE = "table",
   CONDITION = "condition",
+  CONDITION_BRANCH = "condition-branch",
   FOR_LOOP = "for-loop",
 
   TEMPLATE = "template",

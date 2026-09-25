@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { compileCondition } from "./compileCondition";
+import {
+  compileCondition,
+  compileConditionOpen,
+  CONDITION_CLOSE,
+  CONDITION_ELSE,
+} from "./compileCondition";
 import {
   ComparisonOperator,
   IConditionGroup,
@@ -365,5 +370,25 @@ describe("compileCondition robustness", () => {
     expect(result.ruleCount).toBe(2);
     expect(result.issues[0].code).toBe("MISSING_FIELD");
     expect(result.issues[0].path).toBe("rules.0");
+  });
+});
+
+describe("condition tags", () => {
+  it("opens with the compiled expression", () => {
+    const root = group("AND", [rule("age", "GREATER_THAN", "18")]);
+
+    expect(compileConditionOpen(root)).toBe(
+      `{{#if ${compileCondition(root).expression}}}`,
+    );
+  });
+
+  it("opens nothing when no rule compiles", () => {
+    expect(compileConditionOpen(group("AND", []))).toBeNull();
+    expect(compileConditionOpen(undefined)).toBeNull();
+  });
+
+  it("uses the plain Handlebars else and close tags", () => {
+    expect(CONDITION_ELSE).toBe("{{else}}");
+    expect(CONDITION_CLOSE).toBe("{{/if}}");
   });
 });
