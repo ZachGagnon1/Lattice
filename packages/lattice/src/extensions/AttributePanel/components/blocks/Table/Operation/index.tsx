@@ -1,6 +1,7 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep, pick } from "lodash";
 import React, { useEffect, useRef } from "react";
 import TableColumnTool from "./tableTool";
+import { ITableCellData } from "@/core/blocks";
 import {
   BasicType,
   DATA_RENDER_COUNT,
@@ -8,6 +9,13 @@ import {
   useBlock,
   useFocusIdx,
 } from "@";
+
+const TABLE_CELL_KEYS: (keyof ITableCellData)[] = [
+  "content",
+  "colSpan",
+  "rowSpan",
+  "backgroundColor",
+];
 
 export function TableOperation() {
   const iframeDocument = getIframeDocument();
@@ -49,8 +57,12 @@ export function TableOperation() {
   // Keep tableData and changeTableData in sync with the focused block.
   useEffect(() => {
     if (!tool.current) return;
-    tool.current.changeTableData = (data: any[][]) => {
-      change(`${focusIdx}.data.value.tableSource`, cloneDeep(data));
+    tool.current.changeTableData = (data: ITableCellData[][]) => {
+      // The menu adds layout fields to each cell. Keep them out of the template.
+      const tableSource = data.map((row) =>
+        row.map((cell) => pick(cell, TABLE_CELL_KEYS)),
+      );
+      change(`${focusIdx}.data.value.tableSource`, tableSource);
     };
     tool.current.tableData = cloneDeep(
       focusBlock?.data?.value?.tableSource || [],

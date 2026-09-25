@@ -2,7 +2,7 @@ import React from "react";
 import { IBlockData } from "@/core/typings";
 import { BasicType } from "@/core/constants";
 import { createBlock } from "@/core/utils/createBlock";
-import { merge } from "lodash";
+import { cloneDeep, mergeWith } from "lodash";
 import { BasicBlock } from "@/core/components/BasicBlock";
 import { t } from "@/core/utils";
 import { wrapTableRowsInEach } from "@/core/utils/handlebars";
@@ -51,7 +51,7 @@ export const Table = createBlock<ITable>({
       type: BasicType.TABLE,
       data: {
         value: {
-          tableSource: DEFAULT_TABLE_SOURCE,
+          tableSource: cloneDeep(DEFAULT_TABLE_SOURCE),
           rowLoop: { source: "", itemAs: "", headerRows: 1 },
         },
       },
@@ -61,7 +61,10 @@ export const Table = createBlock<ITable>({
       },
       children: [],
     };
-    return merge(defaultData, payload);
+    // A payload array replaces the default. An index-wise merge mixes two grids.
+    return mergeWith(defaultData, payload, (_, source) =>
+      Array.isArray(source) ? source : undefined,
+    );
   },
   validParentType: [BasicType.COLUMN, BasicType.HERO],
   render(params) {
