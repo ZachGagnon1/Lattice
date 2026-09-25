@@ -134,6 +134,6 @@ export const getParenRelativeByType = <T extends IBlockData>(
 
 export const getValidChildBlocks = (type: BlockType): IBlock[] => {
   return BlockManager.getBlocks().filter((item) =>
-    item.validParentType.includes(type),
+    BlockManager.isValidParent(item, type),
   );
 };

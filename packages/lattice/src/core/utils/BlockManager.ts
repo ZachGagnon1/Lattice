@@ -22,14 +22,19 @@ export class BlockManager {
   public static getBlockByType<T extends IBlockData>(
     type: string,
   ): IBlock<T> | undefined {
-    const block = this.blocksMap[type];
-    if (block) return block as IBlock<any> as IBlock<T>;
-    // Legacy advanced_ type strings map to the basic block type.
-    if (type.startsWith("advanced_")) {
-      const basicType = type.replace("advanced_", "");
-      return this.blocksMap[basicType] as IBlock<any> as IBlock<T>;
-    }
-    return undefined;
+    const block =
+      this.blocksMap[type] ?? this.blocksMap[this.toBasicType(type)];
+    return block as IBlock<any> as IBlock<T> | undefined;
+  }
+
+  /** Maps a legacy `advanced_` type string to the basic block type. */
+  public static toBasicType(type: string): string {
+    return type.startsWith("advanced_") ? type.replace("advanced_", "") : type;
+  }
+
+  /** Accepts a legacy `advanced_` parent type, which old templates and the layout presets still store. */
+  public static isValidParent(block: IBlock, parentType: string): boolean {
+    return block.validParentType.includes(this.toBasicType(parentType));
   }
 
   public static getBlocksByType(
@@ -59,15 +64,16 @@ export class BlockManager {
     if (!block) {
       throw new Error(`Can you register ${type} block`);
     }
-    if (block.validParentType.includes(targetType)) {
+    const basicTargetType = this.toBasicType(targetType);
+    if (block.validParentType.includes(basicTargetType)) {
       return [];
     }
-    const paths = this.getAutoCompleteFullPath()[type as any].find((item) =>
-      item.filter((_, index) => index !== 0).includes(targetType),
+    const paths = this.getAutoCompleteFullPath()[block.type].find((item) =>
+      item.filter((_, index) => index !== 0).includes(basicTargetType),
     );
 
     if (!paths) return null;
-    const findIndex = paths.findIndex((item) => item === targetType);
+    const findIndex = paths.findIndex((item) => item === basicTargetType);
     return paths.slice(1, findIndex);
   }
 

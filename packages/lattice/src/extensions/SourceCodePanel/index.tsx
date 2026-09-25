@@ -94,7 +94,10 @@ export function SourceCodePanel({
         const parentBlock = getParentByIdx(values, focusIdx)!;
         const parseBlock = BlockManager.getBlockByType(parseValue.type);
 
-        if (!parseBlock?.validParentType.includes(parentBlock?.type)) {
+        if (
+          !parseBlock ||
+          !BlockManager.isValidParent(parseBlock, parentBlock.type)
+        ) {
           throw new Error(t("Invalid child block for this parent"));
         }
       } else if (focusIdx !== getPageIdx()) {

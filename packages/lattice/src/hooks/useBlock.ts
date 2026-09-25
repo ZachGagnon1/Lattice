@@ -92,7 +92,7 @@ export function useBlock() {
       }
 
       const fixedBlock = BlockManager.getBlockByType(child.type);
-      if (!fixedBlock?.validParentType.includes(parent.type)) {
+      if (!fixedBlock || !BlockManager.isValidParent(fixedBlock, parent.type)) {
         console.error(
           `${block.type} cannot be used inside ${
             parentBlock.type

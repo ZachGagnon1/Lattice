@@ -183,13 +183,13 @@ export function BlockLayer(props: BlockLayerProps) {
 
       if (dropPosition === 0) {
         if (
-          dragBlock.validParentType.includes(dropNode.dataRef.type) &&
+          BlockManager.isValidParent(dragBlock, dropNode.dataRef.type) &&
           dropNode.dataRef.children.length === 0
         ) {
           moveBlock(dragNode.key, getChildIdx(dropNode.key, 0));
         } else if (
           dropNode.parent &&
-          dragBlock.validParentType.includes(dropNode.parent.type)
+          BlockManager.isValidParent(dragBlock, dropNode.parent.type)
         ) {
           // drop to parent
           moveBlock(dragNode.key, getChildIdx(dropNode.parentKey, dropIndex));
