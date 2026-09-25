@@ -247,3 +247,20 @@ export function compileCondition(
     ruleCount: counter.rules,
   };
 }
+
+export const CONDITION_ELSE = "{{else}}";
+
+/** The closing tag of every condition this module opens. */
+export const CONDITION_CLOSE = "{{/if}}";
+
+/**
+ * Builds the opening tag of a condition.
+ *
+ * @returns `{{#if expression}}`, or `null` when no rule compiles.
+ */
+export function compileConditionOpen(
+  root: IConditionGroup | undefined,
+): string | null {
+  const { expression } = compileCondition(root);
+  return expression ? `{{#if ${expression}}}` : null;
+}

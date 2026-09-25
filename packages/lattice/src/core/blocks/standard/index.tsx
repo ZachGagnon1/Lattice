@@ -22,6 +22,7 @@ import { AccordionText, IAccordionText } from "./AccordionText";
 import { ITable, Table } from "./Table";
 import { BasicType } from "@/core/constants";
 import { Condition } from "@/core/blocks/standard/Condition";
+import { ConditionBranch } from "@/core/blocks/standard/ConditionBranch";
 import { ForLoop, IForLoop } from "@/core/blocks/standard/ForLoop";
 
 export type { IConditionBlock } from "@/core/blocks/standard/Condition";
@@ -43,6 +44,7 @@ export const standardBlocks = {
   [BasicType.NAVBAR]: Navbar,
   [BasicType.SOCIAL]: Social,
   [BasicType.CONDITION]: Condition,
+  [BasicType.CONDITION_BRANCH]: ConditionBranch,
   [BasicType.FOR_LOOP]: ForLoop,
 
   // spacial block, render string

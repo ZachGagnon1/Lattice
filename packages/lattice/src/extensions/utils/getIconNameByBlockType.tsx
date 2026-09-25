@@ -38,6 +38,7 @@ let iconsMap = {
   [BasicType.ACCORDION]: <TableRowsIcon />,
   [BasicType.TABLE]: <TableChartIcon />,
   [BasicType.CONDITION]: <AltRouteIcon />,
+  [BasicType.CONDITION_BRANCH]: <AltRouteIcon />,
   [BasicType.FOR_LOOP]: <LoopIcon />,
 };
 

@@ -106,7 +106,9 @@ The `StandardLayout` composes pluggable extension panels:
    ```
 4. In **editor/testing mode** it renders a visible orange-bordered region with a human-readable label (`firstName equals "John" AND age > 18`). The author sees which condition applies.
 
-**Valid children:** A Condition block holds Section blocks only. A new Condition block starts with one Section that holds one Column. Add more Columns to that Section, or add more Sections, for example a two-column Section above a one-column Section.
+**Valid children:** A Condition block holds exactly two `BasicType.CONDITION_BRANCH` blocks: the "if" branch, then the "else" branch. Each branch holds Section blocks only. A new Condition block starts with one Section that holds one Column in the "if" branch, and an empty "else" branch. The branch block never appears in the block palette.
+
+**Else branch:** In production the block outputs `{{#if expr}} …if… {{else}} …else… {{/if}}`. The `{{else}}` goes out only when the "else" branch holds a block. With no rule set, only the "if" branch renders. In the editor, each branch renders a label strip that carries its editor classes, because a branch cannot be an `mj-wrapper` inside the Condition's `mj-wrapper`. The strip is the drop target of an empty branch.
 
 **Valid parent:** A Condition block goes only at page level. In the editor it renders an `mj-wrapper`, and MJML does not allow an `mj-wrapper` inside an `mj-wrapper`. The For Loop block follows the same rules. `logicBlocks.mjml.test.ts` compiles both blocks with real MJML and fails on an invalid parent.
 

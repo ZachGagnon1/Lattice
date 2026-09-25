@@ -5,8 +5,14 @@ import { createBlock } from "@/core/utils/createBlock";
 import { merge } from "lodash";
 import { getChildIdx, t } from "@/core/utils";
 import { BlockRenderer } from "@/core/components/BlockRenderer";
-import { compileCondition, IConditionGroup } from "@/core/utils/handlebars";
+import {
+  compileCondition,
+  CONDITION_CLOSE,
+  CONDITION_ELSE,
+  IConditionGroup,
+} from "@/core/utils/handlebars";
 import { BasicBlock } from "@/core/components/BasicBlock";
+import { ConditionBranch } from "../ConditionBranch";
 import { Section } from "../Section";
 import { Column } from "../Column";
 import he from "he";
@@ -30,7 +36,18 @@ export const Condition = createBlock<IConditionBlock>({
         value: { rulesTree: { logicalOperator: "AND", rules: [] } },
       },
       attributes: {},
-      children: [Section.create({ children: [Column.create()] })],
+      // The "if" branch comes before the "else" branch. The order matters.
+      children: [
+        {
+          ...ConditionBranch.create({ data: { value: { branch: "if" } } }),
+          title: t("If"),
+          children: [Section.create({ children: [Column.create()] })],
+        },
+        {
+          ...ConditionBranch.create({ data: { value: { branch: "else" } } }),
+          title: t("Else"),
+        },
+      ],
     };
     return merge(defaultData, payload);
   },
@@ -78,17 +95,22 @@ export const Condition = createBlock<IConditionBlock>({
       );
     }
 
-    if (data.children.length === 0) return null;
+    const [ifBranch, elseBranch] = data.children;
+    const [ifMarkup, elseMarkup] = renderedChildren;
+    const hasIf = Boolean(ifBranch?.children.length);
+    const hasElse = Boolean(elseBranch?.children.length);
 
-    if (!hasCondition) {
-      return <>{renderedChildren}</>;
-    }
+    // With no rule, the "if" branch always shows, so the "else" branch never shows.
+    if (!hasCondition) return hasIf ? <>{ifMarkup}</> : null;
+    if (!hasIf && !hasElse) return null;
 
     return (
       <>
         {`<mj-raw>{{#if ${conditionString}}}</mj-raw>`}
-        {renderedChildren}
-        {`<mj-raw>{{/if}}</mj-raw>`}
+        {ifMarkup}
+        {hasElse && `<mj-raw>${CONDITION_ELSE}</mj-raw>`}
+        {hasElse && elseMarkup}
+        {`<mj-raw>${CONDITION_CLOSE}</mj-raw>`}
       </>
     );
   },

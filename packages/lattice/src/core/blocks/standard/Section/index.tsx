@@ -55,7 +55,7 @@ export const Section = createBlock<ISection>({
   validParentType: [
     BasicType.PAGE,
     BasicType.WRAPPER,
-    BasicType.CONDITION,
+    BasicType.CONDITION_BRANCH,
     BasicType.FOR_LOOP,
   ],
   render(params) {
