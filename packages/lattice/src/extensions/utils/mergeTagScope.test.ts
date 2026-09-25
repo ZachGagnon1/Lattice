@@ -106,10 +106,7 @@ describe("getLoopScopes", () => {
       "content.children.[0].children.[0].children.[0]",
     );
 
-    expect(scopes.map((scope) => scope.prefix)).toEqual([
-      "variant",
-      "product",
-    ]);
+    expect(scopes.map((scope) => scope.prefix)).toEqual(["variant", "product"]);
     expect(scopes[0].resolved).toBe(true);
     expect(scopes[0].sample).toEqual({ sku: "A1" });
   });
@@ -245,9 +242,7 @@ describe("getLoopScopes", () => {
       a: [{ b: [{ c: [{ leaf: 1 }] }] }],
     };
     const tree = values([
-      forLoop("a", "x", [
-        forLoop("x.b", "y", [forLoop("y.c", "z", [text()])]),
-      ]),
+      forLoop("a", "x", [forLoop("x.b", "y", [forLoop("y.c", "z", [text()])])]),
     ]);
     const scopes = getLoopScopes(
       tags,
@@ -349,9 +344,7 @@ describe("getScopedMergeTags", () => {
   it("orders three nested loops as flat, then groups, then globals", () => {
     const tags = { a: [{ b: [{ c: [{ leaf: 1 }] }] }] };
     const tree = values([
-      forLoop("a", "x", [
-        forLoop("x.b", "y", [forLoop("y.c", "z", [text()])]),
-      ]),
+      forLoop("a", "x", [forLoop("x.b", "y", [forLoop("y.c", "z", [text()])])]),
     ]);
     const result = getScopedMergeTags(
       tags,
@@ -359,9 +352,7 @@ describe("getScopedMergeTags", () => {
       "content.children.[0].children.[0].children.[0].children.[0]",
     );
 
-    expect(
-      result.roots.map((root) => [root.kind, root.displayPath]),
-    ).toEqual([
+    expect(result.roots.map((root) => [root.kind, root.displayPath])).toEqual([
       ["loop-field", "leaf"],
       ["loop-group", "y"],
       ["loop-group", "x"],
