@@ -2,6 +2,10 @@ import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { Box, Button, Drawer, Stack, Typography } from "@mui/material";
 import { useBlock, useEditorContext, useFocusIdx } from "@";
 import { BasicType } from "@";
+import {
+  htmlToTableSource,
+  tableSourceToHtml,
+} from "@/core/blocks/standard/Table/tableSource";
 
 const CodeMirrorEditorPromise =
   import("../../../components/Form/CodemirrorEditor");
@@ -16,13 +20,19 @@ export const HtmlEditor: React.FC<{
   const { focusBlock, setValueByIdx } = useBlock();
   const { pageData } = useEditorContext();
   const { focusIdx } = useFocusIdx();
-  const [content, setContent] = useState(focusBlock?.data.value.content);
-
   const isTable = focusBlock?.type === BasicType.TABLE;
+  // A Table block stores a cell grid, so the editor shows its rows as HTML.
+  const source: string = isTable
+    ? tableSourceToHtml(
+        focusBlock.data.value.tableSource || [],
+        focusBlock.attributes,
+      )
+    : (focusBlock?.data.value.content ?? "");
+  const [content, setContent] = useState(source);
 
   useEffect(() => {
-    setContent(focusBlock?.data.value.content);
-  }, [focusBlock?.data.value.content]);
+    setContent(source);
+  }, [source]);
 
   const onClose = () => {
     setVisible(false);
@@ -32,8 +42,16 @@ export const HtmlEditor: React.FC<{
     if (!focusBlock) {
       return;
     }
-    focusBlock.data.value.content = content;
-    setValueByIdx(focusIdx, { ...focusBlock });
+    const value = isTable
+      ? {
+          ...focusBlock.data.value,
+          tableSource: htmlToTableSource(content),
+        }
+      : { ...focusBlock.data.value, content };
+    setValueByIdx(focusIdx, {
+      ...focusBlock,
+      data: { ...focusBlock.data, value },
+    });
     onClose();
   };
 
