@@ -48,19 +48,53 @@ class TableColumnTool {
   }
 
   initTool() {
-    this.root?.addEventListener("contextmenu", this.handleContextmenu as EventListener);
-    this.root?.addEventListener("mousedown", this.handleMousedown.bind(this) as EventListener);
-    getIframeDocument()?.body.addEventListener("click", this.hideBorder as EventListener, false);
-    document.body.addEventListener("contextmenu", this.hideTableMenu as EventListener, false);
-    getIframeDocument()?.addEventListener("keydown", this.hideBorderByKeyDown as EventListener);
+    this.root?.addEventListener(
+      "contextmenu",
+      this.handleContextmenu as EventListener,
+    );
+    this.root?.addEventListener(
+      "mousedown",
+      this.handleMousedown.bind(this) as EventListener,
+    );
+    getIframeDocument()?.body.addEventListener(
+      "click",
+      this.hideBorder as EventListener,
+      false,
+    );
+    document.body.addEventListener(
+      "contextmenu",
+      this.hideTableMenu as EventListener,
+      false,
+    );
+    getIframeDocument()?.addEventListener(
+      "keydown",
+      this.hideBorderByKeyDown as EventListener,
+    );
   }
 
   destroy() {
-    this.root?.removeEventListener("contextmenu", this.handleContextmenu as EventListener);
-    this.root?.removeEventListener("mousedown", this.handleMousedown.bind(this) as EventListener);
-    getIframeDocument()?.body.removeEventListener("click", this.hideBorder as EventListener, false);
-    document.body.removeEventListener("contextmenu", this.hideTableMenu as EventListener, false);
-    getIframeDocument()?.removeEventListener("keydown", this.hideBorderByKeyDown as EventListener);
+    this.root?.removeEventListener(
+      "contextmenu",
+      this.handleContextmenu as EventListener,
+    );
+    this.root?.removeEventListener(
+      "mousedown",
+      this.handleMousedown.bind(this) as EventListener,
+    );
+    getIframeDocument()?.body.removeEventListener(
+      "click",
+      this.hideBorder as EventListener,
+      false,
+    );
+    document.body.removeEventListener(
+      "contextmenu",
+      this.hideTableMenu as EventListener,
+      false,
+    );
+    getIframeDocument()?.removeEventListener(
+      "keydown",
+      this.hideBorderByKeyDown as EventListener,
+    );
     this.tableMenu?.destroy();
   }
 
@@ -106,10 +140,34 @@ class TableColumnTool {
       pointerEvents: "none",
     };
 
-    setStyle(this.borderTool.top, { ...borderStyles, left: `${left}px`, top: `${top}px`, width: `${Math.abs(width)}px`, height: "2px" });
-    setStyle(this.borderTool.bottom, { ...borderStyles, left: `${left}px`, top: `${top + height}px`, width: `${Math.abs(width)}px`, height: "2px" });
-    setStyle(this.borderTool.left, { ...borderStyles, left: `${left}px`, top: `${top}px`, width: "2px", height: `${Math.abs(height)}px` });
-    setStyle(this.borderTool.right, { ...borderStyles, left: `${left + width}px`, top: `${top}px`, width: "2px", height: `${Math.abs(height)}px` });
+    setStyle(this.borderTool.top, {
+      ...borderStyles,
+      left: `${left}px`,
+      top: `${top}px`,
+      width: `${Math.abs(width)}px`,
+      height: "2px",
+    });
+    setStyle(this.borderTool.bottom, {
+      ...borderStyles,
+      left: `${left}px`,
+      top: `${top + height}px`,
+      width: `${Math.abs(width)}px`,
+      height: "2px",
+    });
+    setStyle(this.borderTool.left, {
+      ...borderStyles,
+      left: `${left}px`,
+      top: `${top}px`,
+      width: "2px",
+      height: `${Math.abs(height)}px`,
+    });
+    setStyle(this.borderTool.right, {
+      ...borderStyles,
+      left: `${left + width}px`,
+      top: `${top}px`,
+      width: "2px",
+      height: `${Math.abs(height)}px`,
+    });
   };
 
   handleContextmenu = (event: MouseEvent) => {
@@ -150,8 +208,14 @@ class TableColumnTool {
           target.nodeName === "TD" &&
           target.getAttribute("data-content_editable-type") === "rich_text"
         ) {
-          this.root?.addEventListener("mousemove", this.handleDrag as EventListener);
-          this.root?.addEventListener("mouseup", this.handleMouseup as EventListener);
+          this.root?.addEventListener(
+            "mousemove",
+            this.handleDrag as EventListener,
+          );
+          this.root?.addEventListener(
+            "mouseup",
+            this.handleMouseup as EventListener,
+          );
 
           this.dragging = true;
           this.startDom = target;
@@ -181,7 +245,8 @@ class TableColumnTool {
         target.getAttribute("data-content_editable-type") === "rich_text"
       ) {
         const hoveringTable = getCurrentTable(target);
-        if (this.endDom === target || this.hoveringTable !== hoveringTable) return;
+        if (this.endDom === target || this.hoveringTable !== hoveringTable)
+          return;
         this.endDom = target;
         this.renderBorder();
         return;
@@ -194,8 +259,14 @@ class TableColumnTool {
     e.preventDefault();
     if (!this.dragging) return;
     this.dragging = false;
-    this.root?.removeEventListener("mousemove", this.handleDrag as EventListener);
-    this.root?.removeEventListener("mouseup", this.handleMouseup as EventListener);
+    this.root?.removeEventListener(
+      "mousemove",
+      this.handleDrag as EventListener,
+    );
+    this.root?.removeEventListener(
+      "mouseup",
+      this.handleMouseup as EventListener,
+    );
   };
 }
 

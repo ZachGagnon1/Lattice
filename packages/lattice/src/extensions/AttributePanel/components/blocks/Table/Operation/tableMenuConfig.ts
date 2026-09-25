@@ -28,9 +28,18 @@ const MENU_CONFIG: Record<
         for (let index = 0; index < tr.length; index++) {
           const tdLeft = tr[index].left || 0;
           const tdRight = tr[index].right || 0;
-          if (tdRight === right) { tr.splice(index + 1, 0, { content: "-" } as any); break; }
-          if (tdLeft <= right && tdRight > right && tr[index].colSpan) { tr[index].colSpan = (tr[index].colSpan || 1) + 1; break; }
-          if (tdLeft > right && tdLeft - 1 === right) { tr.splice(index, 0, { content: "-" } as any); break; }
+          if (tdRight === right) {
+            tr.splice(index + 1, 0, { content: "-" } as any);
+            break;
+          }
+          if (tdLeft <= right && tdRight > right && tr[index].colSpan) {
+            tr[index].colSpan = (tr[index].colSpan || 1) + 1;
+            break;
+          }
+          if (tdLeft > right && tdLeft - 1 === right) {
+            tr.splice(index, 0, { content: "-" } as any);
+            break;
+          }
           if (tdLeft > right) break;
         }
       });
@@ -44,14 +53,30 @@ const MENU_CONFIG: Record<
       const _this = this as unknown as ITableOperationMenu;
       const left = _this.tableIndexBoundary.left;
       _this.tableData.forEach((tr) => {
-        if (left === 0) { tr.unshift({ content: "-" } as any); return; }
+        if (left === 0) {
+          tr.unshift({ content: "-" } as any);
+          return;
+        }
         if (tr.length === 0) return tr.push({ content: "-" } as any);
         for (let index = 0; index < tr.length; index++) {
           const tdLeft = tr[index].left || 0;
           const tdRight = tr[index].right || 0;
-          if (tdLeft === left) { tr.splice(index, 0, { content: "-" } as any); break; }
-          if (tdLeft < left && tdRight >= left && tr[index].colSpan) { tr[index].colSpan = (tr[index].colSpan || 1) + 1; break; }
-          if (tdLeft > left && tr[index - 1] && (tr[index - 1].right || 0) + 1 === left) { tr.splice(index, 0, { content: "-" } as any); break; }
+          if (tdLeft === left) {
+            tr.splice(index, 0, { content: "-" } as any);
+            break;
+          }
+          if (tdLeft < left && tdRight >= left && tr[index].colSpan) {
+            tr[index].colSpan = (tr[index].colSpan || 1) + 1;
+            break;
+          }
+          if (
+            tdLeft > left &&
+            tr[index - 1] &&
+            (tr[index - 1].right || 0) + 1 === left
+          ) {
+            tr.splice(index, 0, { content: "-" } as any);
+            break;
+          }
           if (tdLeft > left) break;
         }
       });
@@ -69,7 +94,10 @@ const MENU_CONFIG: Record<
         for (let index = top - 1; index > -1; index--) {
           const tr = _this.tableData[index];
           tr.forEach((td) => {
-            if (td.bottom && td.bottom >= top) { td.rowSpan = (td.rowSpan || 1) + 1; maxTdCount -= td.colSpan || 1; }
+            if (td.bottom && td.bottom >= top) {
+              td.rowSpan = (td.rowSpan || 1) + 1;
+              maxTdCount -= td.colSpan || 1;
+            }
           });
           if (tr.length === maxTdCount) break;
         }
@@ -89,12 +117,18 @@ const MENU_CONFIG: Record<
           const tr = _this.tableData[index];
           if (tr.length === _this.maxTdCount) break;
           tr.forEach((td) => {
-            if (td.bottom && td.bottom > bottom) { td.rowSpan = (td.rowSpan || 1) + 1; addCount -= td.colSpan || 1; }
+            if (td.bottom && td.bottom > bottom) {
+              td.rowSpan = (td.rowSpan || 1) + 1;
+              addCount -= td.colSpan || 1;
+            }
           });
         }
       }
       _this.tableData[bottom].forEach((e) => {
-        if (e.rowSpan && e.rowSpan > 1) { e.rowSpan += 1; addCount -= e.colSpan || 1; }
+        if (e.rowSpan && e.rowSpan > 1) {
+          e.rowSpan += 1;
+          addCount -= e.colSpan || 1;
+        }
       });
       _this.addRow(bottom + 1, addCount);
     },
@@ -105,18 +139,28 @@ const MENU_CONFIG: Record<
     handler() {
       const _this = this as unknown as ITableOperationMenu;
       const { top, left, bottom, right } = _this.tableIndexBoundary;
-      const leftTopItem = _this.tableData[top].find((e) => e.left === left) as IOperationData;
+      const leftTopItem = _this.tableData[top].find(
+        (e) => e.left === left,
+      ) as IOperationData;
       leftTopItem.rowSpan = bottom - top + 1;
       leftTopItem.colSpan = right - left + 1;
       _this.tableData.forEach((tr, trIndex) => {
         if (trIndex >= top && trIndex <= bottom) {
-          if (bottom > top && trIndex > top && trIndex <= bottom) leftTopItem.content += "<br />";
+          if (bottom > top && trIndex > top && trIndex <= bottom)
+            leftTopItem.content += "<br />";
           const deletedIndex: number[] = [];
           tr.forEach((td, tdIndex) => {
             if (top === trIndex && left === td.left) return;
-            if (td.left >= left && td.right <= right) { leftTopItem.content += " " + td.content; deletedIndex.push(tdIndex); }
+            if (td.left >= left && td.right <= right) {
+              leftTopItem.content += " " + td.content;
+              deletedIndex.push(tdIndex);
+            }
           });
-          if (deletedIndex.length > 0) tr.splice(deletedIndex[0], deletedIndex[deletedIndex.length - 1] - deletedIndex[0] + 1);
+          if (deletedIndex.length > 0)
+            tr.splice(
+              deletedIndex[0],
+              deletedIndex[deletedIndex.length - 1] - deletedIndex[0] + 1,
+            );
         }
       });
       _this.changeTableData?.(_this.tableData);
@@ -136,12 +180,28 @@ const MENU_CONFIG: Record<
           const tdRight = tr[index].right || 0;
           const colSpan = td.colSpan || 1;
           if (tdLeft > right) break;
-          if (tdLeft >= left && tdRight <= right) { deleteIds.push(index); continue; }
-          if (tdLeft <= left && tdRight >= right) { td.colSpan = colSpan - (right - left) - 1; continue; }
-          if (tdLeft > left && tdRight >= right) { td.colSpan = colSpan - (right - tdLeft) - 1; continue; }
-          if (tdLeft < left && tdRight >= left) { td.colSpan = colSpan - (tdRight - left) - 1; continue; }
+          if (tdLeft >= left && tdRight <= right) {
+            deleteIds.push(index);
+            continue;
+          }
+          if (tdLeft <= left && tdRight >= right) {
+            td.colSpan = colSpan - (right - left) - 1;
+            continue;
+          }
+          if (tdLeft > left && tdRight >= right) {
+            td.colSpan = colSpan - (right - tdLeft) - 1;
+            continue;
+          }
+          if (tdLeft < left && tdRight >= left) {
+            td.colSpan = colSpan - (tdRight - left) - 1;
+            continue;
+          }
         }
-        if (deleteIds.length) tr.splice(deleteIds[0], deleteIds[deleteIds.length - 1] - deleteIds[0] + 1);
+        if (deleteIds.length)
+          tr.splice(
+            deleteIds[0],
+            deleteIds[deleteIds.length - 1] - deleteIds[0] + 1,
+          );
       });
       _this.changeTableData?.(_this.tableData);
     },
@@ -157,7 +217,8 @@ const MENU_CONFIG: Record<
         const tr = _this.tableData[index];
         tr.forEach((td) => {
           if (td.bottom && td.bottom >= top) {
-            const deleteRowSpan = td.bottom >= bottom ? deleteCount : td.bottom - top + 1;
+            const deleteRowSpan =
+              td.bottom >= bottom ? deleteCount : td.bottom - top + 1;
             td.rowSpan = (td.rowSpan || 1) - deleteRowSpan;
           }
         });
@@ -167,10 +228,15 @@ const MENU_CONFIG: Record<
         tr.forEach((td) => {
           const rowSpan = td.rowSpan || 1;
           if (rowSpan - 1 + top > bottom) {
-            const nextRowCell = { ...td, rowSpan: rowSpan - (bottom - top + 1) };
+            const nextRowCell = {
+              ...td,
+              rowSpan: rowSpan - (bottom - top + 1),
+            };
             const nextRow = _this.tableData[bottom + 1];
             if (nextRow) {
-              const idx = Array.from({ length: _this.maxTdCount }).findIndex((_, i) => i === nextRowCell.left);
+              const idx = Array.from({ length: _this.maxTdCount }).findIndex(
+                (_, i) => i === nextRowCell.left,
+              );
               if (idx > -1) nextRow.splice(idx, 0, nextRowCell);
             }
           }
@@ -193,7 +259,12 @@ const MENU_CONFIG: Record<
           const tdLeft = tr[index].left || 0;
           const tdRight = tr[index].right || 0;
           if (tdLeft > right) break;
-          if (top <= tdTop && bottom >= tdBottom && left <= tdLeft && right >= tdRight) {
+          if (
+            top <= tdTop &&
+            bottom >= tdBottom &&
+            left <= tdLeft &&
+            right >= tdRight
+          ) {
             td.backgroundColor = color;
           }
         }

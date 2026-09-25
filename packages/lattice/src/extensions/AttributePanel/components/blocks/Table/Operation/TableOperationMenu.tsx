@@ -53,7 +53,8 @@ export default class TableOperationMenu {
     if (!this.visible || !this.domNode) return;
     const target = e.target as HTMLElement;
     if (this.domNode.contains(target)) return;
-    if (target.closest(".MuiPopover-root") || target.closest(".sketch-picker")) return;
+    if (target.closest(".MuiPopover-root") || target.closest(".sketch-picker"))
+      return;
     this.hide();
   }
 
@@ -73,7 +74,9 @@ export default class TableOperationMenu {
   }
 
   addRow(insertIndex: number, colCount: number) {
-    const newRow = Array.from({ length: colCount }).map(() => ({ content: "-" }) as any);
+    const newRow = Array.from({ length: colCount }).map(
+      () => ({ content: "-" }) as any,
+    );
     this.tableData.splice(insertIndex, 0, newRow);
     this.changeTableData?.(this.tableData);
   }

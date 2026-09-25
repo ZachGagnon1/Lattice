@@ -41,7 +41,7 @@ export function AttributePanel() {
           <RichTextField idx={focusIdx} />
         </Box>
         <TableOperation />
-<>
+        <>
           {iframeDocument?.body &&
             ReactDOM.createPortal(
               <style>

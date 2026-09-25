@@ -44,7 +44,14 @@ const getBoundaryFromRects = (startRect: any, endRect: any) => {
     startRect.top + startRect.height,
     endRect.top + endRect.height,
   );
-  return { top, bottom, left, right, width: right - left, height: bottom - top };
+  return {
+    top,
+    bottom,
+    left,
+    right,
+    width: right - left,
+    height: bottom - top,
+  };
 };
 
 const ERROR_LIMIT = 2;
