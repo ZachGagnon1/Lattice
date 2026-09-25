@@ -98,6 +98,7 @@ export function ForLoop() {
             <MergeTags
               isSelect
               rawPath
+              arraysOnly
               value={sourceInput.value}
               onChange={sourceInput.onChange}
             />
