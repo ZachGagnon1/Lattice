@@ -79,7 +79,9 @@ describe("getLoopScopes", () => {
 
   it("skips the loop declared by the focused block by default", () => {
     const tree = values([forLoop("products", "product", [text()])]);
-    expect(getLoopScopes(variableData, tree, "content.children.[0]")).toEqual([]);
+    expect(getLoopScopes(variableData, tree, "content.children.[0]")).toEqual(
+      [],
+    );
   });
 
   it("includes the loop declared by the focused block with includeSelfLoop", () => {
@@ -214,7 +216,9 @@ describe("getLoopScopes", () => {
 
   it("ignores a table row loop without includeSelfLoop", () => {
     const tree = values([table("products", "product")]);
-    expect(getLoopScopes(variableData, tree, "content.children.[0]")).toEqual([]);
+    expect(getLoopScopes(variableData, tree, "content.children.[0]")).toEqual(
+      [],
+    );
   });
 
   it("does not throw on malformed block data", () => {
