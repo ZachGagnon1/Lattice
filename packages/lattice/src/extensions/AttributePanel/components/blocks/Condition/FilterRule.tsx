@@ -7,32 +7,98 @@ import {
   Select,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
-import { ComparisonOperator, LogicalOperator } from "./types";
+import {
+  COMPARISON_OPERATORS,
+  ComparisonOperator,
+  LogicalOperator,
+  OPERATORS_WITHOUT_VALUE,
+  OPERATOR_LABELS,
+} from "@/core/utils/handlebars";
+
+/** The width of the connector column. Each row reserves it, so no row shifts. */
+const CONNECTOR_WIDTH = 90;
+
+export interface RuleConnectorProps {
+  /** The field name of the GROUP that owns this row, such as `rulesTree`. */
+  groupName: string;
+  index: number;
+}
+
+/**
+ * Renders the AND/OR connector in front of one row of a group.
+ *
+ * One operator joins all children of a group, so only the second row holds
+ * the editable `<Select>`. Later rows show the operator as static text.
+ * The first row holds a spacer of the same width.
+ */
+export function RuleConnector(props: Readonly<RuleConnectorProps>) {
+  const { groupName, index } = props;
+
+  // Bind the GROUP operator, not the row operator. The compiler reads only the
+  // group operator. A per-row field shows a value that never reaches the output.
+  const { input } = useField<LogicalOperator>(`${groupName}.logicalOperator`);
+  const operator: LogicalOperator = input.value === "OR" ? "OR" : "AND";
+
+  if (index === 0) {
+    return <Box sx={{ width: CONNECTOR_WIDTH, flexShrink: 0 }} />;
+  }
+
+  if (index === 1) {
+    return (
+      <Select
+        {...input}
+        value={operator}
+        size="small"
+        sx={{ width: CONNECTOR_WIDTH, flexShrink: 0 }}
+      >
+        <MenuItem value="AND">AND</MenuItem>
+        <MenuItem value="OR">OR</MenuItem>
+      </Select>
+    );
+  }
+
+  return (
+    <Box
+      sx={{
+        width: CONNECTOR_WIDTH,
+        flexShrink: 0,
+        textAlign: "center",
+        py: 1,
+      }}
+    >
+      <Typography variant="body2" color="text.secondary">
+        {operator}
+      </Typography>
+    </Box>
+  );
+}
 
 export interface FilterRuleProps {
+  /** The field name of this rule, such as `rulesTree.rules[0]`. */
   name: string;
+  groupName: string;
   index: number;
   onRemove: () => void;
 }
 
 export function FilterRule(props: Readonly<FilterRuleProps>) {
-  const { name, index, onRemove } = props;
+  const { name, groupName, index, onRemove } = props;
 
   const { input: fieldInput } = useField<string>(`${name}.fieldId`);
   const { input: comparisonInput } = useField<ComparisonOperator | "">(
     `${name}.comparisonOperator`,
   );
   const { input: valueInput } = useField<string>(`${name}.value`);
-  const { input: logicalOperatorInput } = useField<LogicalOperator>(
-    `${name}.logicalOperator`,
-  );
 
-  const isValueHidden =
-    comparisonInput.value === "IS_EMPTY" ||
-    comparisonInput.value === "IS_NOT_EMPTY";
+  // `IS_EMPTY` and `IS_NOT_EMPTY` take no right-hand value. The compiler owns
+  // that list. The panel reads it, not a copy.
+  const isValueHidden = (OPERATORS_WITHOUT_VALUE as readonly string[]).includes(
+    comparisonInput.value,
+  );
 
   return (
     <Stack
@@ -40,20 +106,13 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
       spacing={2}
       sx={{ width: "100%", alignItems: "center" }}
     >
-      {/* Logical Operator (AND/OR) */}
-      {index > 0 ? (
-        <Select {...logicalOperatorInput} size="small" sx={{ width: 90 }}>
-          <MenuItem value="AND">AND</MenuItem>
-          <MenuItem value="OR">OR</MenuItem>
-        </Select>
-      ) : (
-        <Box sx={{ width: 90 }} />
-      )}
+      <RuleConnector groupName={groupName} index={index} />
 
       {/* Field Selector */}
       <Box sx={{ flexGrow: 1, minWidth: 200 }}>
         <MergeTags
           isSelect
+          rawPath
           value={fieldInput.value}
           onChange={fieldInput.onChange}
         />
@@ -65,13 +124,11 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
         size="small"
         sx={{ flexGrow: 1, minWidth: 150 }}
       >
-        <MenuItem value="EQUALS">Equals</MenuItem>
-        <MenuItem value="NOT_EQUALS">Not Equals</MenuItem>
-        <MenuItem value="CONTAINS">Contains</MenuItem>
-        <MenuItem value="GREATER_THAN">Greater Than</MenuItem>
-        <MenuItem value="LESS_THAN">Less Than</MenuItem>
-        <MenuItem value="IS_EMPTY">Is Empty</MenuItem>
-        <MenuItem value="IS_NOT_EMPTY">Is Not Empty</MenuItem>
+        {COMPARISON_OPERATORS.map((operator) => (
+          <MenuItem key={operator} value={operator}>
+            {OPERATOR_LABELS[operator]}
+          </MenuItem>
+        ))}
       </Select>
 
       {/* Value input */}

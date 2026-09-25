@@ -4,25 +4,14 @@ import { Box, Button, Divider, Typography } from "@mui/material";
 import { AttributesPanelWrapper } from "@/extensions/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { useFocusIdx } from "@";
 import { RuleBuilderModal } from "./RuleBuilderModal";
-import { IConditionGroupNode, isConditionGroup } from "./types";
+import { IConditionGroup, compileCondition } from "@/core/utils/handlebars";
 
-const countTotalRules = (node: IConditionGroupNode): number => {
-  let count = 0;
-  if (!node?.rules) return count;
-
-  node.rules.forEach((rule) => {
-    if (isConditionGroup(rule)) {
-      count += countTotalRules(rule);
-    } else {
-      count += 1;
-    }
-  });
-  return count;
-};
+/** The root group of a block that has no rules yet. */
+const EMPTY_TREE: IConditionGroup = { logicalOperator: "AND", rules: [] };
 
 export function Condition() {
   const { focusIdx } = useFocusIdx();
-  const { input } = useField<IConditionGroupNode>(
+  const { input } = useField<IConditionGroup>(
     `${focusIdx}.data.value.rulesTree`,
     {
       subscription: { value: true },
@@ -31,13 +20,15 @@ export function Condition() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // A block that is new on the canvas has no rules tree yet, so give the modal a root group.
-  const currentData: IConditionGroupNode = input.value || {
-    logicalOperator: "AND",
-    rules: [],
-  };
+  // A new block on the canvas has no rules tree, so the modal gets a root group.
+  const currentData: IConditionGroup = input.value || EMPTY_TREE;
 
-  const totalRules = useMemo(() => countTotalRules(currentData), [currentData]);
+  // The compiler already walks the tree, so the summary reads its count.
+  // A second walk is not necessary.
+  const totalRules = useMemo(
+    () => compileCondition(currentData).ruleCount,
+    [currentData],
+  );
 
   return (
     <AttributesPanelWrapper>

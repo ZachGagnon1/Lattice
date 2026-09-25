@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AttributesPanelWrapper } from "@/extensions/AttributePanel";
 import {
   Border,
@@ -14,7 +14,10 @@ import {
 import { HtmlEditor } from "../../UI/HtmlEditor";
 import { CollapsableItem } from "@/extensions/components/Collapse/CollapsableItem";
 import {
+  Alert,
   Box,
+  Checkbox,
+  FormControlLabel,
   IconButton,
   Stack,
   TextField,
@@ -25,6 +28,13 @@ import CodeIcon from "@mui/icons-material/Code";
 import { useField } from "react-final-form";
 import { useFocusIdx } from "@";
 import { MergeTags } from "@/extensions/AttributePanel/components/attributes/MergeTags";
+import {
+  ILoopConfig,
+  LOOP_CLOSE,
+  compileLoopIssues,
+  compileLoopLabel,
+  compileLoopOpen,
+} from "@/core/utils/handlebars";
 
 export function Table() {
   const [visible, setVisible] = useState(false);
@@ -42,6 +52,37 @@ export function Table() {
       subscription: { value: true },
     },
   );
+  const { input: headerRowsInput } = useField<number>(
+    `${focusIdx}.data.value.rowLoop.headerRows`,
+    {
+      subscription: { value: true },
+    },
+  );
+
+  // The field holds a row count, but the panel offers one checkbox.
+  // A saved template with no value reads as 0, so the box starts clear and
+  // the loop keeps every row, as the compiler does.
+  const headerRowCount = Number(headerRowsInput.value ?? 0);
+  const keepsHeaderRow = Number.isFinite(headerRowCount) && headerRowCount > 0;
+
+  const loopConfig: ILoopConfig = useMemo(
+    () => ({
+      source: sourceInput.value,
+      itemAs: itemAsInput.value,
+      headerRows: keepsHeaderRow ? 1 : 0,
+    }),
+    [sourceInput.value, itemAsInput.value, keepsHeaderRow],
+  );
+
+  const loopOpen = compileLoopOpen(loopConfig);
+  const issues = compileLoopIssues(loopConfig);
+
+  const hasSource = loopOpen !== null;
+  const hasAlias = String(itemAsInput.value ?? "").trim() !== "";
+
+  // A row loop is optional. The warning shows only when the author starts
+  // one, so a plain table shows no problem.
+  const isLoopStarted = Boolean(sourceInput.value) || hasAlias;
 
   return (
     <AttributesPanelWrapper
@@ -102,7 +143,7 @@ export function Table() {
             </Typography>
             <MergeTags
               isSelect
-              isArraySelect
+              rawPath
               value={sourceInput.value}
               onChange={sourceInput.onChange}
             />
@@ -123,23 +164,69 @@ export function Table() {
               helperText='Name for each item. Leave blank to use "this".'
             />
           </Box>
-          {sourceInput.value && (
-            <Box
-              sx={{
-                p: 1.5,
-                bgcolor: "grey.50",
-                borderRadius: 1,
-                border: "1px solid",
-                borderColor: "grey.200",
-                fontFamily: "monospace",
-                fontSize: 12,
-                color: "text.secondary",
-                wordBreak: "break-all",
-              }}
-            >
-              <code>
-                {`{{#each ${sourceInput.value}${itemAsInput.value ? ` as |${itemAsInput.value}|` : ""}}}...{{/each}}`}
-              </code>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                size="small"
+                checked={keepsHeaderRow}
+                onChange={(event) =>
+                  headerRowsInput.onChange(event.target.checked ? 1 : 0)
+                }
+              />
+            }
+            label={
+              <Typography variant="caption" color="text.secondary">
+                First row is a header (do not repeat it)
+              </Typography>
+            }
+          />
+
+          {isLoopStarted && issues.length > 0 && (
+            <Alert severity="warning" variant="outlined" sx={{ py: 0.5 }}>
+              {issues.map((issue) => (
+                <Typography
+                  key={`${issue.path}-${issue.code}`}
+                  variant="body2"
+                  component="div"
+                >
+                  {issue.message}
+                </Typography>
+              ))}
+            </Alert>
+          )}
+
+          {hasSource && !hasAlias && (
+            <Typography variant="caption" color="text.secondary">
+              {"With no alias, fields insert as {{this.field}}. " +
+                "An alias is clearer, especially inside a nested loop."}
+            </Typography>
+          )}
+
+          {loopOpen !== null && (
+            <Box>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ mb: 0.5, display: "block" }}
+              >
+                {compileLoopLabel(loopConfig)}
+              </Typography>
+              <Box
+                sx={{
+                  p: 1.5,
+                  bgcolor: "grey.50",
+                  borderRadius: 1,
+                  border: "1px solid",
+                  borderColor: "grey.200",
+                  fontFamily: "monospace",
+                  fontSize: 12,
+                  color: "text.secondary",
+                  wordBreak: "break-all",
+                }}
+              >
+                <code>{`${loopOpen}...${LOOP_CLOSE}`}</code>
+              </Box>
             </Box>
           )}
         </Stack>

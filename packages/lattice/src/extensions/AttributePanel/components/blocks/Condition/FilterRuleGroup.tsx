@@ -1,64 +1,56 @@
 import React from "react";
 import { useField } from "react-final-form";
-import { Box, Button, MenuItem, Select, Stack } from "@mui/material";
-import { FilterRule } from "./FilterRule";
+import { Box, Button, Stack } from "@mui/material";
+import { FilterRule, RuleConnector } from "./FilterRule";
 import {
-  IConditionGroupNode,
+  IConditionGroup,
   IConditionRule,
   isConditionGroup,
-  LogicalOperator,
-} from "./types";
+} from "@/core/utils/handlebars";
+
+/** Builds a new rule. A rule has no logical operator. */
+const createRule = (): IConditionRule => ({
+  fieldId: "",
+  comparisonOperator: "EQUALS",
+  value: "",
+});
+
+/** Builds a new group. Only a group has a logical operator. */
+const createGroup = (): IConditionGroup => ({
+  logicalOperator: "AND",
+  rules: [createRule()],
+});
 
 export interface FilterRuleGroupProps {
+  /** The field name of this group. Example: `rulesTree.rules[1]`. */
   name: string;
+  /**
+   * The field name of the parent group.
+   * The root group has no parent. It omits this field and shows no connector.
+   */
+  groupName?: string;
   nestingLevel: number;
   index: number;
   onRemove?: () => void;
 }
 
 export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
-  const { name, nestingLevel, index, onRemove } = props;
+  const { name, groupName, nestingLevel, index, onRemove } = props;
 
   const rulesFieldName = `${name}.rules`;
-  const logicalOperatorFieldName = `${name}.logicalOperator`;
-
-  const { input: logicalOperatorInput } = useField<LogicalOperator>(
-    logicalOperatorFieldName,
-  );
 
   const { input: rulesInput } = useField<
-    Array<IConditionRule | IConditionGroupNode>
+    Array<IConditionRule | IConditionGroup>
   >(rulesFieldName, { subscription: { value: true } });
 
   const rules = rulesInput.value || [];
 
   const handleAddSimpleRule = (): void => {
-    rulesInput.onChange([
-      ...rules,
-      {
-        fieldId: "",
-        comparisonOperator: "EQUALS",
-        value: "",
-        logicalOperator: "AND",
-      },
-    ]);
+    rulesInput.onChange([...rules, createRule()]);
   };
 
   const handleAddGroup = (): void => {
-    rulesInput.onChange([
-      ...rules,
-      {
-        logicalOperator: "AND",
-        rules: [
-          {
-            fieldId: "",
-            comparisonOperator: "EQUALS",
-            value: "",
-            logicalOperator: "AND",
-          },
-        ],
-      },
-    ]);
+    rulesInput.onChange([...rules, createGroup()]);
   };
 
   const handleRemoveItem = (indexToRemove: number): void => {
@@ -71,13 +63,10 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
       spacing={2}
       sx={{ width: "100%", alignItems: "flex-start" }}
     >
-      {/* Group Level AND/OR connector */}
-      {nestingLevel > 0 && index > 0 && (
-        <Select {...logicalOperatorInput} size="small" sx={{ width: 90 }}>
-          <MenuItem value="AND">AND</MenuItem>
-          <MenuItem value="OR">OR</MenuItem>
-        </Select>
-      )}
+      {/* The connector belongs to the PARENT group, so it binds the parent
+          operator. A nested group is one row of its parent, the same as a
+          rule. The root group has no parent and shows nothing. */}
+      {groupName && <RuleConnector groupName={groupName} index={index} />}
 
       <Box
         sx={{
@@ -99,6 +88,7 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
                 <FilterRuleGroup
                   key={idx}
                   name={childFieldName}
+                  groupName={name}
                   nestingLevel={nestingLevel + 1}
                   index={idx}
                   onRemove={() => handleRemoveItem(idx)}
@@ -110,6 +100,7 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
               <FilterRule
                 key={idx}
                 name={childFieldName}
+                groupName={name}
                 index={idx}
                 onRemove={() => handleRemoveItem(idx)}
               />

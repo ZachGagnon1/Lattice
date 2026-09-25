@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import pkg from "./package.json";
@@ -35,6 +35,11 @@ export default defineConfig({
       output: {},
     },
     outDir: "lib",
+  },
+  test: {
+    environment: "node",
+    globals: false,
+    include: ["src/**/*.test.ts"],
   },
   css: {
     modules: {

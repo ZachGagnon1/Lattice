@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { cloneDeep } from "lodash";
 import { useWindowSize } from "react-use";
+import Handlebars from "handlebars";
+import comparisonHelpers from "handlebars-helpers/lib/comparison";
 
 import {
   downloadFile,
@@ -14,11 +16,45 @@ import {
 import { TEMPLATE_DATA } from "@demo/pages/Editor/Arturia - Newsletter"; // Import the converter we created! Adjust the path to wherever you saved it.
 // Import the converter we created! Adjust the path to wherever you saved it.
 
+// Register the comparison helpers once, at module scope. A call on each render
+// registers the same helpers again, and that wastes work.
+//
+// We import only the `comparison` group. The package root loads other groups
+// that use Node built-in modules. Those modules do not exist in a browser.
+// Vite replaces them with stubs that throw errors. The Condition compiler
+// emits only comparison helpers. This import is safe and smaller.
+Handlebars.registerHelper(comparisonHelpers);
+
+/**
+ * The variable data. One object serves both jobs.
+ *
+ * The picker reads the keys to build its tree. It wraps a picked path with
+ * `mergeTagGenerate`, so a value never has to be a `"{{firstName}}"`
+ * placeholder. Real values work, and they also let the preview render.
+ *
+ * An array holds sample entries. The picker uses an array as a loop source.
+ * It reads the first entry to learn the item fields.
+ */
+const MERGE_TAGS = {
+  firstName: "John",
+  lastName: "Reed",
+  age: 34,
+  email: "john.reed@example.com",
+  products: [
+    { name: "Polybrute 12", price: "3499.00", imageUrl: "" },
+    { name: "MiniFreak V", price: "199.00", imageUrl: "" },
+    { name: "AudioFuse 16Rig", price: "1299.00", imageUrl: "" },
+  ],
+  orders: [
+    { id: "A-1001", total: "3499.00", date: "2026-01-14" },
+    { id: "A-1002", total: "199.00", date: "2026-02-03" },
+  ],
+};
+
 export default function Editor() {
   const { width } = useWindowSize();
   const compact = width > 1600;
 
-  // --- New state for our Unlayer Import Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [unlayerJson, setUnlayerJson] = useState("");
 
@@ -27,8 +63,40 @@ export default function Editor() {
     content: cloneDeep(JSON.parse(TEMPLATE_DATA.content.content)),
   }));
 
+  /**
+   * Expands Handlebars logic before mjml() compiles the markup.
+   *
+   * `PreviewEmailProvider` lists `onBeforeMjmlCompile` in the dependencies of
+   * its preview effect. An inline arrow would rebuild the preview on each render.
+   *
+   * @param data - `previewInjectData` when that prop is set, else `mergeTags`.
+   * @returns The expanded MJML, or the original string when Handlebars fails.
+   */
+  const handleBeforeMjmlCompile = useCallback(
+    (mjmlString: string, data: Record<string, any>) => {
+      try {
+        return Handlebars.compile(mjmlString)(data);
+      } catch (error) {
+        // A partial rule must not blank the preview. Show the unexpanded
+        // template.
+        console.error("Handlebars failed to compile the MJML preview:", error);
+        return mjmlString;
+      }
+    },
+    [],
+  );
+
   const handleExportHTML = async () => {
-    const html = await exportToHtml(template);
+    const html = await exportToHtml(template, {
+      transformMjml: (mjmlString) => {
+        try {
+          return Handlebars.compile(mjmlString)(MERGE_TAGS);
+        } catch (error) {
+          console.error("Handlebars failed to compile the MJML export:", error);
+          return mjmlString;
+        }
+      },
+    });
     downloadFile(html, "lattice-email.html", "text/html");
   };
 
@@ -153,11 +221,8 @@ export default function Editor() {
         }}
         allowCondition
         allowForLoop
-        mergeTags={{
-          firstName: "{{firstName}}",
-          products: [{ name: "Product Name", price: "0.00", imageUrl: "" }],
-          orders: [{ id: "", total: "0.00", date: "" }],
-        }}
+        mergeTags={MERGE_TAGS}
+        onBeforeMjmlCompile={handleBeforeMjmlCompile}
       />
 
       {/* --- Basic Modal Overlay for Unlayer Import --- */}

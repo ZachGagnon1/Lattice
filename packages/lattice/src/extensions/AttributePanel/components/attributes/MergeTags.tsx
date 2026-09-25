@@ -18,8 +18,11 @@ export const MergeTags: React.FC<{
   onChange: (v: string) => void;
   value: string;
   isSelect?: boolean;
-  /** When true, an array or object node is selectable, and the output is the raw path with no `{{}}`. */
-  isArraySelect?: boolean;
+  /**
+   * When true, any node is selectable, arrays and objects included. The path
+   * goes out with no `{{ }}` around it.
+   */
+  rawPath?: boolean;
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -79,17 +82,16 @@ export const MergeTags: React.FC<{
         return;
       }
 
-      const value = get(contextMergeTags, itemId);
-      const isNonLeaf = !value || isObject(value) || isArray(value);
-
-      if (props.isArraySelect) {
-        // Array select mode returns the path without {{}} wrapping.
+      if (props.rawPath) {
         props.onChange(itemId);
         if (props.isSelect) {
           setAnchorEl(null);
         }
         return;
       }
+
+      const value = get(contextMergeTags, itemId);
+      const isNonLeaf = !value || isObject(value) || isArray(value);
 
       if (isNonLeaf) {
         return;

@@ -74,7 +74,7 @@ export const getParentByType = <T extends IBlockData>(
   while (parentIdx) {
     const parent = get(context, parentIdx) as T;
     if (parent && parent.type === type) return parent;
-    parentIdx = getParentIdx(idx);
+    parentIdx = getParentIdx(parentIdx);
   }
 
   return null;

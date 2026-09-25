@@ -13,11 +13,22 @@ export function exportToMjml(template: IEmailTemplate): string {
   });
 }
 
+export interface ExportToHtmlOptions {
+  /** Runs on the MJML string before mjml() compiles it. Use it to evaluate Handlebars. */
+  transformMjml?: (mjml: string) => string | Promise<string>;
+}
+
 /**
  * Converts the email template state into production-ready HTML.
  */
-export async function exportToHtml(template: IEmailTemplate): Promise<string> {
-  const mjmlString = exportToMjml(template);
+export async function exportToHtml(
+  template: IEmailTemplate,
+  options?: ExportToHtmlOptions,
+): Promise<string> {
+  let mjmlString = exportToMjml(template);
+  if (options?.transformMjml) {
+    mjmlString = await options.transformMjml(mjmlString);
+  }
   const result = await mjml(mjmlString);
   return result.html;
 }

@@ -64,7 +64,20 @@ export interface PropsProviderProps {
       | PropsProviderProps["previewInjectData"]
       | PropsProviderProps["mergeTags"],
   ) => string | Promise<string>;
-  enabledLogic?: boolean;
+  /**
+   * The function runs on the MJML string before mjml() compiles it.
+   * Use it to run a template engine, for example Handlebars, to expand
+   * the loops and conditions first.
+   *
+   * For {{#each}}, use this function instead of onBeforePreview.
+   * onBeforePreview runs after mjml(). mjml() computes the column widths
+   * and MSO conditionals for the unexpanded markup. A loop over columns
+   * then renders wrong.
+   */
+  onBeforeMjmlCompile?: (
+    mjml: string,
+    data: Record<string, any>,
+  ) => string | Promise<string>;
   locale?: Record<string, string>;
 
   toolbar?: {
@@ -91,7 +104,6 @@ export const EditorPropsContext = React.createContext<
   autoComplete: false,
   dashed: true,
   mergeTagGenerate: defaultMergeTagGenerate,
-  enabledLogic: false,
 });
 
 export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
