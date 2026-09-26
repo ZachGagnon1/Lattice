@@ -1,4 +1,4 @@
-import { isNumber } from "lodash";
+import { isNumber } from "lodash-es";
 
 export const sliderAdapter = {
   format(val: string) {

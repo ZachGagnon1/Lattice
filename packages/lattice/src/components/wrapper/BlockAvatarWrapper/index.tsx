@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { BlockType, getChildIdx } from "@";
 import { useHoverIdx } from "@/hooks/useHoverIdx";
 import { useDataTransfer } from "@/hooks/useDataTransfer";
-import { isUndefined } from "lodash";
+import { isUndefined } from "lodash-es";
 import { useBlock } from "@/hooks/useBlock";
 
 export type BlockAvatarWrapperProps = {

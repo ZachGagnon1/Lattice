@@ -10,7 +10,7 @@ import {
   useEditorProps,
   useFocusIdx,
 } from "@";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import React, { useCallback, useEffect, useState } from "react";
 import { MjmlToJson } from "@/extensions";
 import { CollapsableItem } from "@/extensions/components/Collapse/CollapsableItem";

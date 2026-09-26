@@ -2,7 +2,7 @@ import React from "react";
 import { IBlockData } from "@/core/typings";
 import { BasicType } from "@/core/constants";
 import { createBlock } from "@/core/utils/createBlock";
-import { merge } from "lodash";
+import { merge } from "lodash-es";
 import { BasicBlock } from "@/core/components/BasicBlock";
 import { t } from "@/core/utils";
 

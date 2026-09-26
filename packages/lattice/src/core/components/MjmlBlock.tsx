@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { BlockManager } from "@/core/utils";
 import { IBlockData, RecursivePartial } from "@/core/typings";
-import { set } from "lodash";
+import { set } from "lodash-es";
 import { useEmailRenderContext } from "@/core/utils/JsonToMjml";
 
 export interface MjmlBlockProps<T extends IBlockData> {

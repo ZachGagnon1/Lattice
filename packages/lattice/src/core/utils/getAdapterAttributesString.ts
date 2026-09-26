@@ -1,7 +1,7 @@
 import { IBlock } from "@/core/typings";
 import { EMAIL_BLOCK_CLASS_NAME } from "@/core/constants";
 
-import { isString } from "lodash";
+import { isString } from "lodash-es";
 
 import { getNodeIdxClassName, getNodeTypeClassName } from "@/core/utils";
 import { classnames } from "@/utils/classnames";

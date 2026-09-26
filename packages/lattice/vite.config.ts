@@ -16,7 +16,8 @@ export default defineConfig({
     minify: true,
     cssMinify: "esbuild",
     manifest: false,
-    sourcemap: true,
+    // Maps were two thirds of the published package, and consumers debug their own bundle.
+    sourcemap: false,
     target: "esnext",
     lib: {
       // The Handlebars renderer is its own entry, so the main entry never imports the optional peer.

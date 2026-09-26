@@ -18,7 +18,7 @@ import {
   useRefState,
 } from "@";
 import styles from "./index.module.scss";
-import { cloneDeep, get, isBoolean, isEqual, isString } from "lodash";
+import { cloneDeep, get, isBoolean, isEqual, isString } from "lodash-es";
 import { EyeIcon } from "./components/EyeIcon";
 import { BlockTree, BlockTreeProps } from "./components/BlockTree";
 import { ContextMenu } from "./components/ContextMenu";

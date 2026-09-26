@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { get } from "lodash-es";
 import { BlockManager, getParentIdx, getIndexByIdx } from "@/core/utils";
 import { IBlockData } from "@/core/typings";
 import { IEmailTemplate } from "@/typings";

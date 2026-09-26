@@ -1,6 +1,6 @@
 import { IEmailTemplate } from "@/typings";
 import { useEditorForm } from "../EditorFormProvider";
-import { cloneDeep, isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash-es";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRefState } from "@/hooks/useRefState";
 

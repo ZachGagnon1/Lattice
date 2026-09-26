@@ -9,7 +9,7 @@ import {
   BlockManager,
   createBlockDataByType,
 } from "@";
-import { cloneDeep, debounce, get } from "lodash";
+import { cloneDeep, debounce, get } from "lodash-es";
 import { useCallback, useContext } from "react";
 
 import { useEditorContext } from "./useEditorContext";

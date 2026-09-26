@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import mjml from "mjml-browser";
 import { getPageIdx, IPage, JsonToMjml } from "@";
-import { cloneDeep, isEqual } from "lodash";
+import { cloneDeep, isEqual } from "lodash-es";
 import { useEditorContext } from "@/hooks/useEditorContext";
 import { useEditorProps } from "@/hooks/useEditorProps";
 import { getIframeDocument } from "@/utils";

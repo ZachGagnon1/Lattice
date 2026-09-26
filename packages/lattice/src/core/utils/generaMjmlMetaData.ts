@@ -1,5 +1,5 @@
 import { IPage } from "@/core/blocks";
-import { isObject, isString } from "lodash";
+import { isObject, isString } from "lodash-es";
 
 export function generaMjmlMetaData(data: IPage) {
   const values = data.data.value;

@@ -1,6 +1,6 @@
 import { BlockType } from "./../constants";
 import { IBlock, IBlockData } from "@/core/typings";
-import { get, isString } from "lodash";
+import { get, isString } from "lodash-es";
 import { ancestorOf } from "./ancestorOf";
 import { BlockManager } from "./BlockManager";
 

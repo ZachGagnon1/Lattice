@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { InputWithUnitField } from "../../../components/Form";
 import { createBlockDataByType, TextStyle, useBlock, useFocusIdx } from "@";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
-import { get } from "lodash";
+import { get } from "lodash-es";
 import { pixelAdapter } from "../adapter";
 import { IconButton, Stack, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef } from "react";
 import { useLocalStorage } from "react-use";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { useRefState } from "@";
 
 const defaultPresetColor: string[] = [
