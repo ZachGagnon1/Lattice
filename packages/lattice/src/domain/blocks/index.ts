@@ -1,4 +1,4 @@
-export * from "./standard";
+export * from "./definitions";
 export * from "./ancestorOf";
 export * from "./BlockManager";
 export * from "./block";

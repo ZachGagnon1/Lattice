@@ -5,7 +5,7 @@ import { BasicType } from "@";
 import {
   htmlToTableSource,
   tableSourceToHtml,
-} from "@/domain/blocks/standard/Table/tableSource";
+} from "@/domain/blocks/definitions/Table/tableSource";
 
 const CodeMirrorEditorPromise = import("../../../common/Form/CodemirrorEditor");
 const CodeMirrorEditor = React.lazy(() => CodeMirrorEditorPromise);

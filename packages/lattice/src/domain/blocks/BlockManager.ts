@@ -1,9 +1,9 @@
 import { IBlock, IBlockData } from "@/domain/typings";
-import { standardBlocks } from "@/domain/blocks";
+import { blockDefinitions } from "@/domain/blocks";
 
 export class BlockManager {
   private static blocksMap: Record<string, IBlock> = {
-    ...standardBlocks,
+    ...blockDefinitions,
   };
   private static autoCompletePath: { [key: string]: Array<string[]> } = {};
 

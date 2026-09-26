@@ -1,7 +1,7 @@
 import { BasicType, BlockManager, IBlockData, IPage } from "@";
 import { identity, isString, pickBy } from "lodash-es";
 import { parseXMLtoBlock } from "./parseXMLtoBlock";
-import { htmlToTableSource } from "@/domain/blocks/standard/Table/tableSource";
+import { htmlToTableSource } from "@/domain/blocks/definitions/Table/tableSource";
 
 export async function MjmlToJson(data: MjmlBlockItem | string): Promise<IPage> {
   if (isString(data)) return await parseXMLtoBlock(data);

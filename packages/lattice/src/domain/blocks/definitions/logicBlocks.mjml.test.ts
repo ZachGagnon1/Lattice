@@ -4,7 +4,7 @@ import mjml from "mjml-browser";
 import { BasicType } from "@/domain/constants";
 import { BlockManager } from "@/domain/blocks/BlockManager";
 import { JsonToMjml } from "@/domain/compile/JsonToMjml";
-import { standardBlocks } from "@/domain/blocks";
+import { blockDefinitions } from "@/domain/blocks";
 import { Condition } from "./Condition";
 import { ForLoop } from "./ForLoop";
 import { Page } from "./Page";
@@ -21,7 +21,7 @@ const TYPE_CLASS: Record<string, string> = {
 // The circular import leaves the block map empty, so the test registers
 // every block.
 beforeAll(() => {
-  BlockManager.registerBlocks(standardBlocks);
+  BlockManager.registerBlocks(blockDefinitions);
 });
 
 const CONFIG: Record<string, any> = {

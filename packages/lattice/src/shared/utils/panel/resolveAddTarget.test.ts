@@ -2,18 +2,18 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { BasicType } from "@/domain/constants";
 import { BlockManager } from "@/domain/blocks/BlockManager";
-import { standardBlocks } from "@/domain/blocks";
-import { Page } from "@/domain/blocks/standard/Page";
-import { Section } from "@/domain/blocks/standard/Section";
-import { Column } from "@/domain/blocks/standard/Column";
-import { Text } from "@/domain/blocks/standard/Text";
-import { Image } from "@/domain/blocks/standard/Image";
+import { blockDefinitions } from "@/domain/blocks";
+import { Page } from "@/domain/blocks/definitions/Page";
+import { Section } from "@/domain/blocks/definitions/Section";
+import { Column } from "@/domain/blocks/definitions/Column";
+import { Text } from "@/domain/blocks/definitions/Text";
+import { Image } from "@/domain/blocks/definitions/Image";
 import { IEmailTemplate } from "@/shared/typings";
 import { resolveAddTarget } from "./resolveAddTarget";
 
 // The circular import leaves the block map empty, so the test registers every block.
 beforeAll(() => {
-  BlockManager.registerBlocks(standardBlocks);
+  BlockManager.registerBlocks(blockDefinitions);
 });
 
 const COLUMN_IDX = "content.children.[0].children.[0]";

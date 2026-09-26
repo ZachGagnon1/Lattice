@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
 import { beforeAll, describe, expect, it } from "vitest";
 import { BlockManager } from "@/domain/blocks/BlockManager";
-import { standardBlocks } from "@/domain/blocks";
-import { Condition } from "@/domain/blocks/standard/Condition";
-import { Page } from "@/domain/blocks/standard/Page";
-import { Section } from "@/domain/blocks/standard/Section";
-import { Column } from "@/domain/blocks/standard/Column";
-import { Text } from "@/domain/blocks/standard/Text";
+import { blockDefinitions } from "@/domain/blocks";
+import { Condition } from "@/domain/blocks/definitions/Condition";
+import { Page } from "@/domain/blocks/definitions/Page";
+import { Section } from "@/domain/blocks/definitions/Section";
+import { Column } from "@/domain/blocks/definitions/Column";
+import { Text } from "@/domain/blocks/definitions/Text";
 import { renderToHtml } from "./handlebars";
 import type { IEmailTemplate } from "@/shared/typings";
 
 // The circular import leaves the block map empty, so the test registers
 // every block.
 beforeAll(() => {
-  BlockManager.registerBlocks(standardBlocks);
+  BlockManager.registerBlocks(blockDefinitions);
 });
 
 const sectionWith = (content: string) => ({

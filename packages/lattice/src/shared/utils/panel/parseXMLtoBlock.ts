@@ -1,6 +1,6 @@
 import mjml from "mjml-browser";
 import { BasicType, BlockManager, BlockType, IBlockData, MjmlToJson } from "@";
-import { htmlToTableSource } from "@/domain/blocks/standard/Table/tableSource";
+import { htmlToTableSource } from "@/domain/blocks/definitions/Table/tableSource";
 
 const domParser = new DOMParser();
 

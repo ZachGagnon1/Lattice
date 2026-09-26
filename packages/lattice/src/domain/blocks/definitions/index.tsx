@@ -21,13 +21,13 @@ import { AccordionTitle, IAccordionTitle } from "./AccordionTitle";
 import { AccordionText, IAccordionText } from "./AccordionText";
 import { ITable, ITableCellData, Table } from "./Table";
 import { BasicType } from "@/domain/constants";
-import { Condition } from "@/domain/blocks/standard/Condition";
-import { ConditionBranch } from "@/domain/blocks/standard/ConditionBranch";
-import { ForLoop, IForLoop } from "@/domain/blocks/standard/ForLoop";
+import { Condition } from "@/domain/blocks/definitions/Condition";
+import { ConditionBranch } from "@/domain/blocks/definitions/ConditionBranch";
+import { ForLoop, IForLoop } from "@/domain/blocks/definitions/ForLoop";
 
-export type { IConditionBlock } from "@/domain/blocks/standard/Condition";
+export type { IConditionBlock } from "@/domain/blocks/definitions/Condition";
 
-export const standardBlocks = {
+export const blockDefinitions = {
   [BasicType.PAGE]: Page,
   [BasicType.SECTION]: Section,
   [BasicType.COLUMN]: Column,
