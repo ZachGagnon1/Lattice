@@ -10,6 +10,7 @@ import {
 } from "@";
 
 import { BasicType } from "@/core/constants";
+import { BlockManager } from "@/core/utils";
 import { DirectionPosition } from "./getDirectionPosition";
 
 interface Params {
@@ -21,7 +22,12 @@ interface Params {
 
 const verticalBlocks: string[] = [BasicType.SECTION, BasicType.GROUP];
 
-const isColumnBlock = (type: string) => type === BasicType.COLUMN;
+// An advanced Section or Column must match as its basic type.
+const isVerticalBlock = (type: string) =>
+  verticalBlocks.includes(BlockManager.toBasicType(type));
+
+const isColumnBlock = (type: string) =>
+  BlockManager.toBasicType(type) === BasicType.COLUMN;
 
 export function getInsertPosition(params: Params) {
   const { idx, dragType, directionPosition, context } = params;
@@ -42,7 +48,8 @@ export function getInsertPosition(params: Params) {
         directionPosition.vertical.direction === "bottom" &&
         getIndexByIdx(idx) === directlyParent.children.length - 1;
       // 只有第一个和最后一个才能插入
-      if (isTop || isBottom) {
+      // A block edge inside a Column stays in that Column. The Column edge still escapes the Section.
+      if ((isTop || isBottom) && !isColumnBlock(directlyParent.type)) {
         const prevParent = getParentByIdx(context, parentData.parentIdx);
         if (prevParent) {
           parentData = {
@@ -59,23 +66,6 @@ export function getInsertPosition(params: Params) {
               };
             }
           }
-        }
-      }
-    } else if (directionPosition.horizontal.isEdge) {
-      // 如果是 column 的话，选择到 section，这样做有个好处，可以插入一个 column
-      if (isColumnBlock(parentData.parent.type)) {
-        const prevParent = getParentByIdx(context, parentData.parentIdx);
-        if (prevParent) {
-          const isLeft = directionPosition.horizontal.direction === "left";
-          console.log("idx", parentData.parentIdx);
-          return {
-            parentIdx: getParentIdx(parentData.parentIdx)!,
-            insertIndex: isLeft
-              ? getIndexByIdx(parentData.parentIdx)
-              : getIndexByIdx(parentData.parentIdx) + 1,
-            endDirection: directionPosition.horizontal.direction,
-            hoverIdx: parentData.parentIdx,
-          };
         }
       }
     }
@@ -115,7 +105,7 @@ function getInsetParentAndIndex(
 
       if (!valid) return null;
 
-      const isVertical = verticalBlocks.includes(parent.type);
+      const isVertical = isVerticalBlock(parent.type);
       if (isVertical && parent.children.length > 0) {
         const isTop = directionPosition.vertical.direction === "top";
         return {
@@ -200,7 +190,7 @@ function getValidDirection(
   targetType: string,
   directionPosition: DirectionPosition,
 ): { valid: boolean; direction: string; isEdge: boolean } {
-  const isVertical = verticalBlocks.includes(targetType);
+  const isVertical = isVerticalBlock(targetType);
 
   let direction = directionPosition.vertical.direction;
   let isEdge = directionPosition.vertical.isEdge;
