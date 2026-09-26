@@ -13,7 +13,7 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { SketchPicker } from "react-color";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 import Color from "color";
 import { PresetColorsContext } from "@/extensions/AttributePanel/components/provider/PresetColorsProvider";
 
@@ -60,39 +60,6 @@ export function ColorPicker(props: ColorPickerProps) {
     }
   }, [value, isPopoverOpen]);
 
-  // react-color sets global mousemove/mouseup listeners on the parent `window`.
-  // Because our Popover renders inside an iframe, the main window never receives these events.
-  // This forwards the mouse events from the iframe window to the parent window.
-  useEffect(() => {
-    if (!isPopoverOpen || !anchorEl) return;
-
-    const iframeWindow = anchorEl.ownerDocument.defaultView;
-
-    // If we are not in an iframe, no need to forward
-    if (!iframeWindow || iframeWindow === window) return;
-
-    const forwardEvent = (e: MouseEvent) => {
-      const clonedEvent = new MouseEvent(e.type, {
-        bubbles: true,
-        cancelable: true,
-        clientX: e.clientX,
-        clientY: e.clientY,
-        screenX: e.screenX,
-        screenY: e.screenY,
-        buttons: e.buttons,
-      });
-      window.dispatchEvent(clonedEvent);
-    };
-
-    iframeWindow.addEventListener("mousemove", forwardEvent);
-    iframeWindow.addEventListener("mouseup", forwardEvent);
-
-    return () => {
-      iframeWindow.removeEventListener("mousemove", forwardEvent);
-      iframeWindow.removeEventListener("mouseup", forwardEvent);
-    };
-  }, [isPopoverOpen, anchorEl]);
-
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     setAnchorEl(e.currentTarget);
@@ -126,6 +93,15 @@ export function ColorPicker(props: ColorPickerProps) {
     } catch (error) {}
     return internalColor;
   }, [internalColor]);
+
+  // The toolbar passes a computed color such as `rgb(0, 0, 0)`, and the picker takes only hex.
+  const pickerColor = useMemo(() => {
+    try {
+      return Color(adapterColor).hex();
+    } catch (error) {
+      return "#000000";
+    }
+  }, [adapterColor]);
 
   const inputColor = useMemo(() => {
     if (internalColor.startsWith("#") && internalColor.length === 7) {
@@ -225,9 +201,6 @@ export function ColorPicker(props: ColorPickerProps) {
               sx: {
                 backgroundColor: "#FFFFFF",
                 minHeight: "fit-content",
-                ".sketch-picker": {
-                  boxShadow: "none !important",
-                },
               },
             },
           }}
@@ -236,13 +209,45 @@ export function ColorPicker(props: ColorPickerProps) {
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           >
-            <SketchPicker
-              color={adapterColor}
-              presetColors={presetColorList}
-              disableAlpha
-              onChange={(color) => setInternalColor(color.hex)}
-              onChangeComplete={(color) => onColorChange(color.hex)}
-            />
+            <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
+              <HexColorPicker color={pickerColor} onChange={onColorChange} />
+              <Box
+                component={HexColorInput}
+                color={pickerColor}
+                onChange={onColorChange}
+                prefixed
+                aria-label="Hex color"
+                sx={(theme) => ({
+                  font: "inherit",
+                  fontSize: "13px",
+                  p: "6px 8px",
+                  border: `1px solid ${theme.palette.divider}`,
+                  borderRadius: "4px",
+                  textTransform: "uppercase",
+                })}
+              />
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                {presetColorList.map((presetColor) => (
+                  <Box
+                    key={presetColor}
+                    component="button"
+                    type="button"
+                    title={presetColor}
+                    aria-label={presetColor}
+                    onClick={() => onColorChange(presetColor)}
+                    sx={(theme) => ({
+                      width: 20,
+                      height: 20,
+                      p: 0,
+                      cursor: "pointer",
+                      backgroundColor: presetColor,
+                      border: `1px solid ${theme.palette.divider}`,
+                      borderRadius: "4px",
+                    })}
+                  />
+                ))}
+              </Box>
+            </Stack>
             {footerChild}
           </Box>
         </Popover>

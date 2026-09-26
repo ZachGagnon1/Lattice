@@ -47,49 +47,21 @@ export function ColorCommandWrapper({
     }
   }, [isOpen, styleKey]);
 
+  // A drag on the picker must not select the email text behind the popover.
   useEffect(() => {
-    if (isOpen) {
-      const iframeDocument = getIframeDocument();
-      const iframeWindow = iframeDocument?.defaultView;
-      const iframeBody = iframeDocument?.body;
+    if (!isOpen) return;
+    const iframeBody = getIframeDocument()?.body;
+    if (!iframeBody) return;
 
-      let prevUserSelect = "";
-      let forwardEvent: ((e: MouseEvent) => void) | null = null;
-
-      if (iframeBody && iframeWindow) {
-        prevUserSelect = iframeBody.style.getPropertyValue("user-select");
-        iframeBody.style.setProperty("user-select", "none", "important");
-
-        forwardEvent = (e: MouseEvent) => {
-          const clonedEvent = new MouseEvent(e.type, {
-            bubbles: true,
-            cancelable: e.cancelable,
-            clientX: e.clientX,
-            clientY: e.clientY,
-            screenX: e.screenX,
-            screenY: e.screenY,
-          });
-          window.dispatchEvent(clonedEvent);
-        };
-
-        iframeWindow.addEventListener("mousemove", forwardEvent);
-        iframeWindow.addEventListener("mouseup", forwardEvent);
+    const prevUserSelect = iframeBody.style.getPropertyValue("user-select");
+    iframeBody.style.setProperty("user-select", "none", "important");
+    return () => {
+      if (prevUserSelect) {
+        iframeBody.style.setProperty("user-select", prevUserSelect);
+      } else {
+        iframeBody.style.removeProperty("user-select");
       }
-
-      return () => {
-        if (iframeBody) {
-          if (prevUserSelect) {
-            iframeBody.style.setProperty("user-select", prevUserSelect);
-          } else {
-            iframeBody.style.removeProperty("user-select");
-          }
-        }
-        if (iframeWindow && forwardEvent) {
-          iframeWindow.removeEventListener("mousemove", forwardEvent);
-          iframeWindow.removeEventListener("mouseup", forwardEvent);
-        }
-      };
-    }
+    };
   }, [isOpen]);
 
   const onSubmit = useCallback(
