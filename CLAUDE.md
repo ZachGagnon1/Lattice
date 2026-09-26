@@ -72,7 +72,15 @@ IEmailTemplate (JSON) → JsonToMjml → MJML string → mjml-browser → HTML
 
 ### State Management
 
-The editor uses **React Final Form** to manage the email template form state (fields: `subject`, `subTitle`, `content`). The content field holds the root `IPage` block.
+The editor uses **react-hook-form** for the form state. The fields are `subject`, `subTitle`, and `content`. The `content` field holds the root `IPage` block. The `EmailEditorProvider` calls `useForm` and wraps the tree in `FormProvider`. A new `data` prop goes through `reset()`. The `EditorFormProvider` (`components/Provider/EditorFormProvider`) holds the only `useWatch` subscription for the whole form.
+
+- react-hook-form sends a new deep clone of the values on each change. The `replaceEqualDeep` function in `utils/formValues.ts` keeps the identity of each unchanged block. The memoized components compare the blocks by identity.
+- The `useEditorContext()` function returns `formState.values` and `formHelpers`. The `formHelpers` object has `change(path, value)`, `getValues()`, and `reset(values?)`.
+- The editor paths use the lodash style, for example `content.children.[0]`. react-hook-form compares the names as strings. The `toFieldPath()` function turns each path into `content.children.0`. The `change`, `enhancer`, and `useEditorField` functions call it.
+- An attribute field comes from the `enhancer` function, which binds with `useController`. The `config` prop takes a `FieldAdapter` with `format` and `parse`.
+- The `useEditorField(path, adapter?)` function binds one value in the custom panel code. It returns `{ input }` with `value`, `onChange`, and `onBlur`. The `onChange` function takes a value or a MUI change event.
+
+A sub-form, such as the rule builder or the padding group, has its own `useForm` and `FormProvider`. A field inside it binds to that sub-form, not to the root form.
 
 Multiple React contexts are composed in `EmailEditorProvider`:
 
