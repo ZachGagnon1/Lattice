@@ -28,7 +28,7 @@
     "./src",
     "./example",
     "./typings",
-    "../packages/lattice/src/typings/mjml-browser.ts"
+    "../packages/lattice/src/shared/typings/mjml-browser.ts"
   ],
   "exclude": ["node_modules"]
 }
