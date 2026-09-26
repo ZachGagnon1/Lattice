@@ -1,15 +1,30 @@
 {
   "name": "lattice-editor",
   "license": "MIT",
-  "description": "Lattice is a feature-rich, open-source SaaS email editor based on React and MJML.",
+  "description": "Drag-and-drop email editor and email template builder for React 19. Builds responsive HTML emails with MJML.",
   "version": "1.0.0-beta.1",
   "author": "ZachGagnon1",
   "repository": {
     "type": "git",
-    "url": "git@github.com:ZachGagnon1/Lattice.git"
+    "url": "git+https://github.com/ZachGagnon1/Lattice.git",
+    "directory": "packages/lattice"
+  },
+  "bugs": {
+    "url": "https://github.com/ZachGagnon1/Lattice/issues"
   },
   "keywords": [
-    "email editor core"
+    "email-editor",
+    "email-builder",
+    "email-template",
+    "email-template-builder",
+    "drag-and-drop",
+    "mjml",
+    "react",
+    "react-email-editor",
+    "html-email",
+    "newsletter",
+    "wysiwyg",
+    "easy-email-editor"
   ],
   "files": [
     "lib"
@@ -114,5 +129,5 @@
       "optional": true
     }
   },
-  "gitHead": "2a08e8af15766344de708d891c1c8ea31bb77646"
+  "homepage": "https://zachgagnon1.github.io/Lattice/"
 }
