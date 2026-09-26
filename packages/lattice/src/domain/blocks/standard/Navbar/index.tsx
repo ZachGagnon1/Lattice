@@ -1,10 +1,10 @@
 import React from "react";
 import { IBlock, IBlockData } from "@/domain/typings";
 import { BasicType } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
-import { mergeBlock } from "@/shared/utils/block/mergeBlock";
-import { t } from "@/shared/utils/block";
-import { BasicBlock } from "@/adapters/canvas/BasicBlock";
+import { createBlock } from "@/domain/blocks/createBlock";
+import { mergeBlock } from "@/domain/blocks/mergeBlock";
+import { t } from "@/shared/utils/I18nManager";
+import { BasicBlock } from "@/domain/blocks/render/BasicBlock";
 
 export type INavbar = IBlockData<
   {

@@ -6,7 +6,7 @@ import { isString } from "lodash-es";
 import {
   getNodeIdxClassName,
   getNodeTypeClassName,
-} from "@/shared/utils/block";
+} from "@/domain/blocks/block";
 import { classnames } from "@/shared/utils/classnames";
 
 export function getAdapterAttributesString(

@@ -10,7 +10,7 @@ import {
 } from "@";
 
 import { BasicType } from "@/domain/constants";
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 import { DirectionPosition } from "./getDirectionPosition";
 
 interface Params {

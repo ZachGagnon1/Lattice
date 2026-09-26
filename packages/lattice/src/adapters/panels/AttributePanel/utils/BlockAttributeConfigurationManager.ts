@@ -1,6 +1,6 @@
 import { blocks } from "../components/blocks";
 import { ReactNode } from "react";
-import { BlockManager } from "@/shared/utils/block/BlockManager";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 
 type ObjectComponent = { [key: string]: (...args: any) => ReactNode };
 

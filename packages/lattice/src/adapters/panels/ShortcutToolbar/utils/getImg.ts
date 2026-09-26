@@ -1,4 +1,4 @@
-import { ImageManager } from "@/shared/utils/block";
+import { ImageManager } from "@/domain/blocks/render/ImageManager";
 
 const defaultImagesMap = {
   IMAGE_08:

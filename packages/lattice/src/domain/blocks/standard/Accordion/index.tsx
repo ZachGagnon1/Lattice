@@ -1,14 +1,14 @@
 import React from "react";
 import { IBlockData } from "@/domain/typings";
 import { BasicType } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
+import { createBlock } from "@/domain/blocks/createBlock";
 import { AccordionElement } from "../AccordionElement";
 import { AccordionTitle } from "../AccordionTitle";
 import { AccordionText } from "../AccordionText";
-import { getImg } from "@/shared/utils/block/getImg";
-import { mergeBlock } from "@/shared/utils/block/mergeBlock";
-import { t } from "@/shared/utils/block";
-import { BasicBlock } from "@/adapters/canvas/BasicBlock";
+import { getImg } from "@/domain/blocks/render/getImg";
+import { mergeBlock } from "@/domain/blocks/mergeBlock";
+import { t } from "@/shared/utils/I18nManager";
+import { BasicBlock } from "@/domain/blocks/render/BasicBlock";
 
 export type IAccordion = IBlockData<
   {

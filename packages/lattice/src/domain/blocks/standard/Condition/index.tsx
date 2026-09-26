@@ -1,17 +1,18 @@
 import React from "react";
 import { IBlockData } from "@/domain/typings";
 import { BasicType } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
+import { createBlock } from "@/domain/blocks/createBlock";
 import { merge } from "lodash-es";
-import { getChildIdx, t } from "@/shared/utils/block";
-import { BlockRenderer } from "@/adapters/canvas/BlockRenderer";
+import { getChildIdx } from "@/domain/blocks/block";
+import { t } from "@/shared/utils/I18nManager";
+import { BlockRenderer } from "@/domain/blocks/render/BlockRenderer";
 import {
   compileCondition,
   CONDITION_CLOSE,
   CONDITION_ELSE,
   IConditionGroup,
 } from "@/domain/compile/handlebars";
-import { BasicBlock } from "@/adapters/canvas/BasicBlock";
+import { BasicBlock } from "@/domain/blocks/render/BasicBlock";
 import { ConditionBranch } from "../ConditionBranch";
 import { Section } from "../Section";
 import { Column } from "../Column";

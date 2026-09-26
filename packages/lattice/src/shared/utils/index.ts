@@ -10,3 +10,4 @@ export { isTextBlock } from "./isTextBlock";
 export { MergeTagBadge } from "./MergeTagBadge";
 export { getContentEditableClassName } from "./getContentEditableClassName";
 export { EventManager } from "./EventManager";
+export { I18nManager, t } from "./I18nManager";

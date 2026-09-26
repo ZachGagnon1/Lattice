@@ -1,7 +1,7 @@
 import { get, isPlainObject } from "lodash-es";
 
 import { BasicType } from "@/domain/constants";
-import { getParentIdx } from "@/shared/utils/block/block";
+import { getParentIdx } from "@/domain/blocks/block";
 
 /**
  * NOTE: no path can address a merge tag key that contains a literal `.`, such

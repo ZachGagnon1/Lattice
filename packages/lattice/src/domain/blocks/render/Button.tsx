@@ -3,7 +3,7 @@ import { BasicType } from "@/domain/constants";
 import { RecursivePartial } from "@/domain/typings";
 import React from "react";
 import { IButton } from "@/domain/blocks";
-import MjmlBlock, { MjmlBlockProps } from "@/adapters/canvas/MjmlBlock";
+import MjmlBlock, { MjmlBlockProps } from "@/domain/blocks/render/MjmlBlock";
 
 export type ButtonProps = RecursivePartial<IButton["data"]> &
   RecursivePartial<IButton["attributes"]> & {

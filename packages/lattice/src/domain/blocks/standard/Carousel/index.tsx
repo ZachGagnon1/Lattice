@@ -1,11 +1,11 @@
 import React from "react";
 import { IBlockData } from "@/domain/typings";
 import { BasicType } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
-import { getImg } from "@/shared/utils/block/getImg";
-import { mergeBlock } from "@/shared/utils/block/mergeBlock";
-import { BasicBlock } from "@/adapters/canvas/BasicBlock";
-import { t } from "@/shared/utils/block";
+import { createBlock } from "@/domain/blocks/createBlock";
+import { getImg } from "@/domain/blocks/render/getImg";
+import { mergeBlock } from "@/domain/blocks/mergeBlock";
+import { BasicBlock } from "@/domain/blocks/render/BasicBlock";
+import { t } from "@/shared/utils/I18nManager";
 
 export type ICarousel = IBlockData<
   {

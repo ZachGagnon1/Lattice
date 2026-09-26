@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import mjml from "mjml-browser";
 import { BasicType } from "@/domain/constants";
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 import { JsonToMjml } from "@/domain/compile/JsonToMjml";
 import { standardBlocks } from "@/domain/blocks";
 import { Condition } from "./Condition";

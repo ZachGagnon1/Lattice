@@ -3,7 +3,7 @@ import { BasicType } from "@/domain/constants";
 import { RecursivePartial } from "@/domain/typings";
 import React from "react";
 import { IGroup } from "@/domain/blocks";
-import MjmlBlock, { MjmlBlockProps } from "@/adapters/canvas/MjmlBlock";
+import MjmlBlock, { MjmlBlockProps } from "@/domain/blocks/render/MjmlBlock";
 
 export type GroupProps = RecursivePartial<IGroup["data"]> &
   RecursivePartial<IGroup["attributes"]> & {

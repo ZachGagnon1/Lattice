@@ -3,7 +3,7 @@ import { BasicType } from "@/domain/constants";
 import { RecursivePartial } from "@/domain/typings";
 import React from "react";
 import { IDivider } from "@/domain/blocks";
-import MjmlBlock, { MjmlBlockProps } from "@/adapters/canvas/MjmlBlock";
+import MjmlBlock, { MjmlBlockProps } from "@/domain/blocks/render/MjmlBlock";
 
 export type DividerProps = RecursivePartial<IDivider["data"]> &
   RecursivePartial<IDivider["attributes"]> & {

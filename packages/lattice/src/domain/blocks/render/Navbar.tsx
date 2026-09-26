@@ -3,7 +3,7 @@ import { BasicType } from "@/domain/constants";
 import { RecursivePartial } from "@/domain/typings";
 import React from "react";
 import { INavbar } from "@/domain/blocks";
-import MjmlBlock, { MjmlBlockProps } from "@/adapters/canvas/MjmlBlock";
+import MjmlBlock, { MjmlBlockProps } from "@/domain/blocks/render/MjmlBlock";
 
 export type NavbarProps = RecursivePartial<INavbar["data"]> &
   RecursivePartial<INavbar["attributes"]> & {

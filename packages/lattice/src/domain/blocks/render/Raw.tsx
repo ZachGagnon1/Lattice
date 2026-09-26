@@ -2,20 +2,20 @@ import { omit } from "lodash-es";
 import { BasicType } from "@/domain/constants";
 import { RecursivePartial } from "@/domain/typings";
 import React from "react";
-import { IText } from "@/domain/blocks";
-import MjmlBlock, { MjmlBlockProps } from "@/adapters/canvas/MjmlBlock";
+import { IRaw } from "@/domain/blocks";
+import MjmlBlock, { MjmlBlockProps } from "@/domain/blocks/render/MjmlBlock";
 
-export type TextProps = RecursivePartial<IText["data"]> &
-  RecursivePartial<IText["attributes"]> & {
-    children?: MjmlBlockProps<IText>["children"];
+export type RawProps = RecursivePartial<IRaw["data"]> &
+  RecursivePartial<IRaw["attributes"]> & {
+    children?: MjmlBlockProps<IRaw>["children"];
   };
 
-export function Text(props: TextProps) {
+export function Raw(props: RawProps) {
   return (
     <MjmlBlock
       attributes={omit(props, ["data", "children", "value"])}
       value={props.value}
-      type={BasicType.TEXT}
+      type={BasicType.RAW}
     >
       {props.children}
     </MjmlBlock>

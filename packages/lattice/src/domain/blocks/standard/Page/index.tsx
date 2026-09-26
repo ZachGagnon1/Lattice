@@ -1,18 +1,15 @@
 import React from "react";
 import { IBlockData } from "@/domain/typings";
 import { BasicType } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
+import { createBlock } from "@/domain/blocks/createBlock";
 import { Wrapper } from "../Wrapper";
 import { merge } from "lodash-es";
 
-import { generaMjmlMetaData } from "@/shared/utils/block/generaMjmlMetaData";
-import { BlockRenderer } from "@/adapters/canvas/BlockRenderer";
-import {
-  getAdapterAttributesString,
-  getChildIdx,
-  getPageIdx,
-} from "@/shared/utils/block";
-import { t } from "@/shared/utils/block/I18nManager";
+import { generaMjmlMetaData } from "@/domain/compile/generaMjmlMetaData";
+import { BlockRenderer } from "@/domain/blocks/render/BlockRenderer";
+import { getAdapterAttributesString } from "@/domain/blocks/render/getAdapterAttributesString";
+import { getChildIdx, getPageIdx } from "@/domain/blocks/block";
+import { t } from "@/shared/utils/I18nManager";
 
 export type IPage = IBlockData<
   {

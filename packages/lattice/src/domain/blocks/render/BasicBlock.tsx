@@ -1,7 +1,8 @@
 import { IBlock } from "@/domain/typings";
-import { getAdapterAttributesString, getChildIdx } from "@/shared/utils/block";
-import { getImg } from "@/shared/utils/block/getImg";
-import { getPlaceholder } from "@/shared/utils/block/getPlaceholder";
+import { getAdapterAttributesString } from "@/domain/blocks/render/getAdapterAttributesString";
+import { getChildIdx } from "@/domain/blocks/block";
+import { getImg } from "@/domain/blocks/render/getImg";
+import { getPlaceholder } from "@/domain/blocks/render/getPlaceholder";
 import { omit } from "lodash-es";
 import React from "react";
 import { BlockRenderer } from "./BlockRenderer";

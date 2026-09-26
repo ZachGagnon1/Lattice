@@ -1,7 +1,7 @@
 import { html } from "js-beautify";
 import { renderToStaticMarkup } from "react-dom/server";
-import { BlockManager } from "@/shared/utils/block";
-import { JsonToMjmlOption } from "../../shared/utils/block/isProductionMode";
+import { BlockManager } from "@/domain/blocks/BlockManager";
+import { JsonToMjmlOption } from "./isProductionMode";
 import React, { useContext } from "react";
 import { IBlockData } from "@/domain/typings";
 import { unescape } from "he";

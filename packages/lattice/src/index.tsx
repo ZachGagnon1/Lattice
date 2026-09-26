@@ -54,9 +54,9 @@ export * from "./adapters/panels/MergeTagBadgePrompt";
 export * from "./adapters/panels/common/Providers/ExtensionProvider";
 export * from "./adapters/panels/constants";
 export * from "./adapters/panels/common/Form";
-export * from "./shared/utils/block/index";
+export { JsonToMjml } from "./domain/compile/JsonToMjml";
 export * from "./domain/blocks";
-export * as components from "./adapters/canvas";
+export * as components from "./domain/blocks/render";
 export * from "./domain/typings/index";
 export * from "./domain/constants";
 

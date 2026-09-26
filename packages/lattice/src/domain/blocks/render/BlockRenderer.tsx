@@ -1,5 +1,5 @@
 import { IBlock } from "@/domain/typings";
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 import { useEmailRenderContext } from "@/domain/compile/JsonToMjml";
 import React from "react";
 

@@ -1,15 +1,15 @@
 import React from "react";
 import { IBlockData } from "@/domain/typings";
 import { BasicType, EMAIL_BLOCK_CLASS_NAME } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
+import { createBlock } from "@/domain/blocks/createBlock";
 import { merge } from "lodash-es";
 import {
   getChildIdx,
   getNodeIdxClassName,
   getNodeTypeClassName,
-  t,
-} from "@/shared/utils/block";
-import { BlockRenderer } from "@/adapters/canvas/BlockRenderer";
+} from "@/domain/blocks/block";
+import { t } from "@/shared/utils/I18nManager";
+import { BlockRenderer } from "@/domain/blocks/render/BlockRenderer";
 import he from "he";
 
 export type ConditionBranchKind = "if" | "else";

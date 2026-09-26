@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 
 import { BasicType } from "@/domain/constants";
 import { ForLoop } from "./index";
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 import { Section } from "../Section";
 import { Column } from "../Column";
 import { JsonToMjml } from "@/domain/compile/JsonToMjml";

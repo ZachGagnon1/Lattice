@@ -1,10 +1,10 @@
 import React from "react";
 import { IBlockData } from "@/domain/typings";
 import { BasicType } from "@/domain/constants";
-import { createBlock } from "@/shared/utils/block/createBlock";
+import { createBlock } from "@/domain/blocks/createBlock";
 import { merge } from "lodash-es";
-import { BlockRenderer } from "@/adapters/canvas/BlockRenderer";
-import { t } from "@/shared/utils/block";
+import { BlockRenderer } from "@/domain/blocks/render/BlockRenderer";
+import { t } from "@/shared/utils/I18nManager";
 
 export type ITemplate = IBlockData<
   {},

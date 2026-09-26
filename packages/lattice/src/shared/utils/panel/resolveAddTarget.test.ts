@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeAll, describe, expect, it } from "vitest";
 import { BasicType } from "@/domain/constants";
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 import { standardBlocks } from "@/domain/blocks";
 import { Page } from "@/domain/blocks/standard/Page";
 import { Section } from "@/domain/blocks/standard/Section";

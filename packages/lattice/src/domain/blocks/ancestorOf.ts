@@ -1,4 +1,4 @@
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 
 // 桥接： 例如 drag text to wrapper , 可以通过 text=> column => section => wrapper, 隔了三代
 export function ancestorOf(type: string, targetType: string): number {

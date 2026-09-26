@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { BlockManager } from "@/shared/utils/block";
+import { BlockManager } from "@/domain/blocks/BlockManager";
 import { IBlockData, RecursivePartial } from "@/domain/typings";
 import { set } from "lodash-es";
 import { useEmailRenderContext } from "@/domain/compile/JsonToMjml";
