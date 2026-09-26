@@ -44,10 +44,7 @@ export interface LoopScope {
  * - `global` — a top level merge tag.
  */
 export type ScopedMergeTagKind =
-  | "loop-field"
-  | "loop-group"
-  | "loop-item"
-  | "global";
+  "loop-field" | "loop-group" | "loop-item" | "global";
 
 /**
  * One row that the merge tag picker shows at the root level.
