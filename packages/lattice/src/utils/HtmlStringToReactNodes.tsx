@@ -193,7 +193,7 @@ function createElement(
 ) {
   if (props?.class && props.class.includes("email-block")) {
     const blockType = getNodeTypeFromClassName(props.class);
-    if (![BasicType.TEXT].includes(blockType as any)) {
+    if (!isTextBlock(blockType)) {
       props.role = "tab";
       props.tabIndex = "0";
     }

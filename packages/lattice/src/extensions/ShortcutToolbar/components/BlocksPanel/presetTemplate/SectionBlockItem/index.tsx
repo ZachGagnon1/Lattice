@@ -46,7 +46,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_48"),
     payload: {
-      type: "advanced_section",
+      type: BasicType.SECTION,
       data: {
         value: {
           noWrap: false,
@@ -63,7 +63,7 @@ const list = [
       },
       children: [
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -80,7 +80,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_49"),
     payload: {
-      type: "advanced_section",
+      type: BasicType.SECTION,
       data: {
         value: {
           noWrap: false,
@@ -97,7 +97,7 @@ const list = [
       },
       children: [
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -109,7 +109,7 @@ const list = [
           children: [],
         },
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -126,7 +126,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_50"),
     payload: {
-      type: "advanced_section",
+      type: BasicType.SECTION,
       data: {
         value: {
           noWrap: false,
@@ -143,7 +143,7 @@ const list = [
       },
       children: [
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -155,7 +155,7 @@ const list = [
           children: [],
         },
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -167,7 +167,7 @@ const list = [
           children: [],
         },
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -184,7 +184,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_51"),
     payload: {
-      type: "advanced_section",
+      type: BasicType.SECTION,
       data: {
         value: {
           noWrap: false,
@@ -201,7 +201,7 @@ const list = [
       },
       children: [
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -213,7 +213,7 @@ const list = [
           children: [],
         },
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -225,7 +225,7 @@ const list = [
           children: [],
         },
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },
@@ -237,7 +237,7 @@ const list = [
           children: [],
         },
         {
-          type: "advanced_column",
+          type: BasicType.COLUMN,
           data: {
             value: {},
           },

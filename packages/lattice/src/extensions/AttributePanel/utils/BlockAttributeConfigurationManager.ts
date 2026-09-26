@@ -1,5 +1,6 @@
 import { blocks } from "../components/blocks";
 import { ReactNode } from "react";
+import { BlockManager } from "@/core/utils/BlockManager";
 
 type ObjectComponent = { [key: string]: (...args: any) => ReactNode };
 
@@ -15,7 +16,10 @@ export class BlockAttributeConfigurationManager {
   public static get<T extends ObjectComponent>(
     name: keyof T,
   ): () => ReactNode | null {
-    return (this.map as any)[name];
+    return (
+      (this.map as any)[name] ??
+      (this.map as any)[BlockManager.toBasicType(String(name))]
+    );
   }
 
   public static getMap() {
