@@ -33,7 +33,7 @@ async function createEnv(): Promise<HandlebarsEnv> {
     mod = await import("handlebars");
   } catch (error: unknown) {
     throw new Error(
-      "@4life-dev/lattice/handlebars needs the handlebars package. Install it with: npm install handlebars",
+      "lattice-editor/handlebars needs the handlebars package. Install it with: npm install handlebars",
       { cause: error },
     );
   }
