@@ -2,7 +2,6 @@
   "name": "lattice-editor",
   "scripts": {
     "install-all": "lerna exec -- pnpm install && cd demo && pnpm install",
-    "vercel-install": "lerna exec -- pnpm install && cd demo && pnpm install",
     "build:editor": "cd packages/lattice && pnpm run build",
     "dev": "cd demo && pnpm run dev",
     "demo": "cd demo && pnpm run build",
@@ -10,21 +9,13 @@
     "format": "pnpm exec prettier . --write",
     "format:fix": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,scss}\""
   },
-  "dependencies": {
-    "@sendgrid/mail": "^7.7.0",
-    "@types/file-saver": "^2.0.7",
-    "cloudinary": "2.7.0",
-    "file-saver": "^2.0.5",
-    "lerna": "^9.0.7",
-    "liquidjs": "10.25.7",
-    "posthog-js": "^1.373.2"
-  },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.25",
     "@types/node": "^26.6.2",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
     "dotenv": "^18.0.3",
+    "lerna": "^9.0.7",
     "prettier": "^3.9.9"
   }
 }
