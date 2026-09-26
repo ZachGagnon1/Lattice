@@ -8,6 +8,7 @@ import { EditTab, EditTabProps } from "./EditTab";
 import { EditGridTab, EditGridTabProps } from "./EditGridTab";
 import { InlineText, InlineTextProps } from "./InlineTextField";
 import { AutoComplete, AutoCompleteProps } from "./AutoComplete";
+import { FontStack, FontStackProps } from "./FontStack";
 
 import { NumberInput } from "@/extensions/components/Form/NumberInput";
 import {
@@ -87,6 +88,8 @@ export const AutoCompleteField = enhancer<AutoCompleteProps>(
   AutoComplete,
   (e) => e,
 );
+
+export const FontStackField = enhancer<FontStackProps>(FontStack, (e) => e);
 
 export const RadioGroupField = enhancer<RadioGroupProps>(
   RadioGroup,
