@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { Form } from "react-final-form";
+import React, { useEffect, useMemo } from "react";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import {
   Alert,
   AlertTitle,
@@ -84,9 +84,9 @@ function issueLocation(path: string): string {
 export function RuleBuilderModal(props: Readonly<RuleBuilderModalProps>) {
   const { open, initialData, onClose, onSave } = props;
 
-  // Seed the form with normalized data. A new object on each render
-  // makes react-final-form reinitialize the form and drop the author's
-  // edits, so the value stays tied to the incoming reference.
+  // Seed the form with normalized data. A new object on each render would
+  // reset the form and drop the author's edits, so the value stays tied to
+  // the incoming reference.
   const initialValues = useMemo<RuleBuilderValues>(
     () => ({ rulesTree: normalizeGroup(initialData) }),
     [initialData],
@@ -95,99 +95,116 @@ export function RuleBuilderModal(props: Readonly<RuleBuilderModalProps>) {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>Configure Logic Rules</DialogTitle>
-
-      <Form<RuleBuilderValues>
+      <RuleBuilderForm
         initialValues={initialValues}
-        onSubmit={(values) => {
-          // The Enter key submits the form even while the button is disabled,
-          // so the same check runs here.
-          const { issues } = compileCondition(values.rulesTree);
-          if (issues.length > 0 && !isClearedTree(values.rulesTree)) {
-            return;
-          }
-          onSave(values.rulesTree);
-        }}
-        render={({ handleSubmit, values }) => {
-          const compiled = compileCondition(values.rulesTree);
-          const isCleared = isClearedTree(values.rulesTree);
-
-          // A half-configured rule compiles to nothing, and the block renders
-          // its children with no `{{#if}}` at all. The result exposes content
-          // the author wants to gate. So the save waits until every rule is
-          // complete. An empty tree is the one exception: the author uses an
-          // empty tree to remove the condition on purpose.
-          const issues: ConditionIssue[] = isCleared ? [] : compiled.issues;
-          const canSave = issues.length === 0;
-
-          return (
-            // DialogActions needs the form tag to handle the submit event
-            // natively.
-            <form
-              onSubmit={handleSubmit}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                overflow: "hidden",
-              }}
-            >
-              <DialogContent dividers sx={{ p: 3, bgcolor: "grey.50" }}>
-                <Box sx={{ minHeight: 300 }}>
-                  {/* The Root Rule Group starts at nesting level 0 */}
-                  <FilterRuleGroup
-                    name="rulesTree"
-                    nestingLevel={0}
-                    index={0}
-                  />
-                </Box>
-
-                {issues.length > 0 && (
-                  <Alert severity="warning" sx={{ mt: 2 }}>
-                    <AlertTitle>Finish every rule before you save</AlertTitle>
-                    {issues.map((issue) => (
-                      <Typography
-                        key={`${issue.path}-${issue.code}`}
-                        variant="body2"
-                        component="div"
-                      >
-                        {`${issueLocation(issue.path)}: ${issue.message}`}
-                      </Typography>
-                    ))}
-                  </Alert>
-                )}
-
-                {isCleared && (
-                  <Alert severity="info" sx={{ mt: 2 }}>
-                    No rules. The contents of this block always render.
-                  </Alert>
-                )}
-
-                {canSave && !isCleared && (
-                  <Alert severity="success" sx={{ mt: 2 }}>
-                    <AlertTitle>Show the block when</AlertTitle>
-                    <Typography variant="body2" component="div">
-                      {compiled.label}
-                    </Typography>
-                  </Alert>
-                )}
-              </DialogContent>
-
-              <DialogActions sx={{ p: 2 }}>
-                <Button onClick={onClose} color="inherit">
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  disabled={!canSave}
-                >
-                  Save Logic
-                </Button>
-              </DialogActions>
-            </form>
-          );
-        }}
+        onClose={onClose}
+        onSave={onSave}
       />
     </Dialog>
+  );
+}
+
+function RuleBuilderForm({
+  initialValues,
+  onClose,
+  onSave,
+}: Readonly<{
+  initialValues: RuleBuilderValues;
+  onClose: () => void;
+  onSave: (data: IConditionGroup) => void;
+}>) {
+  const methods = useForm<RuleBuilderValues>({ defaultValues: initialValues });
+  const { control, handleSubmit, reset } = methods;
+
+  useEffect(() => {
+    reset(initialValues);
+  }, [initialValues, reset]);
+
+  const rulesTree = useWatch({ control, name: "rulesTree" });
+
+  const onSubmit = (values: RuleBuilderValues) => {
+    // The Enter key submits the form even while the button is disabled,
+    // so the same check runs here.
+    const { issues } = compileCondition(values.rulesTree);
+    if (issues.length > 0 && !isClearedTree(values.rulesTree)) {
+      return;
+    }
+    onSave(values.rulesTree);
+  };
+
+  const compiled = compileCondition(rulesTree);
+  const isCleared = isClearedTree(rulesTree);
+
+  // A half-configured rule compiles to nothing, and the block renders
+  // its children with no `{{#if}}` at all. The result exposes content
+  // the author wants to gate. So the save waits until every rule is
+  // complete. An empty tree is the one exception: the author uses an
+  // empty tree to remove the condition on purpose.
+  const issues: ConditionIssue[] = isCleared ? [] : compiled.issues;
+  const canSave = issues.length === 0;
+
+  return (
+    <FormProvider {...methods}>
+      {/* DialogActions needs the form tag to handle the submit event natively. */}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        <DialogContent dividers sx={{ p: 3, bgcolor: "grey.50" }}>
+          <Box sx={{ minHeight: 300 }}>
+            {/* The Root Rule Group starts at nesting level 0 */}
+            <FilterRuleGroup name="rulesTree" nestingLevel={0} index={0} />
+          </Box>
+
+          {issues.length > 0 && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              <AlertTitle>Finish every rule before you save</AlertTitle>
+              {issues.map((issue) => (
+                <Typography
+                  key={`${issue.path}-${issue.code}`}
+                  variant="body2"
+                  component="div"
+                >
+                  {`${issueLocation(issue.path)}: ${issue.message}`}
+                </Typography>
+              ))}
+            </Alert>
+          )}
+
+          {isCleared && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              No rules. The contents of this block always render.
+            </Alert>
+          )}
+
+          {canSave && !isCleared && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              <AlertTitle>Show the block when</AlertTitle>
+              <Typography variant="body2" component="div">
+                {compiled.label}
+              </Typography>
+            </Alert>
+          )}
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={!canSave}
+          >
+            Save Logic
+          </Button>
+        </DialogActions>
+      </form>
+    </FormProvider>
   );
 }

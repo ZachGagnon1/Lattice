@@ -4,21 +4,13 @@ import {
   getIframeDocument,
   DATA_CONTENT_EDITABLE_TYPE,
 } from "@";
-import { useField, useForm } from "react-final-form";
 
 export interface InlineTextProps {
-  idx: string;
   children?: React.ReactNode;
   onChange: (content: string) => void;
 }
 
-export function InlineText({ idx, onChange, children }: InlineTextProps) {
-  const {
-    mutators: { setFieldTouched },
-  } = useForm();
-
-  useField(idx); // setFieldTouched will be work while register field,
-
+export function InlineText({ onChange, children }: InlineTextProps) {
   useEffect(() => {
     const iframeDocument = getIframeDocument();
 
@@ -63,7 +55,7 @@ export function InlineText({ idx, onChange, children }: InlineTextProps) {
       iframeDocument?.body.removeEventListener("paste", onPaste as any, true);
       iframeDocument?.body.removeEventListener("input", onInput);
     };
-  }, [onChange, setFieldTouched]);
+  }, [onChange]);
 
   return <>{children}</>;
 }

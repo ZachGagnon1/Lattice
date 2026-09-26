@@ -229,6 +229,9 @@ importers:
       react-final-form-arrays:
         specifier: ^3.1.4
         version: 3.1.4(final-form-arrays@3.1.0(final-form@4.20.10))(final-form@4.20.10)(react-final-form@6.5.9(final-form@4.20.10)(react@19.2.5))(react@19.2.5)
+      react-hook-form:
+        specifier: ^7.88.0
+        version: 7.88.0(react@19.2.5)
       react-is:
         specifier: 18.2.0
         version: 18.2.0
@@ -4661,6 +4664,12 @@ packages:
     peerDependencies:
       final-form: ^4.20.4
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
+
+  react-hook-form@7.88.0:
+    resolution: {integrity: sha512-QRaLOWhX93YCnMiRfnOFRSwWXZNt8qhm2JTZwypoDvKpSffTJHmpzMXt8U6PV5UThvL3IiiLDUWe2nHMtz6Mmw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -10530,6 +10539,10 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.2
       final-form: 4.20.10
+      react: 19.2.5
+
+  react-hook-form@7.88.0(react@19.2.5):
+    dependencies:
       react: 19.2.5
 
   react-is@16.13.1: {}

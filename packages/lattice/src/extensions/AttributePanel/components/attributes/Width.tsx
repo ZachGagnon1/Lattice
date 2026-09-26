@@ -3,7 +3,7 @@ import { InputWithUnitField } from "../../../components/Form";
 import { useFocusIdx, useBlock } from "@";
 import { BasicType, getParentByIdx } from "@";
 import { InputWithUnitProps } from "@/extensions/components/Form/InputWithUnit";
-import { UseFieldConfig } from "react-final-form";
+import type { FieldAdapter } from "@/extensions/components/Form/enhancer";
 
 export function Width({
   inline = false,
@@ -12,7 +12,7 @@ export function Width({
 }: {
   inline?: boolean;
   unitOptions?: InputWithUnitProps["unitOptions"];
-  config?: UseFieldConfig<any>;
+  config?: FieldAdapter;
 }) {
   const { focusIdx } = useFocusIdx();
   const { focusBlock, values } = useBlock();

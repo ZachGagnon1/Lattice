@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import { Box, Button, Divider, Typography } from "@mui/material";
 import { AttributesPanelWrapper } from "@/extensions/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { useFocusIdx } from "@";
@@ -11,11 +11,8 @@ const EMPTY_TREE: IConditionGroup = { logicalOperator: "AND", rules: [] };
 
 export function Condition() {
   const { focusIdx } = useFocusIdx();
-  const { input } = useField<IConditionGroup>(
+  const { input } = useEditorField<IConditionGroup>(
     `${focusIdx}.data.value.rulesTree`,
-    {
-      subscription: { value: true },
-    },
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import { InputWithUnitField } from "@/extensions";
 import { useFocusIdx } from "@";
-import { UseFieldConfig } from "react-final-form";
+import type { FieldAdapter } from "@/extensions/components/Form/enhancer";
 
 export function Height({
   inline,
   config,
 }: {
   inline?: boolean;
-  config?: UseFieldConfig<any>;
+  config?: FieldAdapter;
 }) {
   const { focusIdx } = useFocusIdx();
 

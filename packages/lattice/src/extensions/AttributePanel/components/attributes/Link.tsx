@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useFocusIdx } from "@";
 import { SelectField, TextField } from "../../../components/Form";
 import { MergeTags } from "./MergeTags";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import { Box, IconButton, Popover, Stack } from "@mui/material";
 import InputAdornment from "@mui/material/InputAdornment";
 import LinkIcon from "@mui/icons-material/Link";
@@ -10,9 +10,7 @@ import DataObjectIcon from "@mui/icons-material/DataObject";
 
 export function Link() {
   const { focusIdx } = useFocusIdx();
-  const { input } = useField(`${focusIdx}.attributes.href`, {
-    parse: (v) => v,
-  });
+  const { input } = useEditorField<string>(`${focusIdx}.attributes.href`);
 
   // MUI Popover requires local state to anchor the popup to the button
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);

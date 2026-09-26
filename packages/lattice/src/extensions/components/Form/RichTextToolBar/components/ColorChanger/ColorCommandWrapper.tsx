@@ -1,7 +1,6 @@
 import { ColorPicker } from "../../../ColorPicker/ColorPickerInput";
 import { getIframeDocument } from "@";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Form } from "react-final-form";
 import { Box, Button } from "@mui/material";
 
 export interface ColorCommandWrapperProps {
@@ -21,6 +20,11 @@ export function ColorCommandWrapper({
 }: Readonly<ColorCommandWrapperProps>) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeColor, setActiveColor] = useState<string | undefined>(undefined);
+  const [color, setColor] = useState("");
+
+  useEffect(() => {
+    setColor(activeColor ?? "");
+  }, [activeColor]);
 
   const lastKnownRange = useRef<Range | null>(null);
 
@@ -64,64 +68,47 @@ export function ColorCommandWrapper({
     };
   }, [isOpen]);
 
-  const onSubmit = useCallback(
-    (values: { color: string }) => {
-      const iframeWindow = getIframeDocument()?.defaultView;
-      const range = lastKnownRange.current;
+  const onSubmit = useCallback(() => {
+    const iframeWindow = getIframeDocument()?.defaultView;
+    const range = lastKnownRange.current;
 
-      if (iframeWindow && range) {
-        iframeWindow.focus();
-        const selection = iframeWindow.getSelection();
-        if (selection) {
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
+    if (iframeWindow && range) {
+      iframeWindow.focus();
+      const selection = iframeWindow.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(range);
       }
+    }
 
-      execCommand(command, values.color);
-      setActiveColor(values.color);
+    execCommand(command, color);
+    setActiveColor(color);
 
-      if (iframeWindow) {
-        const newSelection = iframeWindow.getSelection();
-        if (newSelection && newSelection.rangeCount > 0) {
-          lastKnownRange.current = newSelection.getRangeAt(0).cloneRange();
-        }
+    if (iframeWindow) {
+      const newSelection = iframeWindow.getSelection();
+      if (newSelection && newSelection.rangeCount > 0) {
+        lastKnownRange.current = newSelection.getRangeAt(0).cloneRange();
       }
+    }
 
-      setIsOpen(false);
-    },
-    [command, execCommand],
-  );
+    setIsOpen(false);
+  }, [color, command, execCommand]);
 
   return (
-    <Form
-      enableReinitialize
-      initialValues={{ color: activeColor ?? "" }}
-      onSubmit={onSubmit}
+    <ColorPicker
+      value={color}
+      onChange={setColor}
+      showInput={false}
+      onVisibilityChange={setIsOpen}
+      isOpen={isOpen}
     >
-      {({ handleSubmit, form, values }) => {
-        return (
-          <ColorPicker
-            value={values.color}
-            onChange={(newColor) => form.change("color", newColor)}
-            showInput={false}
-            onVisibilityChange={setIsOpen}
-            isOpen={isOpen}
-          >
-            {children(activeColor)}
+      {children(activeColor)}
 
-            <Box sx={{ p: 1, display: "flex", justifyContent: "flex-end" }}>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => handleSubmit()}
-              >
-                Apply
-              </Button>
-            </Box>
-          </ColorPicker>
-        );
-      }}
-    </Form>
+      <Box sx={{ p: 1, display: "flex", justifyContent: "flex-end" }}>
+        <Button variant="contained" size="small" onClick={onSubmit}>
+          Apply
+        </Button>
+      </Box>
+    </ColorPicker>
   );
 }

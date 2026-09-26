@@ -38,7 +38,7 @@ export function AttributePanel() {
           </Box>
         )}
         <Box sx={{ position: "absolute" }}>
-          <RichTextField idx={focusIdx} />
+          <RichTextField />
         </Box>
         <TableOperation />
         <>

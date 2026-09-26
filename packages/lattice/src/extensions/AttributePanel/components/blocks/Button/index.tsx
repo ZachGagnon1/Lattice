@@ -21,16 +21,14 @@ import {
   Width,
 } from "@/extensions";
 import { useEditorProps, useFocusIdx } from "@";
-import { useField } from "react-final-form";
+import { useEditorField } from "@/extensions/components/Form/useEditorField";
 import { CollapsableItem } from "@/extensions/components/Collapse/CollapsableItem";
 import { Box, IconButton, Popover, Stack } from "@mui/material";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 
 export function Button() {
   const { focusIdx } = useFocusIdx();
-  const { input } = useField(`${focusIdx}.data.value.content`, {
-    parse: (v) => v,
-  });
+  const { input } = useEditorField<string>(`${focusIdx}.data.value.content`);
 
   const { variableData } = useEditorProps();
 
