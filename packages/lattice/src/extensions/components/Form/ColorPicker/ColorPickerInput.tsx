@@ -13,9 +13,10 @@ import {
   Stack,
   TextField,
 } from "@mui/material";
-import { HexColorInput, HexColorPicker } from "react-colorful";
+import { HexColorPicker } from "react-colorful";
 import Color from "color";
 import { PresetColorsContext } from "@/extensions/AttributePanel/components/provider/PresetColorsProvider";
+import { debounce } from "lodash-es";
 
 export interface ColorPickerProps {
   onChange?: (val: string) => void;
@@ -76,13 +77,27 @@ export function ColorPicker(props: ColorPickerProps) {
     onVisibilityChange?.(false);
   }, [controlledIsOpen, onVisibilityChange]);
 
-  const onColorChange = useCallback(
+  const commitColor = useCallback(
     (newColor: string) => {
-      setInternalColor(newColor);
       onChange?.(newColor);
       addCurrentColor(newColor);
     },
     [addCurrentColor, onChange],
+  );
+
+  const debouncedCommitColor = useMemo(
+    () => debounce(commitColor, 300),
+    [commitColor],
+  );
+
+  useEffect(() => () => debouncedCommitColor.cancel(), [debouncedCommitColor]);
+
+  const onColorChange = useCallback(
+    (newColor: string) => {
+      setInternalColor(newColor);
+      debouncedCommitColor(newColor);
+    },
+    [debouncedCommitColor],
   );
 
   const adapterColor = useMemo(() => {
@@ -96,12 +111,19 @@ export function ColorPicker(props: ColorPickerProps) {
 
   // The toolbar passes a computed color such as `rgb(0, 0, 0)`, and the picker takes only hex.
   const pickerColor = useMemo(() => {
+    if (/^#?[0-9a-f]{1,5}$/i.test(internalColor)) {
+      try {
+        return Color(value).hex();
+      } catch (error) {
+        return "#000000";
+      }
+    }
     try {
       return Color(adapterColor).hex();
     } catch (error) {
       return "#000000";
     }
-  }, [adapterColor]);
+  }, [adapterColor, internalColor, value]);
 
   const inputColor = useMemo(() => {
     if (internalColor.startsWith("#") && internalColor.length === 7) {
@@ -161,7 +183,8 @@ export function ColorPicker(props: ColorPickerProps) {
                   const val = e.target.value;
                   const formattedVal =
                     val && !val.startsWith("#") ? `#${val}` : val;
-                  onColorChange(formattedVal);
+                  setInternalColor(formattedVal);
+                  debouncedCommitColor(formattedVal);
                 }}
                 sx={{ flex: 1 }}
                 slotProps={{
@@ -211,19 +234,25 @@ export function ColorPicker(props: ColorPickerProps) {
           >
             <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
               <HexColorPicker color={pickerColor} onChange={onColorChange} />
-              <Box
-                component={HexColorInput}
-                color={pickerColor}
-                onChange={onColorChange}
-                prefixed
+              <TextField
+                size="small"
+                value={internalColor}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  const nextColor =
+                    value && !value.startsWith("#") ? `#${value}` : value;
+                  setInternalColor(nextColor);
+                  debouncedCommitColor(nextColor);
+                }}
                 aria-label="Hex color"
                 sx={(theme) => ({
-                  font: "inherit",
-                  fontSize: "13px",
-                  p: "6px 8px",
-                  border: `1px solid ${theme.palette.divider}`,
-                  borderRadius: "4px",
-                  textTransform: "uppercase",
+                  "& input": {
+                    fontSize: "13px",
+                    textTransform: "uppercase",
+                  },
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: theme.palette.divider,
+                  },
                 })}
               />
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
