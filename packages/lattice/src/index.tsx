@@ -1,88 +1,88 @@
 // export components
-export * from "./components/Provider/EmailEditorProvider";
+export * from "./adapters/ui/Provider/EmailEditorProvider";
 
-export { BlockAvatarWrapper } from "./components/wrapper";
+export { BlockAvatarWrapper } from "./adapters/ui/wrapper";
 
-export { EmailEditor } from "./components/EmailEditor";
+export { EmailEditor } from "./adapters/ui/editor/EmailEditor";
 
 // exposing more granular components
-export { EditEmailPreview } from "./components/EmailEditor/components/EditEmailPreview";
-export { MobileEmailPreview } from "./components/EmailEditor/components/MobileEmailPreview";
-export { DesktopEmailPreview } from "./components/EmailEditor/components/DesktopEmailPreview";
-export { ToolsPanel } from "./components/EmailEditor/components/ToolsPanel";
+export { EditEmailPreview } from "./adapters/ui/editor/EmailEditor/components/EditEmailPreview";
+export { MobileEmailPreview } from "./adapters/ui/editor/EmailEditor/components/MobileEmailPreview";
+export { DesktopEmailPreview } from "./adapters/ui/editor/EmailEditor/components/DesktopEmailPreview";
+export { ToolsPanel } from "./adapters/ui/editor/EmailEditor/components/ToolsPanel";
 
 // export utils
-export * from "./utils";
+export * from "./shared/utils";
 
 // export hooks
-export { useActiveTab } from "./hooks/useActiveTab";
-export { useEditorProps } from "./hooks/useEditorProps";
-export { useBlock } from "./hooks/useBlock";
-export { useEditorContext } from "./hooks/useEditorContext";
-export { useDomScrollHeight } from "./hooks/useDomScrollHeight";
-export { useRefState } from "./hooks/useRefState";
-export { useLazyState } from "./hooks/useLazyState";
-export { useFocusBlockLayout } from "./hooks/useFocusBlockLayout";
-export * from "./hooks/useDataTransfer";
-export * from "./hooks/useFocusIdx";
-export * from "./hooks/useHoverIdx";
+export { useActiveTab } from "./application/hooks/useActiveTab";
+export { useEditorProps } from "./application/hooks/useEditorProps";
+export { useBlock } from "./application/hooks/useBlock";
+export { useEditorContext } from "./application/hooks/useEditorContext";
+export { useDomScrollHeight } from "./application/hooks/useDomScrollHeight";
+export { useRefState } from "./application/hooks/useRefState";
+export { useLazyState } from "./application/hooks/useLazyState";
+export { useFocusBlockLayout } from "./application/hooks/useFocusBlockLayout";
+export * from "./application/hooks/useDataTransfer";
+export * from "./application/hooks/useFocusIdx";
+export * from "./application/hooks/useHoverIdx";
 
-export { ActiveTabKeys } from "./components/Provider/BlocksProvider";
+export { ActiveTabKeys } from "./adapters/ui/Provider/BlocksProvider";
 
 // UI
-export { IconFont } from "./components/IconFont";
-export { TextStyle } from "./components/UI/TextStyle";
-export { Stack } from "./components/UI/Stack";
+export { IconFont } from "./adapters/ui/IconFont";
+export { TextStyle } from "./adapters/ui/kit/TextStyle";
+export { Stack } from "./adapters/ui/kit/Stack";
 
-export * from "./typings";
-export type { StackProps } from "./components/UI/Stack";
-export type { PropsProviderProps } from "./components/Provider/PropsProvider";
-export { AvailableTools } from "./components/Provider/PropsProvider";
-export type { BlockAvatarWrapperProps } from "./components/wrapper";
+export * from "./shared/typings";
+export type { StackProps } from "./adapters/ui/kit/Stack";
+export type { PropsProviderProps } from "./adapters/ui/Provider/PropsProvider";
+export { AvailableTools } from "./adapters/ui/Provider/PropsProvider";
+export type { BlockAvatarWrapperProps } from "./adapters/ui/wrapper";
 export type {
   BlockGroup,
   CollectedBlock,
-} from "./components/Provider/PropsProvider";
+} from "./adapters/ui/Provider/PropsProvider";
 
-export * from "./extensions/BlockLayer";
-export * from "./extensions/AttributePanel";
-export * from "./extensions/ShortcutToolbar";
-export * from "./extensions/SourceCodePanel";
-export * from "./extensions/InteractivePrompt";
-export * from "./extensions/StandardLayout";
-export * from "./extensions/MergeTagBadgePrompt";
-export * from "./extensions/components/Providers/ExtensionProvider";
-export * from "./extensions/constants";
-export * from "./extensions/components/Form";
-export * from "./core/utils/index";
-export * from "./core/blocks";
-export * as components from "./core/components";
-export * from "./core/typings/index";
-export * from "./core/constants";
+export * from "./adapters/panels/BlockLayer";
+export * from "./adapters/panels/AttributePanel";
+export * from "./adapters/panels/ShortcutToolbar";
+export * from "./adapters/panels/SourceCodePanel";
+export * from "./adapters/panels/InteractivePrompt";
+export * from "./adapters/panels/StandardLayout";
+export * from "./adapters/panels/MergeTagBadgePrompt";
+export * from "./adapters/panels/common/Providers/ExtensionProvider";
+export * from "./adapters/panels/constants";
+export * from "./adapters/panels/common/Form";
+export * from "./shared/utils/block/index";
+export * from "./domain/blocks";
+export * as components from "./adapters/canvas";
+export * from "./domain/typings/index";
+export * from "./domain/constants";
 
 export {
   getLoopScopes,
   getScopedMergeTags,
   isExpandable,
-} from "./extensions/utils/mergeTagScope";
+} from "./shared/utils/panel/mergeTagScope";
 export type {
   LoopScope,
   ScopeOptions,
   ScopedMergeTagEntry,
   ScopedMergeTagKind,
   ScopedMergeTags,
-} from "./extensions/utils/mergeTagScope";
+} from "./shared/utils/panel/mergeTagScope";
 export {
   getIconNameByBlockType,
   setIconsMap,
-} from "./extensions/utils/getIconNameByBlockType";
-export { getBlockTitle } from "./extensions/utils/getBlockTitle";
-export { MjmlToJson } from "./extensions/utils/MjmlToJson";
+} from "./shared/utils/panel/getIconNameByBlockType";
+export { getBlockTitle } from "./shared/utils/panel/getBlockTitle";
+export { MjmlToJson } from "./shared/utils/panel/MjmlToJson";
 
 export * from "./constants";
 
-export { LatticeEditor } from "./components/LatticeEditor";
-export * from "./components/LatticeEditor/defaults";
-export * from "./utils/export";
-export * from "./utils/unlayerToLattice";
-export * from "./utils/variableSchema";
+export { LatticeEditor } from "./adapters/ui/editor/LatticeEditor";
+export * from "./adapters/ui/editor/LatticeEditor/defaults";
+export * from "./shared/utils/export";
+export * from "./shared/utils/unlayerToLattice";
+export * from "./shared/utils/variableSchema";

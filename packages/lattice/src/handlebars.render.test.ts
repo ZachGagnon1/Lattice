@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { beforeAll, describe, expect, it } from "vitest";
-import { BlockManager } from "@/core/utils";
-import { standardBlocks } from "@/core/blocks";
-import { Condition } from "@/core/blocks/standard/Condition";
-import { Page } from "@/core/blocks/standard/Page";
-import { Section } from "@/core/blocks/standard/Section";
-import { Column } from "@/core/blocks/standard/Column";
-import { Text } from "@/core/blocks/standard/Text";
+import { BlockManager } from "@/shared/utils/block";
+import { standardBlocks } from "@/domain/blocks";
+import { Condition } from "@/domain/blocks/standard/Condition";
+import { Page } from "@/domain/blocks/standard/Page";
+import { Section } from "@/domain/blocks/standard/Section";
+import { Column } from "@/domain/blocks/standard/Column";
+import { Text } from "@/domain/blocks/standard/Text";
 import { renderToHtml } from "./handlebars";
-import type { IEmailTemplate } from "@/typings";
+import type { IEmailTemplate } from "@/shared/typings";
 
 // The circular import leaves the block map empty, so the test registers
 // every block.

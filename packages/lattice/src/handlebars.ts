@@ -1,5 +1,5 @@
-import { exportToHtml } from "@/utils/export";
-import type { IEmailTemplate } from "@/typings";
+import { exportToHtml } from "@/shared/utils/export";
+import type { IEmailTemplate } from "@/shared/typings";
 
 /** The helpers that the compiler emits. `OPERATOR_HELPER_NAMES` lists the operator for each one. */
 export const LOGIC_HELPERS = {
