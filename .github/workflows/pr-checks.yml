@@ -36,3 +36,10 @@ jobs:
       - name: 🏗️ Build Packages
         # Executes the build script recursively across your workspace
         run: pnpm run --recursive build
+
+      - name: 🔎 Type-check the Library
+        # The build skips the test files, so this is the only check of the type tests in *.test-d.ts.
+        run: pnpm --dir packages/lattice exec tsc --noEmit -p tsconfig.json
+
+      - name: 🧪 Run the Library Tests
+        run: pnpm --dir packages/lattice test

@@ -28,7 +28,12 @@ pnpm run format                     # Run prettier
 pnpm run format:fix                 # Fix prettier issues
 ```
 
-There is no test suite — CI only validates format and build.
+```bash
+cd packages/lattice && pnpm test                     # Vitest unit tests
+cd packages/lattice && pnpm exec tsc --noEmit -p tsconfig.json   # Type-check, with the type tests
+```
+
+CI runs the format check, the build, the type-check, and the tests on each pull request.
 
 ## Monorepo Structure
 
