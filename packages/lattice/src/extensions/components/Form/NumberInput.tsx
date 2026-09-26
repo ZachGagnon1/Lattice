@@ -8,7 +8,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { uniqueId } from "lodash";
+import { uniqueId } from "lodash-es";
 
 /**
  * This component is a placeholder for FormControl to correctly set the shrink label state on SSR.

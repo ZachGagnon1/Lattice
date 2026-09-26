@@ -16,7 +16,7 @@ import {
   useEditorForm,
 } from "../EditorFormProvider";
 import { overrideErrorLog, restoreErrorLog } from "@/utils/logger";
-import { isEqual } from "lodash";
+import { isEqual } from "lodash-es";
 
 export interface EmailEditorProviderProps<
   T extends IEmailTemplate = IEmailTemplate,

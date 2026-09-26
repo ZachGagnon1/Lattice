@@ -1,4 +1,4 @@
-import { cloneDeep, pick } from "lodash";
+import { cloneDeep, pick } from "lodash-es";
 import React, { useEffect, useMemo, useRef } from "react";
 import TableColumnTool from "./tableTool";
 import { ITableCellData } from "@/core/blocks";

@@ -1,4 +1,4 @@
-import { uniqueId } from "lodash";
+import { uniqueId } from "lodash-es";
 import { PromiseEach } from "./PromiseEach";
 
 interface Options {

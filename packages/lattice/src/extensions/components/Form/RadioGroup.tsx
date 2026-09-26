@@ -6,7 +6,7 @@ import {
   RadioGroup as MuiRadioGroup,
   SxProps,
 } from "@mui/material";
-import { merge } from "lodash";
+import { merge } from "lodash-es";
 import React from "react";
 import FormHelperText from "@mui/material/FormHelperText";
 

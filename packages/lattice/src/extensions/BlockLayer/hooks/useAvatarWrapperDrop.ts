@@ -11,7 +11,7 @@ import {
   useHoverIdx,
   useRefState,
 } from "@";
-import { debounce, get, isBoolean } from "lodash";
+import { debounce, get, isBoolean } from "lodash-es";
 import { BlockTreeProps } from "../components/BlockTree";
 import { useCallback, useEffect, useState } from "react";
 

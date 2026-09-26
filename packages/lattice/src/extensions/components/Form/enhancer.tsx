@@ -1,7 +1,7 @@
 import { useController } from "react-hook-form";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRefState } from "@";
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { toFieldPath } from "@/utils/formValues";
 
 /** Maps between the stored value and the value that the input shows. */

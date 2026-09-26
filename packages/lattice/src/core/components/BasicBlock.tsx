@@ -2,7 +2,7 @@ import { IBlock } from "@/core/typings";
 import { getAdapterAttributesString, getChildIdx } from "@/core/utils";
 import { getImg } from "@/core/utils/getImg";
 import { getPlaceholder } from "@/core/utils/getPlaceholder";
-import { omit } from "lodash";
+import { omit } from "lodash-es";
 import React from "react";
 import { BlockRenderer } from "./BlockRenderer";
 

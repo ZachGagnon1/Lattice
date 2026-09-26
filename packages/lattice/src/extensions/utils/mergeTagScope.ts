@@ -1,4 +1,4 @@
-import { get, isPlainObject } from "lodash";
+import { get, isPlainObject } from "lodash-es";
 
 import { BasicType } from "@/core/constants";
 import { getParentIdx } from "@/core/utils/block";

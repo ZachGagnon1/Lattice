@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { useCallback, useState, useEffect } from "react";
 
 export function useLazyState<T>(state: T, debounceTime: number) {

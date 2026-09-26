@@ -1,7 +1,7 @@
 import { EventManager } from "@";
 import { EventType } from "@/utils/EventManager";
 import { getPageIdx } from "@";
-import { isFunction } from "lodash";
+import { isFunction } from "lodash-es";
 import React, { useState, useCallback } from "react";
 
 export enum ActiveTabKeys {

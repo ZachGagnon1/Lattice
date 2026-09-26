@@ -1,5 +1,5 @@
 import { isNumber } from "@/extensions/AttributePanel/utils/InputNumberAdapter";
-import { isString } from "lodash";
+import { isString } from "lodash-es";
 
 export const imageHeightAdapter = {
   format(val: string) {

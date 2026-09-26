@@ -1,5 +1,5 @@
 import { BlockLayerProps } from "@/extensions/BlockLayer";
-import { isEqual, omit } from "lodash";
+import { isEqual, omit } from "lodash-es";
 import React, { useContext, useMemo, useRef } from "react";
 
 export interface ExtensionProps extends BlockLayerProps {

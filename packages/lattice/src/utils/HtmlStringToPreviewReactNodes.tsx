@@ -1,4 +1,4 @@
-import { camelCase } from "lodash";
+import { camelCase } from "lodash-es";
 import React from "react";
 import { getNodeTypeFromClassName } from "@";
 

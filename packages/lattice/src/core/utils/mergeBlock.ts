@@ -1,5 +1,5 @@
 import { IBlockData, RecursivePartial } from "@/core/typings";
-import { isArray, mergeWith } from "lodash";
+import { isArray, mergeWith } from "lodash-es";
 
 export function mergeBlock<T extends IBlockData>(
   a: T,

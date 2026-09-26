@@ -1,4 +1,4 @@
-import { omit } from "lodash";
+import { omit } from "lodash-es";
 import { BasicType } from "@/core/constants";
 import { RecursivePartial } from "@/core/typings";
 import React from "react";

@@ -1,5 +1,5 @@
 import { BasicType, BlockManager, IBlockData, IPage } from "@";
-import { identity, isString, pickBy } from "lodash";
+import { identity, isString, pickBy } from "lodash-es";
 import { parseXMLtoBlock } from "./parseXMLtoBlock";
 import { htmlToTableSource } from "@/core/blocks/standard/Table/tableSource";
 
