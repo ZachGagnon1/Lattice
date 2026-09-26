@@ -18,7 +18,6 @@ export interface LatticeEditorConfig {
   mjmlReadOnly?: boolean;
   showBlockLayer?: boolean;
   dashed?: boolean;
-  compact?: boolean;
 }
 
 /**
@@ -94,7 +93,6 @@ export function LatticeEditor<TVar = Record<string, any>>(
     mjmlReadOnly = false,
     showBlockLayer = true,
     dashed = false,
-    compact = false,
   } = config;
 
   const activeComponents = useMemo(() => {

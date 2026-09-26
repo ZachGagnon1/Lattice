@@ -16,7 +16,6 @@ export interface ConfigurationPanelProps {
   mjmlReadOnly: boolean;
   height: string;
   onBack?: () => void;
-  compact?: boolean;
 }
 
 export function ConfigurationPanel({

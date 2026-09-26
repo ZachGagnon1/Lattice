@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import { cloneDeep } from "lodash";
-import { useWindowSize } from "react-use";
 import Handlebars from "handlebars";
 
 import {
@@ -119,9 +118,6 @@ const VARIABLE_DATA = {
  */
 
 export default function Editor() {
-  const { width } = useWindowSize();
-  const compact = width > 1600;
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [unlayerJson, setUnlayerJson] = useState("");
 
@@ -286,7 +282,6 @@ export default function Editor() {
         onChange={setTemplate}
         onUploadImage={mockImageUpload}
         config={{
-          compact,
           showSourceCode: true,
         }}
         allowCondition

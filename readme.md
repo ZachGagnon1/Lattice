@@ -63,7 +63,6 @@ export default function App() {
         config={{
           showSourceCode: true,
           showBlockLayer: true,
-          compact: false,
           dashed: true,
         }}
       />
@@ -83,8 +82,6 @@ The LatticeEditor component accepts a config object that gives you fine-grained 
 - **mjmlReadOnly** (boolean): If set to true, the MJML code output panel will be read-only. Defaults to false.
 
 - **dashed** (boolean): Toggles a dashed border outline on the canvas, making it easier to visualize structural layout constraints. Defaults to false.
-
-- **compact** (boolean): Renders the editor panels in a tighter, compact view. Defaults to true.
 
 ### Additional Noteworthy Props
 
