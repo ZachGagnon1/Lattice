@@ -46,7 +46,7 @@ const list = [
   {
     thumbnail: getImg("IMAGE_57"),
     payload: {
-      type: "advanced_section",
+      type: BasicType.SECTION,
       data: {
         value: {},
       },
@@ -59,7 +59,7 @@ const list = [
       },
       children: [
         {
-          type: "advanced_section",
+          type: BasicType.SECTION,
           data: {
             value: {
               noWrap: false,
@@ -79,7 +79,7 @@ const list = [
           },
           children: [
             {
-              type: "advanced_column",
+              type: BasicType.COLUMN,
               data: {
                 value: {},
               },
@@ -107,7 +107,7 @@ const list = [
           ],
         },
         {
-          type: "advanced_section",
+          type: BasicType.SECTION,
           data: {
             value: {
               noWrap: false,
@@ -127,7 +127,7 @@ const list = [
           },
           children: [
             {
-              type: "advanced_column",
+              type: BasicType.COLUMN,
               data: {
                 value: {},
               },
