@@ -15,14 +15,20 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "paths": {
       "@demo": ["./src"],
       "@demo/*": ["./src/*"],
+      "@": ["../packages/lattice/src"],
       "@/*": ["../packages/lattice/src/*"],
       "lattice": ["../packages/lattice/src/index.tsx"]
     }
   },
-  "include": ["./src", "./example", "./typings"],
+  "include": [
+    "./src",
+    "./example",
+    "./typings",
+    "../packages/lattice/src/typings/mjml-browser.ts"
+  ],
   "exclude": ["node_modules"]
 }

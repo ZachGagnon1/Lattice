@@ -43,3 +43,6 @@ jobs:
 
       - name: 🧪 Run the Library Tests
         run: pnpm --dir packages/lattice test
+
+      - name: 🔎 Type-check the Demo
+        run: pnpm --dir demo exec tsc --noEmit -p tsconfig.json
