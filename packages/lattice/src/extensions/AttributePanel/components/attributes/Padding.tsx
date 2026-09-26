@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { InputWithUnitField } from "../../../components/Form";
 import { createBlockDataByType, TextStyle, useBlock, useFocusIdx } from "@";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { get } from "lodash-es";
 import { pixelAdapter } from "../adapter";
 import { IconButton, Stack, Tooltip } from "@mui/material";
@@ -81,11 +81,20 @@ export function Padding(props: PaddingProps = {}) {
   }, [name, change, focusIdx, attributeName]);
 
   const methods = useForm({ defaultValues: paddingFormValues });
-  const { reset } = methods;
+  const { reset, watch } = methods;
 
   useEffect(() => {
     reset(paddingFormValues);
   }, [paddingFormValues, reset]);
+
+  useEffect(() => {
+    const { unsubscribe } = watch(({ top, right, bottom, left }, { type }) => {
+      // Only a user edit writes back. A write on mount or reset made an extra undo step.
+      if (type !== "change") return;
+      onChancePadding([top, right, bottom, left].join(" "));
+    });
+    return unsubscribe;
+  }, [onChancePadding, watch]);
 
   return (
     <FormProvider {...methods}>
@@ -153,22 +162,6 @@ export function Padding(props: PaddingProps = {}) {
           />
         </Stack>
       </Stack>
-      <PaddingChangeWrapper onChange={onChancePadding} />
     </FormProvider>
   );
 }
-
-const PaddingChangeWrapper: React.FC<{ onChange: (val: string) => void }> = (
-  props,
-) => {
-  const [top, right, bottom, left] = useWatch({
-    name: ["top", "right", "bottom", "left"],
-  });
-  const { onChange } = props;
-
-  useEffect(() => {
-    onChange([top, right, bottom, left].join(" "));
-  }, [top, right, bottom, left, onChange]);
-
-  return <></>;
-};
