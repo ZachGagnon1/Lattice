@@ -10,9 +10,7 @@ import {
 } from "@/extensions/components/Providers/ExtensionProvider";
 import { Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
 
-export const StandardLayout: React.FC<Omit<ExtensionProps, "compact">> = (
-  props,
-) => {
+export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   const { height: containerHeight } = useEditorProps();
   const {
     showSourceCode = true,
@@ -24,11 +22,11 @@ export const StandardLayout: React.FC<Omit<ExtensionProps, "compact">> = (
   const theme = useTheme();
   const { setFocusIdx } = useFocusIdx();
 
-  // Replaces the `compact` check: returns true on desktop (>=900px), false on mobile/tablet
+  // The side panels show from the md breakpoint (900px) up.
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
 
   useEffect(() => {
-    // Replicates the exact behavior you had with !compact
+    // Below md the side panels hide, so a selection has no panel to show in.
     if (!isDesktop) {
       setFocusIdx("");
     }

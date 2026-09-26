@@ -50,9 +50,6 @@ importers:
       react-dom:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
-      react-use:
-        specifier: ^17.6.1
-        version: 17.6.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@26.6.2)(typescript@7.0.2)
