@@ -19,10 +19,13 @@ export default defineConfig({
     sourcemap: true,
     target: "esnext",
     lib: {
-      entry: path.resolve(__dirname, "src/index.tsx"),
-      name: "lattice",
+      // The Handlebars renderer is its own entry, so the main entry never imports the optional peer.
+      entry: {
+        index: path.resolve(__dirname, "src/index.tsx"),
+        handlebars: path.resolve(__dirname, "src/handlebars.ts"),
+      },
       formats: ["es"],
-      fileName: () => "index.js",
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       plugins: [],

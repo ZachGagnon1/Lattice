@@ -33,7 +33,7 @@ There is no test suite — CI only validates format and build.
 ## Monorepo Structure
 
 ```
-packages/lattice/   — The published library (@4life-dev/lattice)
+packages/lattice/   — The published library (lattice-editor on npm)
 demo/               — Demo application (deployed to GitHub Pages)
 ```
 
@@ -114,9 +114,27 @@ The `StandardLayout` composes pluggable extension panels:
 
 **Value quotes:** The compiler does not always quote a value. The `eq` helper compares with `===`, so `(eq age '18')` is false against numeric data. A canonical number goes out bare: `(gt age 18)`. A value that is not a canonical number stays quoted. This keeps a zip code such as `01234` and a price such as `1.50` as strings. The keywords `true`, `false`, `null`, and `undefined` also go out bare. `packages/lattice/src/core/utils/handlebars/literals.ts` holds this logic.
 
-**Setting up Handlebars on the consumer side:**
+**The `lattice-editor/handlebars` entry point:**
 
-The library has no dependency on `handlebars`. Install the engine in your own
+This entry does the setup for you. `handlebars` is an optional peer
+dependency, and the entry loads it with a dynamic `import()`. The main entry
+never imports it.
+
+```ts
+import { renderToHtml, renderMjml } from "lattice-editor/handlebars";
+
+const html = await renderToHtml(template, contactData);
+```
+
+The entry registers the seven helpers on an isolated `Handlebars.create()`
+environment, so your global Handlebars stays clean. It also exports
+`LOGIC_HELPERS`. When `handlebars` is not installed, the first call throws an
+error that tells you to install it. `src/handlebars.ts` holds this code, and
+`vite.config.ts` builds it as a second entry.
+
+**Setting up Handlebars on the consumer side by hand:**
+
+The main entry has no dependency on `handlebars`. Install the engine in your own
 app:
 
 ```bash
