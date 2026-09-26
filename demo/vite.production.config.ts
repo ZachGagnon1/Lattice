@@ -25,17 +25,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/html2canvas")) return "html2canvas";
           if (id.includes("node_modules/lodash")) return "lodash";
           if (id.includes("node_modules/mjml-browser")) return "mjml-browser";
           if (id.includes("lattice")) return "lattice";
         },
         chunkFileNames(info) {
-          const legacyChunks = [
-            "mjml-browser",
-            "html2canvas",
-            "browser-image-compression",
-          ];
+          const legacyChunks = ["mjml-browser"];
           if (legacyChunks.some((name) => info.name?.includes(name))) {
             return "[name].js";
           }
@@ -50,9 +45,6 @@ export default defineConfig({
     },
     preprocessorOptions: {
       scss: {},
-      less: {
-        javascriptEnabled: true,
-      },
     },
   },
   plugins: [
