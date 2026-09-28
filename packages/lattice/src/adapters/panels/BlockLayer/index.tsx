@@ -142,16 +142,27 @@ export function BlockLayer(props: BlockLayerProps) {
   );
 
   const onContextMenu = useCallback(
-    (blockData: IBlockDataWithId, ev: React.MouseEvent) => {
-      ev.preventDefault();
-      setContextMenuData({ blockData, left: ev.clientX, top: ev.clientY });
+    (blockData: IBlockDataWithId, position: { left: number; top: number }) => {
+      setContextMenuData({ blockData, ...position });
     },
     [],
   );
 
   const onCloseContextMenu = useCallback(() => {
+    const activeId = contextMenuData?.blockData.id;
     setContextMenuData(null);
-  }, []);
+    requestAnimationFrame(() => {
+      const target = activeId
+        ? document.querySelector<HTMLElement>(
+            `[data-treeitem-id="${activeId}"]`,
+          )
+        : null;
+      const fallback = document.querySelector<HTMLElement>(
+        '#BlockLayerManager [role="treeitem"]',
+      );
+      (target ?? fallback)?.focus();
+    });
+  }, [contextMenuData]);
 
   const onMouseEnter = useCallback(
     (id: string) => {
