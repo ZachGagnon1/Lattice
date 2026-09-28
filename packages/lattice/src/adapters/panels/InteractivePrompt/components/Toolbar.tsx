@@ -24,6 +24,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
+import { focusBlockSelectionSurface } from "@/shared/utils/canvasBlockAccessibility";
 
 export function Toolbar() {
   const { copyBlock, removeBlock, focusBlock } = useBlock();
@@ -104,6 +105,16 @@ export function Toolbar() {
             <Box
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(ev) => ev.preventDefault()}
+              role="toolbar"
+              aria-label={t("Block actions")}
+              onKeyDown={(event) => {
+                if (event.key !== "Escape") return;
+                event.preventDefault();
+                const iframeDocument = getIframeDocument();
+                if (iframeDocument) {
+                  focusBlockSelectionSurface(iframeDocument, focusIdx);
+                }
+              }}
               sx={{
                 display: "flex",
                 alignItems: "center",
