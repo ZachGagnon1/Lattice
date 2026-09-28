@@ -11,6 +11,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
 import { getHeadingComponent } from "@/shared/utils/accessibility";
+import { INLINE_EDIT_INSTRUCTIONS_ID } from "@/shared/utils/inlineEditAccessibility";
 
 export interface AttributePanelProps {}
 
@@ -51,15 +52,36 @@ export function AttributePanel() {
         <>
           {iframeDocument?.body &&
             ReactDOM.createPortal(
-              <style>
-                {`
+              <>
+                <div
+                  id={INLINE_EDIT_INSTRUCTIONS_ID}
+                  style={{
+                    position: "absolute",
+                    width: 1,
+                    height: 1,
+                    padding: 0,
+                    margin: -1,
+                    overflow: "hidden",
+                    clip: "rect(0, 0, 0, 0)",
+                    whiteSpace: "nowrap",
+                    border: 0,
+                  }}
+                >
+                  {t(
+                    "Edit this content directly. Use the rich-text toolbar for format controls.",
+                  )}
+                </div>
+                <style>{`
               .email-block [contentEditable="true"],
               .email-block [contentEditable="true"] * {
-                outline: none;
                 cursor: text;
               }
-              `}
-              </style>,
+              .email-block [contentEditable="true"]:focus {
+                outline: 3px solid #005fcc !important;
+                outline-offset: 2px;
+              }
+              `}</style>
+              </>,
               iframeDocument?.body as any,
             )}
         </>
