@@ -18,6 +18,9 @@ import { useFocusIdx } from "./useFocusIdx";
 import { IEmailTemplate } from "@/shared/typings";
 import { useEditorProps } from "./useEditorProps";
 import { scrollBlockEleIntoView } from "@/shared/utils";
+import { useEditorStatus } from "./useEditorStatus";
+import { getBlockActionMessage } from "@/shared/utils/editorStatus";
+import { focusEditorBlock } from "@/shared/utils/focusEditorBlock";
 
 export function useBlock() {
   const {
@@ -28,6 +31,7 @@ export function useBlock() {
   const { focusIdx, setFocusIdx } = useFocusIdx();
 
   const { autoComplete } = useEditorProps();
+  const { announce } = useEditorStatus();
 
   const focusBlock = get(values, focusIdx) as IBlockData | null;
 
@@ -105,12 +109,14 @@ export function useBlock() {
       console.timeLog();
       change(parentIdx, parent); // listeners not notified
       setFocusIdx(nextFocusIdx);
+      focusEditorBlock(nextFocusIdx);
       scrollBlockEleIntoView({
         idx: nextFocusIdx,
       });
+      announce(getBlockActionMessage("added", block.name || block.type));
       console.timeEnd();
     },
-    [autoComplete, change, getValues, setFocusIdx],
+    [announce, autoComplete, change, getValues, setFocusIdx],
   );
 
   const moveBlock = useCallback(
@@ -164,13 +170,16 @@ export function useBlock() {
 
       setTimeout(() => {
         setFocusIdx(nextFocusIdx);
+        focusEditorBlock(nextFocusIdx);
       }, 50);
 
       scrollBlockEleIntoView({
         idx: nextFocusIdx,
       });
+      const blockName = BlockManager.getBlockByType(source.type)?.name;
+      announce(getBlockActionMessage("moved", blockName || source.type));
     },
-    [autoComplete, change, getValues, setFocusIdx],
+    [announce, autoComplete, change, getValues, setFocusIdx],
   );
 
   const copyBlock = useCallback(
@@ -193,8 +202,11 @@ export function useBlock() {
       nextFocusIdx = `${parentIdx}.children.[${index}]`;
 
       setFocusIdx(nextFocusIdx);
+      focusEditorBlock(nextFocusIdx);
+      const blockName = BlockManager.getBlockByType(copyBlock.type)?.name;
+      announce(getBlockActionMessage("copied", blockName || copyBlock.type));
     },
-    [change, getValues, setFocusIdx],
+    [announce, change, getValues, setFocusIdx],
   );
 
   const removeBlock = useCallback(
@@ -223,8 +235,11 @@ export function useBlock() {
       parent.children.splice(blockIndex, 1);
       change(parentIdx, parent);
       setFocusIdx(nextFocusIdx);
+      focusEditorBlock(nextFocusIdx);
+      const blockName = BlockManager.getBlockByType(block.type)?.name;
+      announce(getBlockActionMessage("deleted", blockName || block.type));
     },
-    [change, getValues, setFocusIdx],
+    [announce, change, getValues, setFocusIdx],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -262,6 +277,18 @@ export function useBlock() {
     [focusBlock, focusIdx],
   );
 
+  const undoWithStatus = useCallback(() => {
+    if (!undoable) return;
+    undo();
+    announce(t("Change undone."));
+  }, [announce, undo, undoable]);
+
+  const redoWithStatus = useCallback(() => {
+    if (!redoable) return;
+    redo();
+    announce(t("Change restored."));
+  }, [announce, redo, redoable]);
+
   return {
     values,
     change,
@@ -274,8 +301,8 @@ export function useBlock() {
     copyBlock,
     removeBlock,
     isExistBlock,
-    redo,
-    undo,
+    redo: redoWithStatus,
+    undo: undoWithStatus,
     reset,
     redoable,
     undoable,

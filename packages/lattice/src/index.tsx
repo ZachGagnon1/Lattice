@@ -26,6 +26,7 @@ export { useFocusBlockLayout } from "./application/hooks/useFocusBlockLayout";
 export * from "./application/hooks/useDataTransfer";
 export * from "./application/hooks/useFocusIdx";
 export * from "./application/hooks/useHoverIdx";
+export { useEditorStatus } from "./application/hooks/useEditorStatus";
 
 export { ActiveTabKeys } from "./adapters/ui/Provider/BlocksProvider";
 
