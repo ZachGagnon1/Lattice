@@ -34,6 +34,12 @@ export enum AvailableTools {
 export interface PropsProviderProps {
   children?: React.ReactNode;
   height: string;
+  /** The base name for the editor frames. */
+  editorTitle?: string;
+  /** The language of the editor canvas document. */
+  editorLanguage?: string;
+  /** The language of the email preview documents. */
+  previewLanguage?: string;
   fontList?: { value: string; label: string }[];
   onAddCollection?: (payload: CollectedBlock) => void;
   onRemoveCollection?: (payload: { id: string }) => void;
@@ -97,6 +103,9 @@ export const EditorPropsContext = React.createContext<
 >({
   children: null,
   height: "100vh",
+  editorTitle: "Email editor",
+  editorLanguage: "en",
+  previewLanguage: "en",
   fontList: [],
   onAddCollection: undefined,
   onRemoveCollection: undefined,
@@ -110,6 +119,9 @@ export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
   const {
     dashed = true,
     mergeTagGenerate = defaultMergeTagGenerate,
+    editorTitle = "Email editor",
+    editorLanguage = "en",
+    previewLanguage = editorLanguage,
     // The drop target always accepts an ancestor such as the page, so a drop fails without the wrap.
     autoComplete = true,
   } = props;
@@ -119,8 +131,19 @@ export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
       mergeTagGenerate,
       dashed,
       autoComplete,
+      editorTitle,
+      editorLanguage,
+      previewLanguage,
     };
-  }, [mergeTagGenerate, props, dashed, autoComplete]);
+  }, [
+    mergeTagGenerate,
+    props,
+    dashed,
+    autoComplete,
+    editorTitle,
+    editorLanguage,
+    previewLanguage,
+  ]);
 
   return (
     <EditorPropsContext.Provider value={formatProps}>

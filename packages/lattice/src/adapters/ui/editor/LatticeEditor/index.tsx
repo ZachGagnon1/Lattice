@@ -56,6 +56,12 @@ export interface LatticeEditorProps<TVar = Record<string, any>> {
   /** Formats a merge tag path into the placeholder text. Defaults to `{{path}}`. */
   mergeTagGenerate?: PropsProviderProps["mergeTagGenerate"];
   height?: string | number;
+  /** The base name for the editor frames. */
+  editorTitle?: string;
+  /** The language of the editor canvas document. Default is `en`. */
+  editorLanguage?: string;
+  /** The language of the email preview documents. Default is `editorLanguage`. */
+  previewLanguage?: string;
   /** Add the If Condition block to the Logic category. Default is false. */
   allowCondition?: boolean;
   /** Add the For Loop block to the Logic category. Default is false. */
@@ -84,6 +90,9 @@ export function LatticeEditor<TVar = Record<string, any>>(
     onBeforeMjmlCompile,
     mergeTagGenerate,
     height = "calc(100vh - 108px)",
+    editorTitle = "Email editor",
+    editorLanguage = "en",
+    previewLanguage = editorLanguage,
     allowCondition = false,
     allowForLoop = false,
   } = props;
@@ -164,6 +173,9 @@ export function LatticeEditor<TVar = Record<string, any>>(
     <EmailEditorProvider
       data={data}
       height={typeof height === "string" ? height : `${height}px`}
+      editorTitle={editorTitle}
+      editorLanguage={editorLanguage}
+      previewLanguage={previewLanguage}
       onUploadImage={onUploadImage}
       dashed={dashed}
       variableData={resolvedVariableData}
