@@ -51,7 +51,6 @@ export function EditEmailPreview() {
         width: "100%",
         zIndex: 10,
         position: "relative",
-        outline: "none",
         border: "none",
       }}
     >
