@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { ToolItem } from "../ToolItem";
 import { getLinkNode, Link, LinkParams } from "../Link";
 import {
@@ -28,6 +28,7 @@ import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
+import { getToolbarTargetIndex } from "@/shared/utils/toolbarAccessibility";
 
 export interface ToolsProps {
   onChange: (content: string) => any;
@@ -38,6 +39,59 @@ export function Tools(props: ToolsProps) {
   const { focusBlockNode } = useFocusBlockLayout();
   const { selectionRange, restoreRange, setRangeByElement } =
     useSelectionRange();
+  const toolbarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const buttons = toolbarRef.current?.querySelectorAll<HTMLButtonElement>(
+      ":scope > div button:not(:disabled)",
+    );
+    buttons?.forEach((button, index) => {
+      button.tabIndex = index === 0 ? 0 : -1;
+    });
+  }, [toolbar?.tools, variableData]);
+
+  const handleToolbarKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const buttons = Array.from(
+      toolbarRef.current?.querySelectorAll<HTMLButtonElement>(
+        ":scope > div button:not(:disabled)",
+      ) ?? [],
+    );
+    const currentIndex = buttons.indexOf(event.target as HTMLButtonElement);
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      focusBlockNode?.focus();
+      return;
+    }
+
+    if (
+      currentIndex < 0 ||
+      !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    const targetIndex = getToolbarTargetIndex(
+      currentIndex,
+      buttons.length,
+      event.key,
+    );
+    buttons.forEach((button, index) => {
+      button.tabIndex = index === targetIndex ? 0 : -1;
+    });
+    buttons[targetIndex]?.focus();
+  };
+
+  const handleToolbarFocus = (event: React.FocusEvent<HTMLDivElement>) => {
+    if (!(event.target instanceof HTMLButtonElement)) return;
+    const focusedButton = event.target;
+    toolbarRef.current
+      ?.querySelectorAll<HTMLButtonElement>(":scope > div button")
+      .forEach((button) => {
+        button.tabIndex = button === focusedButton ? 0 : -1;
+      });
+  };
 
   const execCommand = useCallback(
     (cmd: string, val?: any) => {
@@ -306,7 +360,12 @@ export function Tools(props: ToolsProps) {
 
   return (
     <div
+      ref={toolbarRef}
       id={RICH_TEXT_TOOL_BAR}
+      role="toolbar"
+      aria-label={t("Text formatting")}
+      onKeyDown={handleToolbarKeyDown}
+      onFocus={handleToolbarFocus}
       style={{ display: "flex", flexWrap: "nowrap" }}
     >
       <div

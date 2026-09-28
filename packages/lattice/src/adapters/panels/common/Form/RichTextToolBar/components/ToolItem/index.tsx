@@ -15,12 +15,18 @@ export interface ToolItemProps extends Omit<
 export const ToolItem = React.forwardRef<HTMLButtonElement, ToolItemProps>(
   function ToolItem(props, ref) {
     const { title, icon, trigger, isActive, className, ...buttonProps } = props;
+    const pressedProps =
+      isActive !== undefined && !buttonProps["aria-haspopup"]
+        ? { "aria-pressed": isActive }
+        : {};
     if (!props.title) {
       return (
         <button
           ref={ref}
+          type="button"
           tabIndex={-1}
           className="easy-email-extensions-emailToolItem"
+          {...pressedProps}
           {...buttonProps}
         >
           {icon}
@@ -44,8 +50,10 @@ export const ToolItem = React.forwardRef<HTMLButtonElement, ToolItemProps>(
       >
         <button
           ref={ref}
+          type="button"
           tabIndex={-1}
           aria-label={title}
+          {...pressedProps}
           className={classnames(
             "easy-email-extensions-emailToolItem",
             isActive && "easy-email-extensions-emailToolItem-active",

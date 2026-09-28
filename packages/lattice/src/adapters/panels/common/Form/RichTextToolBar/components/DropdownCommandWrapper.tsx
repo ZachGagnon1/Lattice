@@ -62,6 +62,7 @@ export function DropdownCommandWrapper({
   };
 
   const isOpen = Boolean(anchorEl);
+  const menuId = `text-format-${title.toLowerCase().replaceAll(" ", "-")}`;
 
   return (
     <>
@@ -71,16 +72,18 @@ export function DropdownCommandWrapper({
           isActive={isOpen}
           title={title}
           icon={icon}
+          aria-controls={isOpen ? menuId : undefined}
+          aria-expanded={isOpen}
+          aria-haspopup="menu"
         />
       </span>
 
       <Popover
+        id={menuId}
         open={isOpen}
         anchorEl={anchorEl}
         onClose={handleClose}
-        disableAutoFocus
         disableEnforceFocus
-        disableRestoreFocus
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
         container={
@@ -103,7 +106,7 @@ export function DropdownCommandWrapper({
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
-          <MenuList dense sx={{ py: 0 }}>
+          <MenuList autoFocusItem={isOpen} dense sx={{ py: 0 }}>
             {options.map((item) => (
               <MenuItem
                 key={item.value}

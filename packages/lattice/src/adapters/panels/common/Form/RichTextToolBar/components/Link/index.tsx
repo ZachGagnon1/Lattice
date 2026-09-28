@@ -127,6 +127,9 @@ export function Link(props: Readonly<LinkProps>) {
           isActive={Boolean(initialValues.link) || open}
           title="Link"
           icon={<LinkIcon />}
+          aria-controls={id}
+          aria-expanded={open}
+          aria-haspopup="dialog"
         />
       </span>
 
