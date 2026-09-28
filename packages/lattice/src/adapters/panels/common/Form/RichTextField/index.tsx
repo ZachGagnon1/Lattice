@@ -15,6 +15,7 @@ import { InlineText, InlineTextProps } from "../InlineTextField";
 import { RichTextToolBar } from "../RichTextToolBar";
 import { useEditorField } from "../useEditorField";
 import { debounce } from "lodash-es";
+import { getEditableField } from "@/shared/utils/editableTarget";
 
 export const RichTextField = (
   props: Omit<InlineTextProps, "onChange" | "mutators">,
@@ -50,7 +51,7 @@ export const RichTextField = (
   useEffect(() => {
     const root = getIframeDocument();
     if (!root) return;
-    const onClick = (e: Event) => {
+    const updateField = (e: Event) => {
       const target = e.target as HTMLElement;
 
       const fixedContainer = root.getElementById(FIXED_CONTAINER_ID);
@@ -58,24 +59,24 @@ export const RichTextField = (
       if (fixedContainer?.contains(target) || richTextBar?.contains(target)) {
         return;
       }
-      const activeElement = getIframeDocument()?.activeElement;
-      if (!activeElement) {
+      const editable = getEditableField(
+        target,
+        DATA_CONTENT_EDITABLE_IDX,
+        DATA_CONTENT_EDITABLE_TYPE,
+      );
+      if (!editable) {
         setContentEditableName("");
       } else {
-        const idxName = activeElement.getAttribute(DATA_CONTENT_EDITABLE_IDX);
-        const type = activeElement.getAttribute(DATA_CONTENT_EDITABLE_TYPE);
-        setContentEditableType(type);
-        if (idxName) {
-          setContentEditableName(idxName);
-        } else {
-          setContentEditableName("");
-        }
+        setContentEditableType(editable.type);
+        setContentEditableName(editable.name);
       }
     };
 
-    root.addEventListener("click", onClick);
+    root.addEventListener("click", updateField);
+    root.addEventListener("focusin", updateField);
     return () => {
-      root.removeEventListener("click", onClick);
+      root.removeEventListener("click", updateField);
+      root.removeEventListener("focusin", updateField);
     };
   }, [focusBlockNode]);
 

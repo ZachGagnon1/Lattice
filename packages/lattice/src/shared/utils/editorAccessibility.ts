@@ -10,11 +10,5 @@ export function getEditorA11yProps(
   };
 }
 
-export function getMjmlErrorReport(
-  errors: Array<{ formattedMessage?: string }> | undefined,
-): string {
-  return (errors ?? [])
-    .map((error) => error.formattedMessage?.trim())
-    .filter(Boolean)
-    .join("\n");
-}
+export const MJML_PREVIEW_FAILURE_MESSAGE =
+  "The preview cannot update. Undo the last change or restore the affected block.";

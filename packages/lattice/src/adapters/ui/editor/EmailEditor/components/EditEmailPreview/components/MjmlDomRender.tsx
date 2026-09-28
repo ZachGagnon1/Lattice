@@ -8,7 +8,7 @@ import { getIframeDocument } from "@/shared/utils";
 import { DATA_RENDER_COUNT, FIXED_CONTAINER_ID } from "@/constants";
 import { HtmlStringToReactNodes } from "@/shared/utils/HtmlStringToReactNodes";
 import { createPortal } from "react-dom";
-import { getMjmlErrorReport } from "@/shared/utils/editorAccessibility";
+import { MJML_PREVIEW_FAILURE_MESSAGE } from "@/shared/utils/editorAccessibility";
 
 let count = 0;
 export function MjmlDomRender() {
@@ -94,26 +94,21 @@ export function MjmlDomRender() {
     // Call mjml and wait for the Promise to resolve
     mjml(mjmlString)
       .then((result) => {
-        // MJML still renders on a soft error, so without this check an invalid
-        // block tree gives no message.
         if (isMounted) {
-          const report = getMjmlErrorReport(result.errors);
-          if (!report && previousErrorRef.current) {
+          if (previousErrorRef.current) {
             setPreviewStatus(t("Preview errors resolved."));
           } else {
             setPreviewStatus("");
           }
-          previousErrorRef.current = report;
-          setPreviewError(report);
+          previousErrorRef.current = "";
+          setPreviewError("");
           setHtml(result.html);
         }
       })
       .catch((error) => {
         if (isMounted) {
-          const report =
-            error instanceof Error
-              ? error.message
-              : t("The preview cannot compile the current template.");
+          console.error("MJML preview compilation failed", error);
+          const report = t(MJML_PREVIEW_FAILURE_MESSAGE);
           previousErrorRef.current = report;
           setPreviewError(report);
           setPreviewStatus("");
