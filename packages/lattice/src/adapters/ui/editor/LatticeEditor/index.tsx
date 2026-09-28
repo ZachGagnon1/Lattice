@@ -19,6 +19,7 @@ export interface LatticeEditorConfig {
   mjmlReadOnly?: boolean;
   showBlockLayer?: boolean;
   dashed?: boolean;
+  regionLabels?: ExtensionProps["regionLabels"];
 }
 
 /**
@@ -106,6 +107,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
     mjmlReadOnly = false,
     showBlockLayer = true,
     dashed = false,
+    regionLabels,
   } = config;
 
   const activeComponents = useMemo(() => {
@@ -198,6 +200,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
             showSourceCode={showSourceCode}
             mjmlReadOnly={mjmlReadOnly}
             showBlockLayer={showBlockLayer}
+            regionLabels={regionLabels}
           >
             <EmailEditor />
           </StandardLayout>

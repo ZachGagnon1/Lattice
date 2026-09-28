@@ -43,6 +43,12 @@ export interface ExtensionProps extends BlockLayerProps {
   jsonReadOnly?: boolean;
   mjmlReadOnly?: boolean;
   showBlockLayer?: boolean;
+  regionLabels?: Partial<{
+    navigation: string;
+    blocks: string;
+    canvas: string;
+    configuration: string;
+  }>;
 }
 
 export const ExtensionContext = React.createContext<ExtensionProps>({
