@@ -17,6 +17,7 @@ import { HexColorPicker } from "react-colorful";
 import Color from "color";
 import { PresetColorsContext } from "@/adapters/panels/AttributePanel/components/provider/PresetColorsProvider";
 import { debounce } from "lodash-es";
+import { getColorControlLabel } from "@/shared/utils/controlAccessibility";
 
 export interface ColorPickerProps {
   onChange?: (val: string) => void;
@@ -50,6 +51,9 @@ export function ColorPicker(props: ColorPickerProps) {
   const [internalOpen, setInternalOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [internalColor, setInternalColor] = useState(value);
+  const triggerId = React.useId();
+  const inputId = React.useId();
+  const popoverId = React.useId();
 
   // Determine if we are currently open based on props or internal state
   const isPopoverOpen = controlledIsOpen ?? internalOpen;
@@ -75,7 +79,8 @@ export function ColorPicker(props: ColorPickerProps) {
       setInternalOpen(false);
     }
     onVisibilityChange?.(false);
-  }, [controlledIsOpen, onVisibilityChange]);
+    requestAnimationFrame(() => anchorEl?.focus());
+  }, [anchorEl, controlledIsOpen, onVisibilityChange]);
 
   const commitColor = useCallback(
     (newColor: string) => {
@@ -138,28 +143,54 @@ export function ColorPicker(props: ColorPickerProps) {
 
   const childrenArray = React.Children.toArray(children);
   const triggerChild = childrenArray[0];
+  const triggerElement = React.isValidElement<{
+    onClick?: React.MouseEventHandler<HTMLElement>;
+    [key: string]: any;
+  }>(triggerChild)
+    ? triggerChild
+    : null;
   const footerChild = childrenArray.length > 1 ? childrenArray[1] : null;
+  const controlLabel = getColorControlLabel(label, internalColor);
+  const triggerProps = {
+    id: triggerId,
+    "aria-label": controlLabel,
+    "aria-controls": isPopoverOpen ? popoverId : undefined,
+    "aria-expanded": isPopoverOpen,
+    "aria-haspopup": "dialog" as const,
+    onClick: handleOpen,
+  };
 
   return (
     <Stack spacing={0.5}>
       {label && !triggerChild && (
-        <InputLabel sx={{ fontSize: "12px", color: "text.secondary" }}>
+        <InputLabel
+          htmlFor={showInput ? inputId : triggerId}
+          sx={{ fontSize: "12px", color: "text.secondary" }}
+        >
           {label}
         </InputLabel>
       )}
       <Box sx={{ display: "flex", width: "100%" }}>
         {triggerChild ? (
-          <Box
-            component="span"
-            onClick={handleOpen}
-            onMouseDown={(e) => e.preventDefault()}
-            sx={{ display: "inline-flex", cursor: "pointer" }}
-          >
-            {triggerChild}
-          </Box>
+          triggerElement ? (
+            React.cloneElement(triggerElement, {
+              ...triggerProps,
+              onClick: (event: React.MouseEvent<HTMLElement>) => {
+                triggerElement.props.onClick?.(event);
+                handleOpen(event);
+              },
+              onMouseDown: (event: React.MouseEvent<HTMLElement>) => {
+                triggerElement.props.onMouseDown?.(event);
+                event.preventDefault();
+              },
+            })
+          ) : (
+            <Button {...triggerProps}>{triggerChild}</Button>
+          )
         ) : (
           <>
             <Button
+              {...triggerProps}
               disableRipple
               onClick={handleOpen}
               sx={(theme) => ({
@@ -177,6 +208,8 @@ export function ColorPicker(props: ColorPickerProps) {
             />
             {showInput && (
               <TextField
+                id={inputId}
+                label={label || t("Color")}
                 size="small"
                 value={inputColor}
                 onChange={(e) => {
@@ -188,6 +221,7 @@ export function ColorPicker(props: ColorPickerProps) {
                 }}
                 sx={{ flex: 1 }}
                 slotProps={{
+                  htmlInput: { "aria-label": controlLabel },
                   input: {
                     sx: {
                       borderTopLeftRadius: "0px",
@@ -203,6 +237,9 @@ export function ColorPicker(props: ColorPickerProps) {
         )}
 
         <Popover
+          id={popoverId}
+          role="dialog"
+          aria-label={`${label || t("Color")} picker`}
           open={isPopoverOpen}
           anchorEl={anchorEl}
           onClose={handleClose}
@@ -217,7 +254,6 @@ export function ColorPicker(props: ColorPickerProps) {
           }
           disableAutoFocus
           disableEnforceFocus
-          disableRestoreFocus
           sx={{ zIndex: 10000 }}
           slotProps={{
             paper: {
@@ -244,7 +280,7 @@ export function ColorPicker(props: ColorPickerProps) {
                   setInternalColor(nextColor);
                   debouncedCommitColor(nextColor);
                 }}
-                aria-label="Hex color"
+                aria-label={`${label || t("Color")} hex value`}
                 sx={(theme) => ({
                   "& input": {
                     fontSize: "13px",

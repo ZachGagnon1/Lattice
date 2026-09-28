@@ -27,6 +27,7 @@ import { previewLoadImage } from "@/adapters/panels/AttributePanel/utils/preview
 import { MergeTags } from "@/adapters/panels";
 import { useEditorProps } from "@";
 import { TextInput } from "@/adapters/panels/common/Form/TextInput";
+import { getImageControlLabels } from "@/shared/utils/controlAccessibility";
 
 export interface ImageUploaderProps {
   onChange: (val: string) => void;
@@ -41,6 +42,9 @@ export function ImageUploader(props: ImageUploaderProps) {
 
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState(false);
+  const previewButtonRef = useRef<HTMLButtonElement | null>(null);
+  const urlInputRef = useRef<HTMLInputElement | null>(null);
+  const labels = getImageControlLabels(props.label);
 
   // Local state for inline input errors
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -134,12 +138,20 @@ export function ImageUploader(props: ImageUploaderProps) {
   const onRemove = useCallback(() => {
     setErrorMsg(null);
     props.onChange("");
+    requestAnimationFrame(() => urlInputRef.current?.focus());
   }, [props]);
+
+  const closePreview = useCallback(() => {
+    setPreview(false);
+    requestAnimationFrame(() => previewButtonRef.current?.focus());
+  }, []);
 
   const content = useMemo(() => {
     if (isUploading) {
       return (
         <Box
+          role="status"
+          aria-live="polite"
           sx={{
             width: 104,
             height: 104,
@@ -153,14 +165,18 @@ export function ImageUploader(props: ImageUploaderProps) {
             mr: 1,
           }}
         >
-          <CircularProgress size={24} />
+          <CircularProgress size={24} aria-hidden="true" />
+          <Box sx={{ position: "absolute", clip: "rect(0 0 0 0)" }}>
+            {t("Uploading image")}
+          </Box>
         </Box>
       );
     }
 
     if (!props.value) {
       return (
-        <Box
+        <Button
+          aria-label={labels.upload}
           onClick={onUpload}
           sx={{
             width: 104,
@@ -180,7 +196,7 @@ export function ImageUploader(props: ImageUploaderProps) {
         >
           <AddIcon fontSize="large" sx={{ color: "text.secondary", mb: 0.5 }} />
           <Box sx={{ color: "text.secondary", fontSize: 14 }}>Upload</Box>
-        </Box>
+        </Button>
       );
     }
 
@@ -196,12 +212,14 @@ export function ImageUploader(props: ImageUploaderProps) {
           overflow: "hidden",
           mb: 1,
           mr: 1,
-          "&:hover .action-overlay": { opacity: 1 },
+          "&:hover .action-overlay, &:focus-within .action-overlay": {
+            opacity: 1,
+          },
         }}
       >
         <img
           src={props.value}
-          alt="uploaded"
+          alt={props.label}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
         <Box
@@ -223,6 +241,8 @@ export function ImageUploader(props: ImageUploaderProps) {
           {/* @ts-ignore */}
           <Tooltip title={t("Preview")} placement="top">
             <IconButton
+              ref={previewButtonRef}
+              aria-label={labels.preview}
               size="small"
               onClick={() => setPreview(true)}
               sx={{ color: "#fff" }}
@@ -232,18 +252,24 @@ export function ImageUploader(props: ImageUploaderProps) {
           </Tooltip>
           {/* @ts-ignore */}
           <Tooltip title={t("Remove")} placement="top">
-            <IconButton size="small" onClick={onRemove} sx={{ color: "#fff" }}>
-              <DeleteOutlineIcon fontSize="small" />
+            <IconButton
+              aria-label={labels.remove}
+              size="small"
+              onClick={onRemove}
+              sx={{ color: "#fff" }}
+            >
+              <DeleteOutlineIcon fontSize="small" aria-hidden="true" />
             </IconButton>
           </Tooltip>
         </Box>
       </Box>
     );
-  }, [isUploading, onRemove, onUpload, props.value]);
+  }, [isUploading, labels, onRemove, onUpload, props.label, props.value]);
 
   if (!props.uploadHandler) {
     return (
       <TextInput
+        label={props.label}
         value={props.value}
         onChange={handleTextChange}
         error={!!errorMsg}
@@ -265,6 +291,9 @@ export function ImageUploader(props: ImageUploaderProps) {
             <Box>
               {/* STYLED Merge Tags Trigger to match image_1.png */}
               <Button
+                aria-label={labels.mergeTag}
+                aria-haspopup="dialog"
+                aria-expanded={Boolean(anchorElMerge)}
                 variant="outlined"
                 color="inherit"
                 onClick={(e) => setAnchorElMerge(e.currentTarget)}
@@ -304,6 +333,8 @@ export function ImageUploader(props: ImageUploaderProps) {
             {" "}
             {/* Overlap borders slightly */}
             <TextInput
+              inputRef={urlInputRef}
+              label={props.label}
               value={props.value}
               onChange={handleTextChange}
               onPaste={onPaste}
@@ -322,6 +353,9 @@ export function ImageUploader(props: ImageUploaderProps) {
           {props.autoCompleteOptions && (
             <Box sx={{ mt: "4px", ml: 0.5 }}>
               <IconButton
+                aria-label={labels.suggestion}
+                aria-haspopup="menu"
+                aria-expanded={Boolean(anchorElAuto)}
                 size="small"
                 onClick={(e) => setAnchorElAuto(e.currentTarget)}
                 sx={{ bgcolor: "action.hover" }}
@@ -357,8 +391,9 @@ export function ImageUploader(props: ImageUploaderProps) {
       </div>
 
       <Dialog
+        aria-label={labels.preview}
         open={preview}
-        onClose={() => setPreview(false)}
+        onClose={closePreview}
         maxWidth="md"
         fullWidth
       >
