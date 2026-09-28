@@ -127,8 +127,6 @@ export function MjmlDomRender() {
           outline: "none",
           position: "relative",
         }}
-        role="tabpanel"
-        tabIndex={0}
       >
         {ref.current &&
           createPortal(

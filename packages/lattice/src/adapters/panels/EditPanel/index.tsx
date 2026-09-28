@@ -11,11 +11,13 @@ import {
   EditorTabPanel,
   EditorTabs,
 } from "@/adapters/panels/common/EditorTabs/EditorTabs";
+import { getTabA11yProps } from "@/shared/utils/accessibility";
 
 export function EditPanel() {
   const { height } = useEditorProps();
   const { showBlockLayer = true } = useExtensionProps();
   const [value, setValue] = React.useState("block");
+  const tabId = React.useId();
 
   return (
     <Box
@@ -31,18 +33,38 @@ export function EditPanel() {
         value={value}
         onChange={(_, newValue: string) => setValue(newValue)}
       >
-        <EditorTab label={t("Block")} value="block" />
-        {showBlockLayer && <EditorTab label={t("Layer")} value="layer" />}
+        <EditorTab
+          label={t("Block")}
+          value="block"
+          {...getTabA11yProps(tabId, "block")}
+        />
+        {showBlockLayer && (
+          <EditorTab
+            label={t("Layer")}
+            value="layer"
+            {...getTabA11yProps(tabId, "layer")}
+          />
+        )}
       </EditorTabs>
 
-      <EditorTabPanel value={value} index="block" destroyOnHide={false}>
+      <EditorTabPanel
+        idPrefix={tabId}
+        value={value}
+        index="block"
+        destroyOnHide={false}
+      >
         <FullHeightOverlayScrollbars height={`calc(${height} - 60px)`}>
           <Blocks />
         </FullHeightOverlayScrollbars>
       </EditorTabPanel>
 
       {showBlockLayer && (
-        <EditorTabPanel value={value} index="layer" destroyOnHide={false}>
+        <EditorTabPanel
+          idPrefix={tabId}
+          value={value}
+          index="layer"
+          destroyOnHide={false}
+        >
           <FullHeightOverlayScrollbars height={`calc(${height} - 60px)`}>
             <div style={{ padding: 20 }}>
               <BlockLayer />

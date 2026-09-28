@@ -8,7 +8,9 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useId, useState } from "react";
+import { useEditorProps } from "@/application/hooks/useEditorProps";
+import { getHeadingComponent } from "@/shared/utils/accessibility";
 
 interface CollapsableItemProps {
   title: string;
@@ -20,6 +22,8 @@ export function CollapsableItem(
   props: PropsWithChildren<CollapsableItemProps>,
 ) {
   const [expanded, setExpanded] = useState(props.defaultExpanded ?? true);
+  const { headingLevel = 2 } = useEditorProps();
+  const contentId = useId();
 
   return (
     <Box sx={{ mb: 2 }}>
@@ -32,13 +36,23 @@ export function CollapsableItem(
         }
       >
         <Stack direction="row" sx={{ alignItems: "center" }}>
-          <IconButton onClick={() => setExpanded(!expanded)}>
+          <IconButton
+            aria-label={`${expanded ? t("Collapse") : t("Expand")} ${props.title}`}
+            aria-expanded={expanded}
+            aria-controls={contentId}
+            onClick={() => setExpanded(!expanded)}
+          >
             {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
-          <Typography variant="body2">{props.title}</Typography>
+          <Typography
+            component={getHeadingComponent(headingLevel, 1)}
+            variant="body2"
+          >
+            {props.title}
+          </Typography>
         </Stack>
       </Box>
-      <Collapse in={expanded}>
+      <Collapse id={contentId} in={expanded}>
         <Box sx={{ ml: 1 }}>{props.children}</Box>
       </Collapse>
     </Box>

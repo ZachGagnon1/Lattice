@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Tab, TabProps, Tabs, TabsProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { StyledComponent } from "@emotion/styled";
+import { getTabA11yProps } from "@/shared/utils/accessibility";
 
 // Unified Tab Container
 export const EditorTabs = styled((props: TabsProps) => (
@@ -32,17 +33,26 @@ export interface EditorTabPanelProps {
   index: number | string;
   value: number | string;
   destroyOnHide?: boolean;
+  idPrefix: string;
 }
 
 export function EditorTabPanel(props: EditorTabPanelProps) {
-  const { children, value, index, destroyOnHide = true, ...other } = props;
+  const {
+    children,
+    value,
+    index,
+    idPrefix,
+    destroyOnHide = true,
+    ...other
+  } = props;
+  const tabProps = getTabA11yProps(idPrefix, index);
 
   return (
     <Box
       role="tabpanel"
       hidden={value !== index}
-      id={`editor-tabpanel-${index}`}
-      aria-labelledby={`editor-tab-${index}`}
+      id={tabProps["aria-controls"]}
+      aria-labelledby={tabProps.id}
       sx={{ height: "100%", flexGrow: 1, overflow: "hidden" }}
       {...other}
     >
