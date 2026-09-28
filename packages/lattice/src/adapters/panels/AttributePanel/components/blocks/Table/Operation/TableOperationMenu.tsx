@@ -28,6 +28,8 @@ export default class TableOperationMenu {
   tableData: IOperationData[][] = [];
   tableIndexBoundary = {} as IBoundingPosition;
   maxTdCount = 0;
+  returnFocus?: HTMLElement;
+  announce?: (message: string) => void;
 
   constructor() {
     this.mount();
@@ -55,7 +57,7 @@ export default class TableOperationMenu {
     if (this.domNode.contains(target)) return;
     if (target.closest(".MuiPopover-root") || target.closest(".sketch-picker"))
       return;
-    this.hide();
+    this.hide(false);
   }
 
   destroy() {
@@ -67,10 +69,11 @@ export default class TableOperationMenu {
     }
   }
 
-  hide() {
+  hide(restoreFocus = true) {
     if (!this.visible) return;
     this.visible = false;
     if (this.domNode) this.domNode.style.display = "none";
+    if (restoreFocus) this.returnFocus?.focus();
   }
 
   addRow(insertIndex: number, colCount: number) {
@@ -122,7 +125,17 @@ export default class TableOperationMenu {
     this.root.render(
       <IframeCacheProvider>
         <Paper elevation={3} sx={{ width: MENU_WIDTH, overflow: "visible" }}>
-          <MenuList dense sx={{ py: 1 }}>
+          <MenuList
+            autoFocusItem
+            dense
+            sx={{ py: 1 }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                this.hide();
+              }
+            }}
+          >
             {Object.entries(operations).map(([key, config]) => {
               const isDividing = ["insertRowDown", "deleteRow"].includes(key);
 
@@ -132,6 +145,7 @@ export default class TableOperationMenu {
                     onClick={(e) => {
                       e.stopPropagation();
                       config.handler.call(this);
+                      this.announce?.(`${config.text} ${t("complete")}.`);
                       this.hide();
                     }}
                     sx={{ py: 1 }}
@@ -149,7 +163,11 @@ export default class TableOperationMenu {
               );
             })}
             <CellBackgroundSelector
-              bgColorHandler={(color) => setCellBg.handler.call(this, color)}
+              bgColorHandler={(color) => {
+                setCellBg.handler.call(this, color);
+                this.announce?.(`${setCellBg.text} ${t("complete")}.`);
+                this.hide();
+              }}
               rootDom={getIframeDocument()?.body}
             />
           </MenuList>
