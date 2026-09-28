@@ -411,7 +411,13 @@ export function Tools({ onChange }: Readonly<ToolsProps>) {
         aria-keyshortcuts="Alt+F10"
         onKeyDown={onKeyDown}
         onFocus={onFocus}
-        style={{ display: "flex", flexWrap: "nowrap", alignItems: "center" }}
+        style={{
+          display: "flex",
+          flexWrap: "nowrap",
+          alignItems: "center",
+          maxWidth: "100%",
+          overflowX: "auto",
+        }}
       >
         <BasicTools />
         {tools.map((tool, index) => (

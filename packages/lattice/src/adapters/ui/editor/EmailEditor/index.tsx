@@ -68,7 +68,7 @@ export const EmailEditor = () => {
           flexDirection: "column",
           flex: "1",
           overflow: "hidden",
-          minWidth: 640,
+          minWidth: 0,
           height: containerHeight,
           width: "100%",
         }}
@@ -88,6 +88,9 @@ export const EmailEditor = () => {
             value={activeTab}
             onChange={handleTabChange}
             aria-label="email editor views"
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{ minWidth: 0, flexShrink: 1 }}
           >
             <Tab
               icon={<EditIcon />}
@@ -110,7 +113,7 @@ export const EmailEditor = () => {
           </Tabs>
 
           {/* ToolsPanel naturally sits on the right side due to space-between */}
-          <Box sx={{ pr: 2 }}>
+          <Box sx={{ pr: 1, overflowX: "auto", flexShrink: 0 }}>
             <ToolsPanel />
           </Box>
         </Box>
