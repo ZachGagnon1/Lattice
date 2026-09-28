@@ -136,7 +136,12 @@ export const HtmlEditor: React.FC<{
               </Box>
             }
           >
-            <CodeMirrorEditor value={content} onChange={setContent} />
+            <CodeMirrorEditor
+              label={t("HTML source editor")}
+              description={t("Edit the selected block as HTML.")}
+              value={content}
+              onChange={setContent}
+            />
           </Suspense>
         </Box>
 

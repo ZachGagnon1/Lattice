@@ -50,6 +50,10 @@ export const MergeTags: React.FC<{
   arraysOnly?: boolean;
   /** When true, the loop of the focused block itself is in scope. */
   includeSelfLoop?: boolean;
+  label?: React.ReactNode;
+  id?: string;
+  error?: boolean;
+  describedBy?: string;
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -268,6 +272,10 @@ export const MergeTags: React.FC<{
         <>
           {/* Mock "Select" Input */}
           <TextField
+            id={props.id}
+            label={props.label}
+            error={props.error}
+            aria-describedby={props.describedBy}
             value={props.value || ""}
             size="small"
             fullWidth

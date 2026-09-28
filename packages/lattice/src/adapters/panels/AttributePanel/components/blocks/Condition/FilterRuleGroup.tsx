@@ -6,7 +6,12 @@ import {
   IConditionGroup,
   IConditionRule,
   isConditionGroup,
+  ConditionIssue,
 } from "@/domain/compile/handlebars";
+import {
+  getRuleControlId,
+  getRuleLabel,
+} from "@/shared/utils/conditionAccessibility";
 
 /** Builds a new rule. A rule has no logical operator. */
 const createRule = (): IConditionRule => ({
@@ -32,10 +37,11 @@ export interface FilterRuleGroupProps {
   nestingLevel: number;
   index: number;
   onRemove?: () => void;
+  issues?: ConditionIssue[];
 }
 
 export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
-  const { name, groupName, nestingLevel, index, onRemove } = props;
+  const { name, groupName, nestingLevel, index, onRemove, issues = [] } = props;
 
   const rulesFieldName = `${name}.rules`;
 
@@ -68,6 +74,8 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
       {groupName && <RuleConnector groupName={groupName} index={index} />}
 
       <Box
+        id={getRuleControlId(name, "group")}
+        tabIndex={-1}
         sx={{
           flexGrow: 1,
           bgcolor:
@@ -91,6 +99,7 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
                   nestingLevel={nestingLevel + 1}
                   index={idx}
                   onRemove={() => handleRemoveItem(idx)}
+                  issues={issues}
                 />
               );
             }
@@ -102,6 +111,7 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
                 groupName={name}
                 index={idx}
                 onRemove={() => handleRemoveItem(idx)}
+                issues={issues}
               />
             );
           })}
@@ -119,6 +129,7 @@ export function FilterRuleGroup(props: Readonly<FilterRuleGroupProps>) {
             </Button>
             {nestingLevel > 0 && onRemove && (
               <Button
+                aria-label={`Remove ${getRuleLabel(name)}`}
                 variant="text"
                 color="error"
                 size="small"
