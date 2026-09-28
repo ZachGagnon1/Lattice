@@ -1,53 +1,61 @@
 import { Tooltip } from "@mui/material";
 import { classnames } from "@/shared/utils/panel/classnames";
+import React from "react";
 
-export const ToolItem: React.FC<{
+export interface ToolItemProps extends Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "title"
+> {
   title?: string;
   icon: React.ReactNode;
-  onClick?: React.MouseEventHandler<any>;
   trigger?: string;
-  style?: React.CSSProperties;
   isActive?: boolean;
-}> = (props) => {
-  if (!props.title) {
-    return (
-      <button
-        tabIndex={-1}
-        className="easy-email-extensions-emailToolItem"
-        title={props.title}
-        onClick={props.onClick}
-        style={props.style}
-      >
-        {props.icon}
-      </button>
-    );
-  }
+}
 
-  return (
-    <Tooltip
-      placement="bottom"
-      title={props.title}
-      sx={{
-        fontSize: 12,
-        padding: "4px 8px",
-      }}
-      slotProps={{
-        popper: {
-          sx: { zIndex: 9999 },
-        },
-      }}
-    >
-      <button
-        tabIndex={-1}
-        className={classnames(
-          "easy-email-extensions-emailToolItem",
-          props.isActive && "easy-email-extensions-emailToolItem-active",
-        )}
-        onClick={props.onClick}
-        style={props.style}
+export const ToolItem = React.forwardRef<HTMLButtonElement, ToolItemProps>(
+  function ToolItem(props, ref) {
+    const { title, icon, trigger, isActive, className, ...buttonProps } = props;
+    if (!props.title) {
+      return (
+        <button
+          ref={ref}
+          tabIndex={-1}
+          className="easy-email-extensions-emailToolItem"
+          {...buttonProps}
+        >
+          {icon}
+        </button>
+      );
+    }
+
+    return (
+      <Tooltip
+        placement="bottom"
+        title={props.title}
+        sx={{
+          fontSize: 12,
+          padding: "4px 8px",
+        }}
+        slotProps={{
+          popper: {
+            sx: { zIndex: 9999 },
+          },
+        }}
       >
-        {props.icon}
-      </button>
-    </Tooltip>
-  );
-};
+        <button
+          ref={ref}
+          tabIndex={-1}
+          aria-label={title}
+          className={classnames(
+            "easy-email-extensions-emailToolItem",
+            isActive && "easy-email-extensions-emailToolItem-active",
+            className,
+          )}
+          {...buttonProps}
+        >
+          {icon}
+        </button>
+      </Tooltip>
+    );
+  },
+);

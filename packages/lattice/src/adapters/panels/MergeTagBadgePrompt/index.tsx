@@ -29,6 +29,10 @@ export function MergeTagBadgePrompt() {
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const { onChangeMergeTag, variableData, headingLevel = 2 } = useEditorProps();
   const [text, setText] = useState("");
+  const headingId = React.useId();
+  const descriptionId = React.useId();
+  const inputId = React.useId();
+  const countId = React.useId();
   const { setRangeByElement } = useSelectionRange();
 
   const root = initialized && getIframeDocument();
@@ -41,6 +45,7 @@ export function MergeTagBadgePrompt() {
     (ele: HTMLElement) => {
       if (!ele) return;
 
+      ele.focus();
       setRangeByElement(ele);
     },
     [setRangeByElement],
@@ -72,6 +77,16 @@ export function MergeTagBadgePrompt() {
 
   useEffect(() => {
     if (!root) return;
+    const openTarget = (target: HTMLInputElement) => {
+      target.classList.add("easy-email-merge-tag-focus");
+      const namePath = target.value;
+      if (!onChangeMergeTag) {
+        focusMergeTag(target);
+        return;
+      }
+      setText(get(variableData, namePath, ""));
+      setTarget(target);
+    };
     const onClick: EventListenerOrEventListenerObject = (e) => {
       removeAllActiveBadge();
       const target = e.target;
@@ -79,23 +94,30 @@ export function MergeTagBadgePrompt() {
         target instanceof HTMLInputElement &&
         target.classList.contains("easy-email-merge-tag")
       ) {
-        target.classList.add("easy-email-merge-tag-focus");
-        const namePath = target.value;
-        if (!onChangeMergeTag) {
-          focusMergeTag(target);
-          return;
-        }
-        setText(get(variableData, namePath, ""));
-        setTarget(target);
+        openTarget(target);
       } else {
         if (popoverRef.current?.contains(e.target as any)) return;
         setTarget(null);
       }
     };
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement &&
+        target.classList.contains("easy-email-merge-tag") &&
+        ["Enter", " "].includes(event.key)
+      ) {
+        event.preventDefault();
+        removeAllActiveBadge();
+        openTarget(target);
+      }
+    };
 
     root.body.addEventListener("click", onClick);
+    root.body.addEventListener("keydown", onKeyDown);
     return () => {
       root.body.removeEventListener("click", onClick);
+      root.body.removeEventListener("keydown", onKeyDown);
     };
   }, [focusMergeTag, variableData, onChangeMergeTag, root]);
 
@@ -138,36 +160,53 @@ export function MergeTagBadgePrompt() {
         createPortal(
           <div
             ref={popoverRef}
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby={headingId}
+            aria-describedby={descriptionId}
             onClick={onClick}
             className={classnames("easy-email-merge-tag-popover")}
           >
             <div className="easy-email-merge-tag-popover-container">
               {React.createElement(
                 getHeadingComponent(headingLevel),
-                { className: "easy-email-merge-tag-popover-heading" },
+                {
+                  id: headingId,
+                  className: "easy-email-merge-tag-popover-heading",
+                },
                 <>
                   <span>{t("Default value")}</span>
-                  <IconButton aria-label="Close" onClick={onClose}>
-                    <CloseIcon style={{ color: "rgb(92, 95, 98)" }} />
+                  <IconButton aria-label={t("Close")} onClick={onClose}>
+                    <CloseIcon
+                      aria-hidden="true"
+                      style={{ color: "rgb(92, 95, 98)" }}
+                    />
                   </IconButton>
                 </>,
               )}
               <div className={"easy-email-merge-tag-popover-desc"}>
-                <p>
+                <p id={descriptionId}>
                   {t(
                     'If a personalized text value isn"t available, then a default value is shown.',
                   )}
                 </p>
                 <div className="easy-email-merge-tag-popover-desc-label">
                   <input
+                    id={inputId}
                     autoFocus
+                    aria-labelledby={headingId}
+                    aria-describedby={`${descriptionId} ${countId}`}
                     value={text}
                     onChange={onChange}
                     type="text"
                     autoComplete="off"
                     maxLength={40}
                   />
-                  <div className="easy-email-merge-tag-popover-desc-label-count">
+                  <div
+                    id={countId}
+                    aria-live="polite"
+                    className="easy-email-merge-tag-popover-desc-label-count"
+                  >
                     {text.length}/40
                   </div>
                 </div>
