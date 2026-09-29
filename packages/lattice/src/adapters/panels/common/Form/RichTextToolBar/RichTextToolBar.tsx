@@ -10,43 +10,53 @@ import { Tools } from "./components/Tools";
 import styleText from "./shadow-dom.scss?inline";
 import { createPortal } from "react-dom";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
+import { useSelectionRange } from "@/adapters/panels/AttributePanel/hooks/useSelectionRange";
 
 export function RichTextToolBar(props: { onChange: (s: string) => void }) {
   const { initialized } = useEditorContext();
   const { focusBlockNode } = useFocusBlockLayout();
+  const { setSelectionRange } = useSelectionRange();
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
-    if (!focusBlockNode) return;
+    const iframeDocument = getIframeDocument();
+    if (!iframeDocument) return;
 
     const focusToolbar = (event: KeyboardEvent) => {
-      const target = event.target;
-      if (
-        event.key !== "Tab" ||
-        event.shiftKey ||
-        event.altKey ||
-        event.ctrlKey ||
-        event.metaKey ||
-        !(target instanceof HTMLElement) ||
-        target.getAttribute("contenteditable") !== "true"
-      ) {
-        return;
-      }
+      const target = event.target as HTMLElement | null;
+      const isToolbarShortcut =
+        event.key === "F10" &&
+        event.altKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.metaKey;
 
-      const firstButton = getIframeDocument()
+      if (!isToolbarShortcut) return;
+      if (target?.getAttribute?.("contenteditable") !== "true") return;
+
+      const firstButton = iframeDocument
         ?.getElementById(RICH_TEXT_BAR_ID)
         ?.querySelector<HTMLButtonElement>("button:not(:disabled)");
       if (!firstButton) return;
 
+      const selection = iframeDocument.getSelection();
+      const range =
+        selection && selection.rangeCount > 0
+          ? selection.getRangeAt(0).cloneRange()
+          : null;
+
       event.preventDefault();
+      if (range && target.contains(range.commonAncestorContainer)) {
+        setSelectionRange(range);
+      }
       firstButton.focus();
     };
 
-    focusBlockNode.addEventListener("keydown", focusToolbar);
+    iframeDocument.addEventListener("keydown", focusToolbar, true);
     return () => {
-      focusBlockNode.removeEventListener("keydown", focusToolbar);
+      iframeDocument.removeEventListener("keydown", focusToolbar, true);
     };
-  }, [focusBlockNode]);
+  }, [setSelectionRange]);
 
   // Track the position of the focused block dynamically
   useEffect(() => {

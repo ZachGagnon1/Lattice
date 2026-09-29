@@ -69,6 +69,19 @@ export function BasicTools() {
         }}
       >
         Text
+        <span style={{ marginLeft: 8, fontSize: 11 }}>Focus:</span>
+        <kbd
+          style={{
+            marginLeft: 4,
+            padding: "1px 5px",
+            border: "1px solid #aeb1b8",
+            borderRadius: 3,
+            fontSize: 11,
+          }}
+        >
+          Alt+F10
+        </kbd>
+        <span style={{ marginLeft: 6, fontSize: 11 }}>Mac: Fn+Option+F10</span>
       </span>
       <ToolItem
         onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}

@@ -177,6 +177,9 @@ export function Tools(props: ToolsProps) {
 
   const execCommandWithRange = useCallback(
     (cmd: string, val?: any) => {
+      if (selectionRange) {
+        restoreRange(selectionRange);
+      }
       getIframeDocument()?.execCommand(cmd, false, val);
       const contenteditableElement = getIframeDocument()?.getSelection()
         ?.focusNode as HTMLElement | null;
@@ -188,7 +191,7 @@ export function Tools(props: ToolsProps) {
         props.onChange(html);
       }
     },
-    [props.onChange],
+    [props.onChange, restoreRange, selectionRange],
   );
 
   const getPopoverMountNode = () =>
@@ -367,6 +370,7 @@ export function Tools(props: ToolsProps) {
       id={RICH_TEXT_TOOL_BAR}
       role="toolbar"
       aria-label={t("Text formatting")}
+      aria-keyshortcuts="Alt+F10"
       onKeyDown={handleToolbarKeyDown}
       onFocus={handleToolbarFocus}
       style={{ display: "flex", flexWrap: "nowrap" }}
