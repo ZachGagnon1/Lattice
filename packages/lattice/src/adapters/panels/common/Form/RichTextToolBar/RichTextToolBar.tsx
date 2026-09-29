@@ -16,6 +16,38 @@ export function RichTextToolBar(props: { onChange: (s: string) => void }) {
   const { focusBlockNode } = useFocusBlockLayout();
   const [rect, setRect] = useState<DOMRect | null>(null);
 
+  useEffect(() => {
+    if (!focusBlockNode) return;
+
+    const focusToolbar = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (
+        event.key !== "Tab" ||
+        event.shiftKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        !(target instanceof HTMLElement) ||
+        target.getAttribute("contenteditable") !== "true"
+      ) {
+        return;
+      }
+
+      const firstButton = getIframeDocument()
+        ?.getElementById(RICH_TEXT_BAR_ID)
+        ?.querySelector<HTMLButtonElement>("button:not(:disabled)");
+      if (!firstButton) return;
+
+      event.preventDefault();
+      firstButton.focus();
+    };
+
+    focusBlockNode.addEventListener("keydown", focusToolbar);
+    return () => {
+      focusBlockNode.removeEventListener("keydown", focusToolbar);
+    };
+  }, [focusBlockNode]);
+
   // Track the position of the focused block dynamically
   useEffect(() => {
     if (!focusBlockNode) return;
