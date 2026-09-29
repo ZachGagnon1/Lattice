@@ -15,6 +15,7 @@ import {
   EditorTabs,
 } from "@/adapters/panels/common/EditorTabs/EditorTabs";
 import styles from "./index.module.scss";
+import { getTabA11yProps } from "@/shared/utils/accessibility";
 
 export const BlocksPanel: React.FC<{
   children: React.ReactNode | React.ReactElement;
@@ -29,6 +30,7 @@ export const BlocksPanel: React.FC<{
   });
 
   const [activeCategoryTab, setActiveCategoryTab] = useState(0);
+  const categoryTabId = React.useId();
 
   useEffect(() => {
     if (!isDragging) {
@@ -106,6 +108,7 @@ export const BlocksPanel: React.FC<{
                   {t("Drag block")}
                 </Typography>
                 <IconButton
+                  aria-label={t("Close block library")}
                   size="small"
                   onClick={toggleVisible}
                   sx={{ color: "text.secondary" }}
@@ -129,10 +132,11 @@ export const BlocksPanel: React.FC<{
                     px: 0,
                   }}
                 >
-                  {filterCategories.map((category) => (
+                  {filterCategories.map((category, index) => (
                     <EditorTab
                       key={category.title}
                       label={category.title}
+                      {...getTabA11yProps(categoryTabId, index)}
                       sx={{
                         mr: 0,
                         py: 2,
@@ -147,6 +151,7 @@ export const BlocksPanel: React.FC<{
                 <Box sx={{ flexGrow: 1, overflow: "hidden", display: "flex" }}>
                   {filterCategories.map((category, index) => (
                     <EditorTabPanel
+                      idPrefix={categoryTabId}
                       key={category.title}
                       value={activeCategoryTab}
                       index={index}
@@ -179,6 +184,7 @@ const BlockPanelItem: React.FC<{
   category: BlockMarketCategory;
 }> = React.memo((props) => {
   const [activeBlockTab, setActiveBlockTab] = useState(0);
+  const blockTabId = React.useId();
 
   const handleBlockTabChange = (
     _event: React.SyntheticEvent,
@@ -202,7 +208,7 @@ const BlockPanelItem: React.FC<{
           px: 0,
         }}
       >
-        {props.category.blocks.map((block) => (
+        {props.category.blocks.map((block, index) => (
           <EditorTab
             key={block.title}
             sx={{ mr: 0, py: 1.5, minHeight: "auto", alignItems: "flex-end" }}
@@ -212,6 +218,7 @@ const BlockPanelItem: React.FC<{
                 {block.description && <Help title={block.description} />}
               </Stack>
             }
+            {...getTabA11yProps(blockTabId, index)}
           />
         ))}
       </EditorTabs>
@@ -230,6 +237,7 @@ const BlockPanelItem: React.FC<{
       >
         {props.category.blocks.map((block, index) => (
           <EditorTabPanel
+            idPrefix={blockTabId}
             key={block.title}
             value={activeBlockTab}
             index={index}

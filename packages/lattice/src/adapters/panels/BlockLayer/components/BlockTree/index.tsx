@@ -152,6 +152,8 @@ const SortableTreeItem = <T extends TreeNode<T>>({
       >
         {node.hasChildren ? (
           <IconButton
+            aria-label={`${node.isExpanded ? t("Collapse") : t("Expand")} ${t("block")}`}
+            aria-expanded={node.isExpanded}
             size="small"
             onClick={(e) => {
               e.stopPropagation();
@@ -185,7 +187,8 @@ const SortableTreeItem = <T extends TreeNode<T>>({
 
       {/* Drag Handle (Hidden on Page blocks!) */}
       {!isPageBlock && (
-        <Box
+        <IconButton
+          aria-label={t("Move block")}
           className="drag-handle"
           ref={handleRef}
           onClick={(e) => e.stopPropagation()}
@@ -199,8 +202,8 @@ const SortableTreeItem = <T extends TreeNode<T>>({
             "&:active": { cursor: "grabbing" },
           }}
         >
-          <DragIndicatorIcon sx={{ fontSize: 16 }} />
-        </Box>
+          <DragIndicatorIcon sx={{ fontSize: 16 }} aria-hidden="true" />
+        </IconButton>
       )}
     </Box>
   );

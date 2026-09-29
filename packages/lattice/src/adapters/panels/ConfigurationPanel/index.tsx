@@ -9,6 +9,7 @@ import {
   EditorTabPanel,
   EditorTabs,
 } from "@/adapters/panels/common/EditorTabs/EditorTabs";
+import { getTabA11yProps } from "@/shared/utils/accessibility";
 
 export interface ConfigurationPanelProps {
   showSourceCode: boolean;
@@ -25,6 +26,7 @@ export function ConfigurationPanel({
   mjmlReadOnly,
 }: ConfigurationPanelProps) {
   const [activeTab, setActiveTab] = useState(0);
+  const tabId = React.useId();
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -44,17 +46,27 @@ export function ConfigurationPanel({
       }}
     >
       <EditorTabs value={activeTab} onChange={handleTabChange}>
-        <EditorTab label={t("Configuration")} id="configuration-tab-0" />
-        <EditorTab label={t("Source code")} id="configuration-tab-1" />
+        <EditorTab label={t("Configuration")} {...getTabA11yProps(tabId, 0)} />
+        <EditorTab label={t("Source code")} {...getTabA11yProps(tabId, 1)} />
       </EditorTabs>
 
-      <EditorTabPanel value={activeTab} index={0} destroyOnHide>
+      <EditorTabPanel
+        idPrefix={tabId}
+        value={activeTab}
+        index={0}
+        destroyOnHide
+      >
         <FullHeightOverlayScrollbars height={`calc(${height} - 60px)`}>
           <AttributePanel />
         </FullHeightOverlayScrollbars>
       </EditorTabPanel>
 
-      <EditorTabPanel value={activeTab} index={1} destroyOnHide>
+      <EditorTabPanel
+        idPrefix={tabId}
+        value={activeTab}
+        index={1}
+        destroyOnHide
+      >
         <FullHeightOverlayScrollbars height={`calc(${height} - 60px)`}>
           <SourceCodePanel
             jsonReadOnly={jsonReadOnly}

@@ -21,6 +21,7 @@ import {
 } from "./contenteditable";
 import { isNavbarBlock } from "./isNavbarBlock";
 import { isTableBlock } from "./isTableBlock";
+import { getCanvasElementKey } from "./canvasAccessibility";
 
 const domParser = new DOMParser();
 
@@ -191,13 +192,8 @@ function createElement(
     dangerouslySetInnerHTML?: any;
   },
 ) {
-  if (props?.class && props.class.includes("email-block")) {
-    const blockType = getNodeTypeFromClassName(props.class);
-    if (!isTextBlock(blockType)) {
-      props.role = "tab";
-      props.tabIndex = "0";
-    }
-    props.key = props.key + props.class;
+  if (props) {
+    props.key = getCanvasElementKey(props.key, props.class);
   }
 
   return React.createElement(type, props);

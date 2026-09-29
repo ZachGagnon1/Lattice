@@ -21,6 +21,7 @@ export function DragIcon<T extends IBlockData = any>(props: DragIconProps<T>) {
     <BlockAvatarWrapper type={props.type} payload={props.payload}>
       <Tooltip title={block?.name ?? ""} placement="top">
         <IconButton
+          aria-label={`${t("Add")} ${block?.name ?? props.type}`}
           size="small"
           sx={{
             cursor: "move",

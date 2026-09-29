@@ -3,6 +3,8 @@ import { BasicType, BlockManager, useBlock } from "@";
 import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
+import { useEditorProps } from "@/application/hooks/useEditorProps";
+import { getHeadingComponent } from "@/shared/utils/accessibility";
 
 export interface AttributesPanelWrapper {
   style?: React.CSSProperties;
@@ -14,6 +16,7 @@ export const AttributesPanelWrapper: React.FC<AttributesPanelWrapper> = (
 ) => {
   const { focusBlock, setFocusBlock } = useBlock();
   const block = focusBlock && BlockManager.getBlockByType(focusBlock.type);
+  const { headingLevel = 2 } = useEditorProps();
 
   if (!focusBlock || !block) {
     return null;
@@ -36,7 +39,10 @@ export const AttributesPanelWrapper: React.FC<AttributesPanelWrapper> = (
           }}
         >
           <EyeIcon />
-          <Typography variant={"h6"}>
+          <Typography
+            component={getHeadingComponent(headingLevel)}
+            variant="h6"
+          >
             {`${block.name} `} {t("Attributes")}
           </Typography>
           {props.extra}

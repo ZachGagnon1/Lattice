@@ -6,6 +6,8 @@ import {
   htmlToTableSource,
   tableSourceToHtml,
 } from "@/domain/blocks/definitions/Table/tableSource";
+import { useEditorProps } from "@/application/hooks/useEditorProps";
+import { getHeadingComponent } from "@/shared/utils/accessibility";
 
 const CodeMirrorEditorPromise = import("../../../common/Form/CodemirrorEditor");
 const CodeMirrorEditor = React.lazy(() => CodeMirrorEditorPromise);
@@ -19,6 +21,7 @@ export const HtmlEditor: React.FC<{
   const { focusBlock, setValueByIdx } = useBlock();
   const { pageData } = useEditorContext();
   const { focusIdx } = useFocusIdx();
+  const { headingLevel = 2 } = useEditorProps();
   const isTable = focusBlock?.type === BasicType.TABLE;
   // A Table block stores a cell grid, so the editor shows its rows as HTML.
   const source: string = isTable
@@ -94,7 +97,11 @@ export const HtmlEditor: React.FC<{
           bgcolor: "background.paper",
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        <Typography
+          component={getHeadingComponent(headingLevel)}
+          variant="h6"
+          sx={{ fontWeight: "bold" }}
+        >
           Html
         </Typography>
         <Stack direction="row" spacing={2}>

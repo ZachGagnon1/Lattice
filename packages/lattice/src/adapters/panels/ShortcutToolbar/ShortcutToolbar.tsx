@@ -64,7 +64,7 @@ export function ShortcutToolbar() {
       />
 
       <IconButton
-        aria-label="view-more"
+        aria-label={t("Open block library")}
         onClick={() => blocksPanelRef.current?.click()}
       >
         <MoreHorizIcon

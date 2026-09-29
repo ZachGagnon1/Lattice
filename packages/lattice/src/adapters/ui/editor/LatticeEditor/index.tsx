@@ -11,6 +11,7 @@ import { PropsProviderProps } from "@/adapters/ui/Provider/PropsProvider";
 import { useDebouncedCallback } from "use-debounce";
 import { toVariableSample } from "@/shared/utils/variableSchema";
 import { VariableDataOf } from "@/shared/typings/variableData";
+import { HeadingLevel } from "@/shared/utils/accessibility";
 
 /** Layout and panel switches for the editor user interface. */
 export interface LatticeEditorConfig {
@@ -62,6 +63,8 @@ export interface LatticeEditorProps<TVar = Record<string, any>> {
   editorLanguage?: string;
   /** The language of the email preview documents. Default is `editorLanguage`. */
   previewLanguage?: string;
+  /** The first heading level inside the editor. Default is `2`. */
+  headingLevel?: HeadingLevel;
   /** Add the If Condition block to the Logic category. Default is false. */
   allowCondition?: boolean;
   /** Add the For Loop block to the Logic category. Default is false. */
@@ -93,6 +96,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
     editorTitle = "Email editor",
     editorLanguage = "en",
     previewLanguage = editorLanguage,
+    headingLevel = 2,
     allowCondition = false,
     allowForLoop = false,
   } = props;
@@ -176,6 +180,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
       editorTitle={editorTitle}
       editorLanguage={editorLanguage}
       previewLanguage={previewLanguage}
+      headingLevel={headingLevel}
       onUploadImage={onUploadImage}
       dashed={dashed}
       variableData={resolvedVariableData}

@@ -1,5 +1,6 @@
 import { IBlockData } from "@";
 import React, { useMemo } from "react";
+import { HeadingLevel } from "@/shared/utils/accessibility";
 
 export interface CollectedBlock {
   label: string;
@@ -40,6 +41,8 @@ export interface PropsProviderProps {
   editorLanguage?: string;
   /** The language of the email preview documents. */
   previewLanguage?: string;
+  /** The first heading level inside the editor. */
+  headingLevel?: HeadingLevel;
   fontList?: { value: string; label: string }[];
   onAddCollection?: (payload: CollectedBlock) => void;
   onRemoveCollection?: (payload: { id: string }) => void;
@@ -106,6 +109,7 @@ export const EditorPropsContext = React.createContext<
   editorTitle: "Email editor",
   editorLanguage: "en",
   previewLanguage: "en",
+  headingLevel: 2,
   fontList: [],
   onAddCollection: undefined,
   onRemoveCollection: undefined,
@@ -122,6 +126,7 @@ export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
     editorTitle = "Email editor",
     editorLanguage = "en",
     previewLanguage = editorLanguage,
+    headingLevel = 2,
     // The drop target always accepts an ancestor such as the page, so a drop fails without the wrap.
     autoComplete = true,
   } = props;
@@ -134,6 +139,7 @@ export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
       editorTitle,
       editorLanguage,
       previewLanguage,
+      headingLevel,
     };
   }, [
     mergeTagGenerate,
@@ -143,6 +149,7 @@ export const PropsProvider: React.FC<PropsProviderProps> = (props) => {
     editorTitle,
     editorLanguage,
     previewLanguage,
+    headingLevel,
   ]);
 
   return (

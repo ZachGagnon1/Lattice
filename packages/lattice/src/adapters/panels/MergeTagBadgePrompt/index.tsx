@@ -14,6 +14,7 @@ import { classnames } from "@/shared/utils/panel/classnames";
 import { useSelectionRange } from "@/adapters/panels/AttributePanel/hooks/useSelectionRange";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton } from "@mui/material";
+import { getHeadingComponent } from "@/shared/utils/accessibility";
 
 const removeAllActiveBadge = () => {
   getIframeDocument()
@@ -26,7 +27,7 @@ const removeAllActiveBadge = () => {
 export function MergeTagBadgePrompt() {
   const { initialized } = useEditorContext();
   const popoverRef = useRef<HTMLDivElement | null>(null);
-  const { onChangeMergeTag, variableData } = useEditorProps();
+  const { onChangeMergeTag, variableData, headingLevel = 2 } = useEditorProps();
   const [text, setText] = useState("");
   const { setRangeByElement } = useSelectionRange();
 
@@ -141,12 +142,16 @@ export function MergeTagBadgePrompt() {
             className={classnames("easy-email-merge-tag-popover")}
           >
             <div className="easy-email-merge-tag-popover-container">
-              <h3>
-                <span>{t("Default value")}</span>
-                <IconButton aria-label="Close" onClick={onClose}>
-                  <CloseIcon style={{ color: "rgb(92, 95, 98)" }} />
-                </IconButton>
-              </h3>
+              {React.createElement(
+                getHeadingComponent(headingLevel),
+                { className: "easy-email-merge-tag-popover-heading" },
+                <>
+                  <span>{t("Default value")}</span>
+                  <IconButton aria-label="Close" onClick={onClose}>
+                    <CloseIcon style={{ color: "rgb(92, 95, 98)" }} />
+                  </IconButton>
+                </>,
+              )}
               <div className={"easy-email-merge-tag-popover-desc"}>
                 <p>
                   {t(
