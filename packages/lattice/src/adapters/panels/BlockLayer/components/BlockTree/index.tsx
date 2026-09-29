@@ -12,7 +12,6 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { getTreeItemAccessibility } from "@/shared/utils/treeAccessibility";
 
 // --- Types ---
 interface TreeNode<T> {
@@ -118,13 +117,6 @@ const SortableTreeItem = <T extends TreeNode<T>>({
   });
 
   const isSelected = selectedKeys.includes(node.id);
-  const accessibilityProps = getTreeItemAccessibility({
-    depth: node.depth,
-    hasChildren: node.hasChildren,
-    isExpanded: node.isExpanded,
-    isSelected,
-    isActive: activeId === node.id,
-  });
 
   const openContextMenu = (target: HTMLElement) => {
     const rect = target.getBoundingClientRect();
@@ -137,7 +129,11 @@ const SortableTreeItem = <T extends TreeNode<T>>({
   return (
     <Box
       ref={ref}
-      {...accessibilityProps}
+      role="treeitem"
+      aria-level={node.depth + 1}
+      aria-expanded={node.hasChildren ? node.isExpanded : undefined}
+      aria-selected={isSelected}
+      tabIndex={activeId === node.id ? 0 : -1}
       data-treeitem-id={node.id}
       onMouseEnter={() => onMouseEnter?.(node.id)}
       onFocus={() => onActiveIdChange(node.id)}
