@@ -7,6 +7,7 @@ import { usePreviewEmail } from "@/application/hooks/usePreviewEmail";
 import { SyncScrollIframeComponent } from "@/adapters/ui/kit/SyncScrollIframeComponent";
 import { classnames } from "@/shared/utils/classnames";
 import { useActiveTab } from "@/application/hooks/useActiveTab";
+import { useEditorProps } from "@/application/hooks/useEditorProps";
 
 const MOBILE_WIDTH = 320;
 const MOBILE_Height = 640;
@@ -18,6 +19,8 @@ export function MobileEmailPreview() {
   const { errMsg, reactNode } = usePreviewEmail();
 
   const isActive = activeTab === ActiveTabKeys.MOBILE;
+  const { editorTitle = "Email editor", previewLanguage = "en" } =
+    useEditorProps();
 
   if (errMsg) {
     return (
@@ -78,6 +81,9 @@ export function MobileEmailPreview() {
             }}
           >
             <SyncScrollIframeComponent
+              title={`${editorTitle}: Mobile preview`}
+              documentTitle={`${editorTitle}: Mobile preview`}
+              language={previewLanguage}
               isActive={isActive}
               style={{
                 border: "none",

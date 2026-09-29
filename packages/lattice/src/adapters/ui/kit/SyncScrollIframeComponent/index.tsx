@@ -1,12 +1,16 @@
 // SyncScrollIframeComponent.tsx
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { createIframeSource, syncIframeMetadata } from "./iframeMetadata";
 
 // Export a context so child components can access the iframe's document safely
 export const IframeDocumentContext = React.createContext<Document | null>(null);
 
 interface Props extends React.HTMLProps<HTMLIFrameElement> {
   children: React.ReactNode;
+  title: string;
+  documentTitle: string;
+  language: string;
   isActive?: boolean;
   iframeWrapper?: React.FC<{ children: React.ReactNode; document?: Document }>;
 }
@@ -14,12 +18,24 @@ interface Props extends React.HTMLProps<HTMLIFrameElement> {
 export const SyncScrollIframeComponent = ({
   children,
   title,
+  documentTitle,
+  language,
   isActive,
   iframeWrapper: Wrapper,
   style,
   ...rest
 }: Props) => {
   const [iframeDocument, setIframeDocument] = useState<Document | null>(null);
+  const source = useMemo(
+    () => createIframeSource({ language, title: documentTitle }),
+    [documentTitle, language],
+  );
+
+  useEffect(() => {
+    if (iframeDocument) {
+      syncIframeMetadata(iframeDocument, { language, title: documentTitle });
+    }
+  }, [documentTitle, iframeDocument, language]);
 
   // React 19 Safe: Only initialize portal when iframe is fully loaded
   const handleLoad = useCallback(
@@ -30,10 +46,11 @@ export const SyncScrollIframeComponent = ({
 
       if (doc && win) {
         doc.body.style.backgroundColor = "transparent";
+        syncIframeMetadata(doc, { language, title: documentTitle });
         setIframeDocument(doc);
       }
     },
-    [],
+    [documentTitle, language],
   );
 
   return (
@@ -42,7 +59,7 @@ export const SyncScrollIframeComponent = ({
       title={title}
       onLoad={handleLoad}
       style={style}
-      srcDoc='<!doctype html><html xmlns="http://www.w3.org/1999/xhtml"><head></head><body></body></html>'
+      srcDoc={source}
     >
       {iframeDocument &&
         createPortal(

@@ -13,12 +13,15 @@ import { ActiveTabKeys } from "@/adapters/ui/Provider/BlocksProvider";
 import { useActiveTab } from "@/application/hooks/useActiveTab";
 import { SyncScrollIframeComponent } from "@/adapters/ui/kit/SyncScrollIframeComponent";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
+import { useEditorProps } from "@/application/hooks/useEditorProps";
 
 export function EditEmailPreview() {
   useHotKeys();
   const [containerRef, setContainerRef] = useState<HTMLDivElement | null>(null);
   const { setRef } = useDropBlock();
   const { activeTab } = useActiveTab();
+  const { editorLanguage = "en", editorTitle = "Email editor" } =
+    useEditorProps();
 
   const { setInitialized } = useEditorContext();
 
@@ -34,6 +37,9 @@ export function EditEmailPreview() {
 
   return (
     <SyncScrollIframeComponent
+      title={`${editorTitle}: Edit canvas`}
+      documentTitle={`${editorTitle}: Edit canvas`}
+      language={editorLanguage}
       isActive={activeTab === ActiveTabKeys.EDIT}
       id="VisualEditorEditMode"
       iframeWrapper={IframeCacheProvider}

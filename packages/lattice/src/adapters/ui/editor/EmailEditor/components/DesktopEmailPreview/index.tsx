@@ -7,12 +7,15 @@ import { classnames } from "@/shared/utils/classnames";
 import { SYNC_SCROLL_ELEMENT_CLASS_NAME } from "@/constants";
 import { createPortal } from "react-dom";
 import { SyncScrollIframeComponent } from "@/adapters/ui/kit/SyncScrollIframeComponent";
+import { useEditorProps } from "@/application/hooks/useEditorProps";
 
 export function DesktopEmailPreview() {
   const { activeTab } = useActiveTab();
   const { errMsg, reactNode } = usePreviewEmail();
 
   const { pageData } = useEditorContext();
+  const { editorTitle = "Email editor", previewLanguage = "en" } =
+    useEditorProps();
 
   const fonts = useMemo(() => {
     return pageData.data.value.fonts || [];
@@ -36,6 +39,9 @@ export function DesktopEmailPreview() {
       }}
     >
       <SyncScrollIframeComponent
+        title={`${editorTitle}: Desktop preview`}
+        documentTitle={`${editorTitle}: Desktop preview`}
+        language={previewLanguage}
         isActive={isActive}
         style={{
           border: "none",
