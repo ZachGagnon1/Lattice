@@ -40,6 +40,8 @@ export function SourceCodePanel({
   const [codeText, setCodeText] = useState("");
 
   const [dirtyMode, setDirtyMode] = useState<"json" | "mjml" | null>(null);
+  const jsonErrorId = React.useId();
+  const mjmlErrorId = React.useId();
 
   const { pageData } = useEditorContext();
   const { variableData } = useEditorProps();
@@ -143,17 +145,23 @@ export function SourceCodePanel({
         <Box
           sx={{
             opacity: dirtyMode === "mjml" || jsonReadOnly ? 0.6 : 1,
-            pointerEvents:
-              dirtyMode === "mjml" || jsonReadOnly ? "none" : "auto",
           }}
         >
           <CodeMirrorEditor
+            label={t("JSON source editor")}
+            description={t("Edit the selected block as JSON.")}
+            readOnly={dirtyMode === "mjml" || jsonReadOnly}
+            errorId={codeError ? jsonErrorId : undefined}
             mode="javascript"
             value={codeText}
             onChange={onChangeCodeText}
           />
           {codeError && (
-            <Box sx={{ color: "error.main", fontSize: "12px", mt: 0.5 }}>
+            <Box
+              id={jsonErrorId}
+              role="alert"
+              sx={{ color: "error.main", fontSize: "12px", mt: 0.5 }}
+            >
               {codeError}
             </Box>
           )}
@@ -186,17 +194,23 @@ export function SourceCodePanel({
         <Box
           sx={{
             opacity: dirtyMode === "json" || mjmlReadOnly ? 0.6 : 1,
-            pointerEvents:
-              dirtyMode === "json" || mjmlReadOnly ? "none" : "auto",
           }}
         >
           <CodeMirrorEditor
+            label={t("MJML source editor")}
+            description={t("Edit the selected block as MJML.")}
+            readOnly={dirtyMode === "json" || mjmlReadOnly}
+            errorId={mjmlError ? mjmlErrorId : undefined}
             mode="xml"
             value={mjmlText}
             onChange={onChangeMjmlText}
           />
           {mjmlError && (
-            <Box sx={{ color: "error.main", fontSize: "12px", mt: 0.5 }}>
+            <Box
+              id={mjmlErrorId}
+              role="alert"
+              sx={{ color: "error.main", fontSize: "12px", mt: 0.5 }}
+            >
               {mjmlError}
             </Box>
           )}

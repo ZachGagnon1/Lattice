@@ -2,7 +2,9 @@ import React from "react";
 import { useEditorField } from "@/adapters/panels/common/Form/useEditorField";
 import {
   Box,
+  FormControl,
   IconButton,
+  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -17,7 +19,14 @@ import {
   LogicalOperator,
   OPERATORS_WITHOUT_VALUE,
   OPERATOR_LABELS,
+  ConditionIssue,
 } from "@/domain/compile/handlebars";
+import {
+  getIssueControl,
+  getRuleControlId,
+  getRuleLabel,
+  getRulePath,
+} from "@/shared/utils/conditionAccessibility";
 
 /** The width of the connector column. Each row reserves it, so no row shifts. */
 const CONNECTOR_WIDTH = 90;
@@ -50,16 +59,22 @@ export function RuleConnector(props: Readonly<RuleConnectorProps>) {
   }
 
   if (index === 1) {
+    const operatorId = getRuleControlId(groupName, "operator");
+    const groupLabel = `${getRuleLabel(groupName)} connector`;
     return (
-      <Select
-        {...input}
-        value={operator}
-        size="small"
-        sx={{ width: CONNECTOR_WIDTH, flexShrink: 0 }}
-      >
-        <MenuItem value="AND">AND</MenuItem>
-        <MenuItem value="OR">OR</MenuItem>
-      </Select>
+      <FormControl size="small" sx={{ width: CONNECTOR_WIDTH, flexShrink: 0 }}>
+        <InputLabel id={`${operatorId}-label`}>{groupLabel}</InputLabel>
+        <Select
+          {...input}
+          id={operatorId}
+          labelId={`${operatorId}-label`}
+          label={groupLabel}
+          value={operator}
+        >
+          <MenuItem value="AND">AND</MenuItem>
+          <MenuItem value="OR">OR</MenuItem>
+        </Select>
+      </FormControl>
     );
   }
 
@@ -85,10 +100,11 @@ export interface FilterRuleProps {
   groupName: string;
   index: number;
   onRemove: () => void;
+  issues?: ConditionIssue[];
 }
 
 export function FilterRule(props: Readonly<FilterRuleProps>) {
-  const { name, groupName, index, onRemove } = props;
+  const { name, groupName, index, onRemove, issues = [] } = props;
 
   const { input: fieldInput } = useEditorField<string>(`${name}.fieldId`);
   const { input: comparisonInput } = useEditorField<ComparisonOperator | "">(
@@ -101,6 +117,15 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
   const isValueHidden = (OPERATORS_WITHOUT_VALUE as readonly string[]).includes(
     comparisonInput.value,
   );
+  const ruleLabel = getRuleLabel(name);
+  const ruleIssue = issues.find((issue) => issue.path === getRulePath(name));
+  const invalidControl = ruleIssue ? getIssueControl(ruleIssue) : undefined;
+  const errorId = ruleIssue
+    ? `${getRuleControlId(name, invalidControl!)}-error`
+    : undefined;
+  const fieldId = getRuleControlId(name, "field");
+  const operatorId = getRuleControlId(name, "operator");
+  const valueId = getRuleControlId(name, "value");
 
   return (
     <Stack
@@ -113,6 +138,10 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
       {/* Field Selector */}
       <Box sx={{ flexGrow: 1, minWidth: 200 }}>
         <MergeTags
+          id={fieldId}
+          label={`${ruleLabel} field`}
+          error={invalidControl === "field"}
+          describedBy={invalidControl === "field" ? errorId : undefined}
           isSelect
           rawPath
           value={fieldInput.value}
@@ -121,17 +150,28 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
       </Box>
 
       {/* Comparison Operator */}
-      <Select
-        {...comparisonInput}
+      <FormControl
         size="small"
+        error={invalidControl === "operator"}
         sx={{ flexGrow: 1, minWidth: 150 }}
       >
-        {COMPARISON_OPERATORS.map((operator) => (
-          <MenuItem key={operator} value={operator}>
-            {OPERATOR_LABELS[operator]}
-          </MenuItem>
-        ))}
-      </Select>
+        <InputLabel
+          id={`${operatorId}-label`}
+        >{`${ruleLabel} operator`}</InputLabel>
+        <Select
+          {...comparisonInput}
+          id={operatorId}
+          labelId={`${operatorId}-label`}
+          label={`${ruleLabel} operator`}
+          aria-describedby={invalidControl === "operator" ? errorId : undefined}
+        >
+          {COMPARISON_OPERATORS.map((operator) => (
+            <MenuItem key={operator} value={operator}>
+              {OPERATOR_LABELS[operator]}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       {/* Value input */}
       {isValueHidden ? (
@@ -139,17 +179,30 @@ export function FilterRule(props: Readonly<FilterRuleProps>) {
         <Box sx={{ flexGrow: 2 }} />
       ) : (
         <TextField
+          id={valueId}
+          label={`${ruleLabel} value`}
+          error={invalidControl === "value"}
+          aria-describedby={invalidControl === "value" ? errorId : undefined}
           {...valueInput}
           size="small"
-          placeholder="Value"
           sx={{ flexGrow: 2 }}
         />
       )}
 
       {/* Remove Button */}
-      <IconButton onClick={onRemove} color="error" size="small">
-        <HighlightOffIcon />
+      <IconButton
+        aria-label={`Remove ${ruleLabel}`}
+        onClick={onRemove}
+        color="error"
+        size="small"
+      >
+        <HighlightOffIcon aria-hidden="true" />
       </IconButton>
+      {ruleIssue && (
+        <Box id={errorId} sx={{ position: "absolute", clip: "rect(0 0 0 0)" }}>
+          {ruleIssue.message}
+        </Box>
+      )}
     </Stack>
   );
 }

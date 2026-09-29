@@ -20,6 +20,7 @@ import {
   isConditionGroup,
   normalizeFieldPath,
 } from "@/domain/compile/handlebars";
+import { getIssueControlId } from "@/shared/utils/conditionAccessibility";
 
 export interface RuleBuilderModalProps {
   open: boolean;
@@ -127,6 +128,7 @@ function RuleBuilderForm({
     // so the same check runs here.
     const { issues } = compileCondition(values.rulesTree);
     if (issues.length > 0 && !isClearedTree(values.rulesTree)) {
+      document.getElementById(getIssueControlId(issues[0]))?.focus();
       return;
     }
     onSave(values.rulesTree);
@@ -157,17 +159,24 @@ function RuleBuilderForm({
         <DialogContent dividers sx={{ p: 3, bgcolor: "grey.50" }}>
           <Box sx={{ minHeight: 300 }}>
             {/* The Root Rule Group starts at nesting level 0 */}
-            <FilterRuleGroup name="rulesTree" nestingLevel={0} index={0} />
+            <FilterRuleGroup
+              name="rulesTree"
+              nestingLevel={0}
+              index={0}
+              issues={issues}
+            />
           </Box>
 
           {issues.length > 0 && (
-            <Alert severity="warning" sx={{ mt: 2 }}>
+            <Alert severity="warning" role="alert" sx={{ mt: 2 }}>
               <AlertTitle>Finish every rule before you save</AlertTitle>
               {issues.map((issue) => (
                 <Typography
                   key={`${issue.path}-${issue.code}`}
                   variant="body2"
-                  component="div"
+                  component="a"
+                  href={`#${getIssueControlId(issue)}`}
+                  sx={{ display: "block" }}
                 >
                   {`${issueLocation(issue.path)}: ${issue.message}`}
                 </Typography>
@@ -199,7 +208,7 @@ function RuleBuilderForm({
             type="submit"
             variant="contained"
             color="primary"
-            disabled={!canSave}
+            aria-disabled={!canSave}
           >
             Save Logic
           </Button>

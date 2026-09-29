@@ -7,27 +7,15 @@ import { useEditorContext } from "./useEditorContext";
 import { getNodeIdxFromClassName } from "@";
 import { getBlockNodeByChildEle } from "@/shared/utils/getBlockNodeByChildEle";
 import { getEditorRoot } from "@/shared/utils/getEditorRoot";
+import { isEditableTarget } from "@/shared/utils/keyboardAccessibility";
 
 function isContentEditFocus() {
-  const isIframeFocused = document.activeElement === getEditorRoot();
+  if (isEditableTarget(document.activeElement)) return true;
 
-  if (isIframeFocused) {
-    if (
-      getIframeDocument()?.activeElement?.getAttribute("contenteditable") ===
-      "true"
-    ) {
-      return true;
-    }
-  } else if (
-    ["input", "textarea"].includes(
-      getIframeDocument()?.activeElement?.tagName.toLocaleLowerCase() || "",
-    ) ||
-    getIframeDocument()?.activeElement?.getAttribute("contenteditable") ===
-      "true"
-  ) {
-    return true;
-  }
-  return false;
+  const isIframeFocused = document.activeElement === getEditorRoot();
+  return (
+    isIframeFocused && isEditableTarget(getIframeDocument()?.activeElement)
+  );
 }
 
 export function useHotKeys() {
