@@ -5,7 +5,6 @@ import {
   AvailableTools,
   getIframeDocument,
   MergeTagBadge,
-  RICH_TEXT_BAR_ID,
   useEditorProps,
   useFocusBlockLayout,
 } from "@";
@@ -83,8 +82,16 @@ export function Tools(props: ToolsProps) {
     }
     buttons.forEach((button, index) => {
       button.tabIndex = index === targetIndex ? 0 : -1;
+      button.removeAttribute("data-keyboard-focus");
     });
+    buttons[targetIndex]?.setAttribute("data-keyboard-focus", "true");
     buttons[targetIndex]?.focus();
+  };
+
+  const handleToolbarPointerDown = () => {
+    toolbarRef.current
+      ?.querySelectorAll<HTMLElement>("[data-keyboard-focus]")
+      .forEach((element) => element.removeAttribute("data-keyboard-focus"));
   };
 
   const handleToolbarFocus = (event: React.FocusEvent<HTMLDivElement>) => {
@@ -198,9 +205,6 @@ export function Tools(props: ToolsProps) {
     [props.onChange, restoreRange, selectionRange],
   );
 
-  const getPopoverMountNode = () =>
-    getIframeDocument()?.getElementById(RICH_TEXT_BAR_ID) ?? null;
-
   const enabledTools = toolbar?.tools ?? [
     AvailableTools.MergeTags,
     AvailableTools.FontFamily,
@@ -229,7 +233,6 @@ export function Tools(props: ToolsProps) {
             key={tool}
             execCommand={execCommand}
             selectionRange={selectionRange}
-            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.FontFamily:
@@ -238,7 +241,6 @@ export function Tools(props: ToolsProps) {
             key={tool}
             execCommand={execCommand}
             selectionRange={selectionRange}
-            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.FontSize:
@@ -247,7 +249,6 @@ export function Tools(props: ToolsProps) {
             key={tool}
             execCommand={execCommand}
             selectionRange={selectionRange}
-            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.Bold:
@@ -288,7 +289,6 @@ export function Tools(props: ToolsProps) {
             key={tool}
             selectionRange={selectionRange}
             execCommand={execCommand}
-            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.IconBgColor:
@@ -297,7 +297,6 @@ export function Tools(props: ToolsProps) {
             key={tool}
             selectionRange={selectionRange}
             execCommand={execCommand}
-            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.Link:
@@ -306,7 +305,6 @@ export function Tools(props: ToolsProps) {
             key={`${tool}-link`}
             currentRange={selectionRange}
             onChange={(values) => execCommand("createLink", values)}
-            getPopoverMountNode={getPopoverMountNode}
           />,
           <Unlink
             key={`${tool}-unlink`}
@@ -383,6 +381,7 @@ export function Tools(props: ToolsProps) {
       aria-keyshortcuts="Alt+F10"
       onKeyDown={handleToolbarKeyDown}
       onFocus={handleToolbarFocus}
+      onPointerDownCapture={handleToolbarPointerDown}
       style={{ display: "flex", flexWrap: "nowrap" }}
     >
       <div

@@ -56,7 +56,12 @@ export const RichTextField = (
 
       const fixedContainer = root.getElementById(FIXED_CONTAINER_ID);
       const richTextBar = root.getElementById(RICH_TEXT_BAR_ID);
-      if (fixedContainer?.contains(target) || richTextBar?.contains(target)) {
+      const toolbarPopup = target.closest("[data-rich-text-toolbar-popup]");
+      if (
+        fixedContainer?.contains(target) ||
+        richTextBar?.contains(target) ||
+        toolbarPopup
+      ) {
         return;
       }
       const editable = getEditableField(

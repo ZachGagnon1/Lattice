@@ -49,6 +49,11 @@ export function RichTextToolBar(props: { onChange: (s: string) => void }) {
       if (range && target.contains(range.commonAncestorContainer)) {
         setSelectionRange(range);
       }
+      iframeDocument
+        .getElementById(RICH_TEXT_BAR_ID)
+        ?.querySelectorAll<HTMLElement>("[data-keyboard-focus]")
+        .forEach((element) => element.removeAttribute("data-keyboard-focus"));
+      firstButton.setAttribute("data-keyboard-focus", "true");
       firstButton.focus();
     };
 

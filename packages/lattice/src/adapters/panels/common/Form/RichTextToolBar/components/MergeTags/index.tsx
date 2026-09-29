@@ -18,6 +18,9 @@ export function MergeTags(props: MergeTagsProps) {
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    if (e.detail > 0) {
+      triggerRef.current?.removeAttribute("data-keyboard-focus");
+    }
     setAnchorEl(e.currentTarget);
   };
 
@@ -52,6 +55,7 @@ export function MergeTags(props: MergeTagsProps) {
       />
 
       <Popover
+        data-rich-text-toolbar-popup=""
         id={popoverId}
         open={isOpen}
         anchorEl={anchorEl}
@@ -88,7 +92,10 @@ export function MergeTags(props: MergeTagsProps) {
         }}
       >
         <Box
-          onMouseDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            triggerRef.current?.removeAttribute("data-keyboard-focus");
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <MergeTagsOptions value="" onChange={onChange} />

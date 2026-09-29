@@ -20,7 +20,8 @@
     background-color: rgba(242, 243, 245, 1);
     color: rgb(78, 89, 105);
   }
-  &:focus {
+  &:focus-visible,
+  &[data-keyboard-focus="true"]:focus {
     outline: 3px solid #ffcc00;
     outline-offset: 1px;
     z-index: 1;

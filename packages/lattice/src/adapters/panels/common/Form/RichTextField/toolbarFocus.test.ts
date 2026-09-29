@@ -161,21 +161,23 @@ describe("RichTextField toolbar focus", () => {
 
     expect(shortcutEvent.defaultPrevented).toBe(true);
     expect(iframeDocument.activeElement).toBe(firstButton);
+    expect(firstButton?.getAttribute("data-keyboard-focus")).toBe("true");
     expect(state.savedRange?.toString()).toBe("First text block");
   });
 
   it("keeps the toolbar visible when a toolbar popover receives focus", async () => {
     const { toolbar } = await showToolbar();
     const popoverInput = iframeDocument.createElement("input");
-    toolbar?.append(popoverInput);
+    const popover = iframeDocument.createElement("div");
+    popover.setAttribute("data-rich-text-toolbar-popup", "");
+    popover.append(popoverInput);
+    iframeDocument.body.append(popover);
 
     await act(async () => {
       popoverInput.focus();
       popoverInput.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
     });
 
-    expect(
-      iframeDocument.getElementById("easy-email-rich-text-bar"),
-    ).not.toBeNull();
+    expect(toolbar?.isConnected).toBe(true);
   });
 });

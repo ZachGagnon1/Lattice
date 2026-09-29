@@ -16,7 +16,6 @@ export interface LinkParams {
 export interface LinkProps {
   currentRange: Range | null | undefined;
   onChange: (val: LinkParams) => void;
-  getPopoverMountNode?: () => HTMLElement | null;
 }
 
 function getAnchorElement(node: Node | null): HTMLAnchorElement | null {
@@ -42,7 +41,7 @@ export function getLinkNode(
 }
 
 export function Link(props: Readonly<LinkProps>) {
-  const { currentRange, onChange, getPopoverMountNode } = props;
+  const { currentRange, onChange } = props;
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -52,6 +51,9 @@ export function Link(props: Readonly<LinkProps>) {
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (event.detail > 0) {
+      triggerRef.current?.removeAttribute("data-keyboard-focus");
+    }
 
     // Clone the exact highlight range so the browser doesn't destroy it when focus shifts
     if (currentRange) {
@@ -136,15 +138,12 @@ export function Link(props: Readonly<LinkProps>) {
       </span>
 
       <Popover
+        data-rich-text-toolbar-popup=""
         id={id}
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        container={
-          getPopoverMountNode
-            ? getPopoverMountNode()
-            : anchorEl?.ownerDocument.body
-        }
+        container={anchorEl?.ownerDocument.body}
         disableEnforceFocus
         disableRestoreFocus
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
@@ -162,7 +161,10 @@ export function Link(props: Readonly<LinkProps>) {
       >
         <Box
           sx={{ p: 2, width: 320 }}
-          onMouseDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            triggerRef.current?.removeAttribute("data-keyboard-focus");
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <Stack spacing={2}>

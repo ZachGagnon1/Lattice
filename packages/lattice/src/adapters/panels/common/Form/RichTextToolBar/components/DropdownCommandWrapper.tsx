@@ -28,6 +28,9 @@ export function DropdownCommandWrapper({
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    if (e.detail > 0) {
+      triggerRef.current?.removeAttribute("data-keyboard-focus");
+    }
     setAnchorEl(e.currentTarget);
   };
 
@@ -60,6 +63,7 @@ export function DropdownCommandWrapper({
       </span>
 
       <Popover
+        data-rich-text-toolbar-popup=""
         id={menuId}
         open={isOpen}
         anchorEl={anchorEl}
@@ -84,7 +88,10 @@ export function DropdownCommandWrapper({
         }}
       >
         <Box
-          onMouseDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            triggerRef.current?.removeAttribute("data-keyboard-focus");
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <MenuList autoFocusItem={isOpen} dense sx={{ py: 0 }}>

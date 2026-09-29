@@ -248,6 +248,7 @@ export function ColorPicker(props: ColorPickerProps) {
         )}
 
         <Popover
+          data-rich-text-toolbar-popup={focusFirstControl ? "" : undefined}
           id={popoverId}
           role="dialog"
           aria-label={`${label || t("Color")} picker`}
@@ -286,7 +287,10 @@ export function ColorPicker(props: ColorPickerProps) {
           }}
         >
           <Box
-            onMouseDown={(e) => e.stopPropagation()}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              anchorEl?.removeAttribute("data-keyboard-focus");
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
