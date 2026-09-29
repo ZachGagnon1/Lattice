@@ -5,6 +5,7 @@ import {
   AvailableTools,
   getIframeDocument,
   MergeTagBadge,
+  RICH_TEXT_BAR_ID,
   useEditorProps,
   useFocusBlockLayout,
 } from "@";
@@ -100,10 +101,13 @@ export function Tools(props: ToolsProps) {
     (cmd: string, val?: any) => {
       const iframeWindow = getIframeDocument()?.defaultView;
       const liveSelection = iframeWindow?.getSelection();
-
-      const activeRange =
+      const liveRange =
         liveSelection && liveSelection.rangeCount > 0
           ? liveSelection.getRangeAt(0)
+          : null;
+      const activeRange =
+        liveRange && focusBlockNode?.contains(liveRange.commonAncestorContainer)
+          ? liveRange
           : selectionRange;
 
       if (!activeRange) {
@@ -195,7 +199,7 @@ export function Tools(props: ToolsProps) {
   );
 
   const getPopoverMountNode = () =>
-    getIframeDocument()?.getElementById(RICH_TEXT_TOOL_BAR)!;
+    getIframeDocument()?.getElementById(RICH_TEXT_BAR_ID) ?? null;
 
   const enabledTools = toolbar?.tools ?? [
     AvailableTools.MergeTags,
@@ -225,6 +229,7 @@ export function Tools(props: ToolsProps) {
             key={tool}
             execCommand={execCommand}
             selectionRange={selectionRange}
+            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.FontFamily:
@@ -233,6 +238,7 @@ export function Tools(props: ToolsProps) {
             key={tool}
             execCommand={execCommand}
             selectionRange={selectionRange}
+            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.FontSize:
@@ -241,6 +247,7 @@ export function Tools(props: ToolsProps) {
             key={tool}
             execCommand={execCommand}
             selectionRange={selectionRange}
+            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.Bold:
@@ -281,6 +288,7 @@ export function Tools(props: ToolsProps) {
             key={tool}
             selectionRange={selectionRange}
             execCommand={execCommand}
+            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.IconBgColor:
@@ -289,6 +297,7 @@ export function Tools(props: ToolsProps) {
             key={tool}
             selectionRange={selectionRange}
             execCommand={execCommand}
+            getPopoverMountNode={getPopoverMountNode}
           />,
         ];
       case AvailableTools.Link:
@@ -297,6 +306,7 @@ export function Tools(props: ToolsProps) {
             key={`${tool}-link`}
             currentRange={selectionRange}
             onChange={(values) => execCommand("createLink", values)}
+            getPopoverMountNode={getPopoverMountNode}
           />,
           <Unlink
             key={`${tool}-unlink`}

@@ -20,6 +20,11 @@
     background-color: rgba(242, 243, 245, 1);
     color: rgb(78, 89, 105);
   }
+  &:focus {
+    outline: 3px solid #ffcc00;
+    outline-offset: 1px;
+    z-index: 1;
+  }
 }
 .easy-email-extensions-emailToolItem-active {
   background-color: rgba(242, 243, 245, 1);

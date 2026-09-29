@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Box, Popover } from "@mui/material";
 import { MergeTags as MergeTagsOptions } from "@/adapters/panels/AttributePanel";
 import { ToolItem } from "../ToolItem";
-import { getIframeDocument } from "@";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 
 export interface MergeTagsProps {
@@ -12,17 +11,10 @@ export interface MergeTagsProps {
 }
 
 export function MergeTags(props: MergeTagsProps) {
-  const { execCommand, selectionRange, getPopoverMountNode } = props;
+  const { execCommand, getPopoverMountNode } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const lastKnownRange = useRef<Range | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const popoverId = React.useId();
-
-  useEffect(() => {
-    if (selectionRange) {
-      lastKnownRange.current = selectionRange.cloneRange();
-    }
-  }, [selectionRange]);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -36,18 +28,6 @@ export function MergeTags(props: MergeTagsProps) {
 
   const onChange = useCallback(
     (val: string) => {
-      if (lastKnownRange.current) {
-        const iframeWindow = getIframeDocument()?.defaultView;
-        if (iframeWindow) {
-          iframeWindow.focus();
-          const selection = iframeWindow.getSelection();
-          if (selection) {
-            selection.removeAllRanges();
-            selection.addRange(lastKnownRange.current);
-          }
-        }
-      }
-
       execCommand("insertHTML", val);
       handleClose();
     },
@@ -86,6 +66,14 @@ export function MergeTags(props: MergeTagsProps) {
             : anchorEl?.ownerDocument.body
         }
         slotProps={{
+          transition: {
+            onEntered: () => {
+              anchorEl?.ownerDocument
+                .getElementById(popoverId)
+                ?.querySelector<HTMLElement>('[role="treeitem"]')
+                ?.focus();
+            },
+          },
           paper: {
             sx: {
               backgroundColor: "background.paper",

@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { Box, MenuItem, MenuList, Popover } from "@mui/material";
-import { getIframeDocument } from "@";
 import { ToolItem } from "@/adapters/panels/common/Form/RichTextToolBar/components/ToolItem";
 
 export interface DropdownOption {
@@ -21,18 +20,11 @@ export function DropdownCommandWrapper({
   title,
   icon,
   options,
-  selectionRange,
   getPopoverMountNode,
   onSelect,
 }: Readonly<DropdownCommandWrapperProps>) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const lastKnownRange = useRef<Range | null>(null);
-
-  useEffect(() => {
-    if (selectionRange) {
-      lastKnownRange.current = selectionRange.cloneRange();
-    }
-  }, [selectionRange]);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -41,22 +33,10 @@ export function DropdownCommandWrapper({
 
   const handleClose = () => {
     setAnchorEl(null);
+    requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
   const handleSelect = (val: string) => {
-    // Restore focus to iframe before executing command
-    if (lastKnownRange.current) {
-      const iframeWindow = getIframeDocument()?.defaultView;
-      if (iframeWindow) {
-        iframeWindow.focus();
-        const selection = iframeWindow.getSelection();
-        if (selection) {
-          selection.removeAllRanges();
-          selection.addRange(lastKnownRange.current);
-        }
-      }
-    }
-
     onSelect(val);
     handleClose();
   };
@@ -68,6 +48,7 @@ export function DropdownCommandWrapper({
     <>
       <span style={{ height: "27px" }} onMouseDown={(e) => e.preventDefault()}>
         <ToolItem
+          ref={triggerRef}
           onClick={handleOpen}
           isActive={isOpen}
           title={title}

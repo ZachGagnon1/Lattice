@@ -163,4 +163,19 @@ describe("RichTextField toolbar focus", () => {
     expect(iframeDocument.activeElement).toBe(firstButton);
     expect(state.savedRange?.toString()).toBe("First text block");
   });
+
+  it("keeps the toolbar visible when a toolbar popover receives focus", async () => {
+    const { toolbar } = await showToolbar();
+    const popoverInput = iframeDocument.createElement("input");
+    toolbar?.append(popoverInput);
+
+    await act(async () => {
+      popoverInput.focus();
+      popoverInput.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    });
+
+    expect(
+      iframeDocument.getElementById("easy-email-rich-text-bar"),
+    ).not.toBeNull();
+  });
 });

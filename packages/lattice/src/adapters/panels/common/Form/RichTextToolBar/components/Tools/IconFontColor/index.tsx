@@ -6,9 +6,11 @@ import FontDownloadOutlinedIcon from "@mui/icons-material/FontDownloadOutlined";
 export function IconFontColor({
   selectionRange,
   execCommand,
+  getPopoverMountNode,
 }: Readonly<{
   selectionRange: Range | null;
   execCommand: (cmd: string, val?: any) => void;
+  getPopoverMountNode?: () => HTMLElement | null;
 }>) {
   return (
     <ColorCommandWrapper
@@ -16,6 +18,7 @@ export function IconFontColor({
       selectionRange={selectionRange}
       execCommand={execCommand}
       styleKey="color"
+      getPopoverMountNode={getPopoverMountNode}
     >
       {(color) => (
         <ToolItem

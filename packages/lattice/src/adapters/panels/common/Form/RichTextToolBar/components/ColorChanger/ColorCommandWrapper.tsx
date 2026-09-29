@@ -8,6 +8,7 @@ export interface ColorCommandWrapperProps {
   selectionRange: Range | null;
   execCommand: (cmd: string, val?: any) => void;
   styleKey: "color" | "backgroundColor";
+  getPopoverMountNode?: () => HTMLElement | null;
   children: (color: string | undefined) => React.ReactNode;
 }
 
@@ -16,6 +17,7 @@ export function ColorCommandWrapper({
   selectionRange,
   execCommand,
   styleKey,
+  getPopoverMountNode,
   children,
 }: Readonly<ColorCommandWrapperProps>) {
   const [isOpen, setIsOpen] = useState(false);
@@ -73,7 +75,6 @@ export function ColorCommandWrapper({
     const range = lastKnownRange.current;
 
     if (iframeWindow && range) {
-      iframeWindow.focus();
       const selection = iframeWindow.getSelection();
       if (selection) {
         selection.removeAllRanges();
@@ -101,6 +102,8 @@ export function ColorCommandWrapper({
       showInput={false}
       onVisibilityChange={setIsOpen}
       isOpen={isOpen}
+      container={getPopoverMountNode}
+      focusFirstControl
     >
       {children(activeColor)}
 

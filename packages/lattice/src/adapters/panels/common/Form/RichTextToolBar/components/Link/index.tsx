@@ -16,6 +16,7 @@ export interface LinkParams {
 export interface LinkProps {
   currentRange: Range | null | undefined;
   onChange: (val: LinkParams) => void;
+  getPopoverMountNode?: () => HTMLElement | null;
 }
 
 function getAnchorElement(node: Node | null): HTMLAnchorElement | null {
@@ -41,12 +42,13 @@ export function getLinkNode(
 }
 
 export function Link(props: Readonly<LinkProps>) {
-  const { currentRange, onChange } = props;
+  const { currentRange, onChange, getPopoverMountNode } = props;
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const [activeNode, setActiveNode] = useState<HTMLAnchorElement | null>(null);
   const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -64,6 +66,7 @@ export function Link(props: Readonly<LinkProps>) {
 
   const handleClose = () => {
     setAnchorEl(null);
+    requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
   const open = Boolean(anchorEl);
@@ -89,8 +92,6 @@ export function Link(props: Readonly<LinkProps>) {
         const iframeWindow = getIframeDocument()?.defaultView;
 
         if (iframeWindow) {
-          iframeWindow.focus();
-
           const selection = iframeWindow.getSelection();
           if (selection) {
             selection.removeAllRanges();
@@ -123,6 +124,7 @@ export function Link(props: Readonly<LinkProps>) {
         onMouseDown={(e) => e.preventDefault()}
       >
         <ToolItem
+          ref={triggerRef}
           onClick={handleClick}
           isActive={Boolean(initialValues.link) || open}
           title="Link"
@@ -138,12 +140,25 @@ export function Link(props: Readonly<LinkProps>) {
         open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
-        container={anchorEl?.ownerDocument.body}
-        disableAutoFocus
+        container={
+          getPopoverMountNode
+            ? getPopoverMountNode()
+            : anchorEl?.ownerDocument.body
+        }
         disableEnforceFocus
         disableRestoreFocus
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         transformOrigin={{ vertical: "top", horizontal: "center" }}
+        slotProps={{
+          transition: {
+            onEntered: () => {
+              anchorEl?.ownerDocument
+                .getElementById(id ?? "")
+                ?.querySelector<HTMLElement>("input")
+                ?.focus();
+            },
+          },
+        }}
       >
         <Box
           sx={{ p: 2, width: 320 }}

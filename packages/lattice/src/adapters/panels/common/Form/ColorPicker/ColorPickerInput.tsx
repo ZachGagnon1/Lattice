@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -28,6 +29,7 @@ export interface ColorPickerProps {
   container?: HTMLElement | (() => HTMLElement | null);
   isOpen?: boolean;
   onVisibilityChange?: (isOpen: boolean) => void;
+  focusFirstControl?: boolean;
 }
 
 const transparentColor = "rgba(0,0,0,0)";
@@ -42,6 +44,7 @@ export function ColorPicker(props: ColorPickerProps) {
     container,
     onVisibilityChange,
     isOpen: controlledIsOpen,
+    focusFirstControl = false,
   } = props;
 
   const { colors: presetColors, addCurrentColor } =
@@ -54,9 +57,17 @@ export function ColorPicker(props: ColorPickerProps) {
   const triggerId = React.useId();
   const inputId = React.useId();
   const popoverId = React.useId();
+  const wasOpenRef = useRef(false);
 
   // Determine if we are currently open based on props or internal state
   const isPopoverOpen = controlledIsOpen ?? internalOpen;
+
+  useEffect(() => {
+    if (wasOpenRef.current && !isPopoverOpen) {
+      requestAnimationFrame(() => anchorEl?.focus());
+    }
+    wasOpenRef.current = isPopoverOpen;
+  }, [anchorEl, isPopoverOpen]);
 
   useEffect(() => {
     // Only overwrite internal color state if the picker isn't actively being edited
@@ -256,6 +267,16 @@ export function ColorPicker(props: ColorPickerProps) {
           disableEnforceFocus
           sx={{ zIndex: 10000 }}
           slotProps={{
+            transition: focusFirstControl
+              ? {
+                  onEntered: () => {
+                    anchorEl?.ownerDocument
+                      .getElementById(popoverId)
+                      ?.querySelector<HTMLElement>("input, button")
+                      ?.focus();
+                  },
+                }
+              : undefined,
             paper: {
               sx: {
                 backgroundColor: "#FFFFFF",

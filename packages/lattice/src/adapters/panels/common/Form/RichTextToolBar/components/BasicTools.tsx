@@ -22,6 +22,10 @@ export function BasicTools() {
   const { modal, setModalVisible } = useAddToCollection();
   const { onAddCollection } = useEditorProps();
   const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
+  const shortcutLabel =
+    typeof navigator !== "undefined" && navigator.userAgent.includes("Mac")
+      ? "Fn+⌥F10"
+      : "Alt+F10";
 
   const handleAddToCollection = () => {
     if (getIframeDocument()?.activeElement instanceof HTMLElement) {
@@ -71,6 +75,7 @@ export function BasicTools() {
         Text
         <span style={{ marginLeft: 8, fontSize: 11 }}>Focus:</span>
         <kbd
+          title={t("Focus the text formatting toolbar")}
           style={{
             marginLeft: 4,
             padding: "1px 5px",
@@ -79,9 +84,8 @@ export function BasicTools() {
             fontSize: 11,
           }}
         >
-          Alt+F10
+          {shortcutLabel}
         </kbd>
-        <span style={{ marginLeft: 6, fontSize: 11 }}>Mac: Fn+Option+F10</span>
       </span>
       <ToolItem
         onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}

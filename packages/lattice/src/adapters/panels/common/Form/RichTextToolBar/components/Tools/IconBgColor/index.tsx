@@ -6,9 +6,11 @@ import FontDownloadIcon from "@mui/icons-material/FontDownload";
 export function IconBgColor({
   selectionRange,
   execCommand,
+  getPopoverMountNode,
 }: Readonly<{
   selectionRange: Range | null;
   execCommand: (cmd: string, val?: any) => void;
+  getPopoverMountNode?: () => HTMLElement | null;
 }>) {
   return (
     <ColorCommandWrapper
@@ -16,6 +18,7 @@ export function IconBgColor({
       selectionRange={selectionRange}
       execCommand={execCommand}
       styleKey="backgroundColor"
+      getPopoverMountNode={getPopoverMountNode}
     >
       {(color) => (
         <ToolItem
