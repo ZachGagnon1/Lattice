@@ -15,6 +15,8 @@ export function MergeTags(props: MergeTagsProps) {
   const { execCommand, selectionRange, getPopoverMountNode } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const lastKnownRange = useRef<Range | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const popoverId = React.useId();
 
   useEffect(() => {
     if (selectionRange) {
@@ -29,6 +31,7 @@ export function MergeTags(props: MergeTagsProps) {
 
   const handleClose = () => {
     setAnchorEl(null);
+    requestAnimationFrame(() => triggerRef.current?.focus());
   };
 
   const onChange = useCallback(
@@ -55,27 +58,26 @@ export function MergeTags(props: MergeTagsProps) {
 
   return (
     <>
-      <span
-        style={{
-          height: "27px",
-        }}
-        onMouseDown={(e) => e.preventDefault()}
-      >
-        <ToolItem
-          title={t("Merge tag")}
-          icon={<DataObjectIcon />}
-          onClick={handleOpen}
-          isActive={isOpen}
-        />
-      </span>
+      <ToolItem
+        ref={triggerRef}
+        tabIndex={0}
+        title={t("Merge tag")}
+        icon={<DataObjectIcon aria-hidden="true" />}
+        onClick={handleOpen}
+        onMouseDown={(event) => event.preventDefault()}
+        aria-controls={isOpen ? popoverId : undefined}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        isActive={isOpen}
+      />
 
       <Popover
+        id={popoverId}
         open={isOpen}
         anchorEl={anchorEl}
         onClose={handleClose}
         disableAutoFocus
         disableEnforceFocus
-        disableRestoreFocus
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
         transformOrigin={{ vertical: "top", horizontal: "left" }}
         container={

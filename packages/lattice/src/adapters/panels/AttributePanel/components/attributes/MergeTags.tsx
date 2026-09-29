@@ -57,6 +57,9 @@ export const MergeTags: React.FC<{
 }> = React.memo((props) => {
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const triggerRef = React.useRef<HTMLInputElement | null>(null);
+  const focusTreeRef = React.useRef(false);
+  const treeId = React.useId();
 
   const { focusIdx } = useFocusIdx();
   const {
@@ -158,6 +161,7 @@ export const MergeTags: React.FC<{
       );
       if (props.isSelect) {
         setAnchorEl(null);
+        requestAnimationFrame(() => triggerRef.current?.focus());
       }
     },
     [nodeIndex, props, mergeTagGenerate],
@@ -255,6 +259,7 @@ export const MergeTags: React.FC<{
       }}
     >
       <SimpleTreeView
+        id={treeId}
         expandedItems={expandedKeys}
         onExpandedItemsChange={(e, newExpandedItems) =>
           setExpandedKeys(newExpandedItems)
@@ -272,6 +277,7 @@ export const MergeTags: React.FC<{
         <>
           {/* Mock "Select" Input */}
           <TextField
+            inputRef={triggerRef}
             id={props.id}
             label={props.label}
             error={props.error}
@@ -281,6 +287,17 @@ export const MergeTags: React.FC<{
             fullWidth
             placeholder={t("Please select")}
             onClick={(e) => setAnchorEl(e.currentTarget)}
+            onKeyDown={(event) => {
+              if (["Enter", " ", "ArrowDown"].includes(event.key)) {
+                event.preventDefault();
+                focusTreeRef.current = true;
+                setAnchorEl(event.currentTarget);
+              }
+              if (event.key === "Escape" && anchorEl) {
+                event.preventDefault();
+                setAnchorEl(null);
+              }
+            }}
             slotProps={{
               input: {
                 readOnly: true, // Prevent typing, acts like a pure dropdown
@@ -291,16 +308,34 @@ export const MergeTags: React.FC<{
                 ),
                 sx: { cursor: "pointer" },
               },
+              htmlInput: {
+                role: "combobox",
+                "aria-controls": treeId,
+                "aria-expanded": Boolean(anchorEl),
+                "aria-haspopup": "tree",
+                "aria-autocomplete": "none",
+              },
             }}
           />
           {/* Dropdown Menu carrying the Tree */}
           <Popover
             open={Boolean(anchorEl)}
             anchorEl={anchorEl}
-            onClose={() => setAnchorEl(null)}
-            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-            transformOrigin={{ vertical: "top", horizontal: "left" }}
+            onClose={() => {
+              setAnchorEl(null);
+              requestAnimationFrame(() => triggerRef.current?.focus());
+            }}
             slotProps={{
+              transition: {
+                onEntered: () => {
+                  if (!focusTreeRef.current) return;
+                  focusTreeRef.current = false;
+                  anchorEl?.ownerDocument
+                    .getElementById(treeId)
+                    ?.querySelector<HTMLElement>('[role="treeitem"]')
+                    ?.focus();
+                },
+              },
               paper: {
                 sx: {
                   minWidth: anchorEl
@@ -313,6 +348,8 @@ export const MergeTags: React.FC<{
                 },
               },
             }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
           >
             {TreeComponent}
           </Popover>

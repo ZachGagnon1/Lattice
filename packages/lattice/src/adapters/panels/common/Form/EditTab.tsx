@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { Box, IconButton, styled, Tab, Tabs } from "@mui/material";
+import React, { useRef, useState } from "react";
+import { Box, IconButton, Stack, styled, Tab, Tabs } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import { getTabA11yProps } from "@/shared/utils/accessibility";
+import {
+  getActiveIndexAfterRemoval,
+  getRepeatItemLabel,
+} from "@/shared/utils/repeatItemAccessibility";
 
 export interface EditTabProps<T> {
   value?: Array<T>;
@@ -50,81 +55,72 @@ const TabPane = styled(Box)(({ theme }) => ({
 export function EditTab<T>(props: EditTabProps<T>) {
   const { value = [], additionItem, label, renderItem } = props;
   const [activeTab, setActiveTab] = useState(0);
+  const idPrefix = React.useId();
+  const focusIndexRef = useRef<number | null>(null);
 
   const tabValues = !Array.isArray(value) ? [] : value;
 
   const onAddTab = () => {
-    const newIndex = value.length;
+    const newIndex = tabValues.length;
     setActiveTab(newIndex);
-    props.onChange([...value, additionItem]);
+    focusIndexRef.current = newIndex;
+    props.onChange([...tabValues, additionItem]);
   };
 
   const onDeleteTab = (index: number) => {
-    const numIndex = index;
-    if (Number(numIndex) < Number(activeTab)) {
-      setActiveTab(activeTab - 1);
-    }
-    if (numIndex === activeTab) {
-      setActiveTab(numIndex > 0 ? numIndex - 1 : 0);
-    }
-    props.onChange(value.filter((_, vIndex) => index !== vIndex));
+    const nextIndex = getActiveIndexAfterRemoval(
+      activeTab,
+      index,
+      tabValues.length,
+    );
+    setActiveTab(nextIndex);
+    focusIndexRef.current = nextIndex;
+    props.onChange(tabValues.filter((_, vIndex) => index !== vIndex));
   };
+
+  React.useEffect(() => {
+    if (focusIndexRef.current === null) return;
+    document
+      .getElementById(`${idPrefix}-tab-${focusIndexRef.current}`)
+      ?.focus();
+    focusIndexRef.current = null;
+  }, [idPrefix, tabValues.length]);
 
   return (
     <Box>
-      <StyledTabs
-        value={activeTab}
-        onChange={(_, newValue: number) => setActiveTab(newValue)}
-        variant="scrollable"
-        scrollButtons="auto"
-      >
-        {tabValues.map((item, index) => (
-          <StyledTab
-            key={index}
-            value={index}
-            tabIndex={-1}
-            sx={{
-              borderTopLeftRadius: 8,
-              borderTopRightRadius: 8,
-              "&:hover": {
-                backgroundColor: "action.hover",
-              },
-            }}
-            label={
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <span>{`${label || "Tab"} ${index + 1}`}</span>
-                {tabValues.length > 1 && (
-                  <Box
-                    component="span"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevents tab from being selected
-                      e.preventDefault();
-                      onDeleteTab(index);
-                    }}
-                    sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 20,
-                      height: 20,
-                      ml: 0.5,
-                      borderRadius: "50%",
-                      cursor: "pointer",
-                      "&:hover": {
-                        color: "error.main",
-                        backgroundColor: "rgba(0, 0, 0, 0.04)", // subtle hover effect
-                      },
-                    }}
-                  >
-                    <CloseIcon sx={{ fontSize: "1rem" }} />
-                  </Box>
-                )}
-              </Box>
-            }
-          />
-        ))}
-        {/* Note: This IconButton is fine because it is outside the Tabs! */}
+      <Stack direction="row" sx={{ alignItems: "center" }}>
+        <StyledTabs
+          value={activeTab}
+          onChange={(_, newValue: number) => setActiveTab(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
+          selectionFollowsFocus
+          sx={{ flex: 1 }}
+        >
+          {tabValues.map((_item, index) => (
+            <StyledTab
+              key={index}
+              value={index}
+              {...getTabA11yProps(idPrefix, index)}
+              sx={{
+                borderTopLeftRadius: 8,
+                borderTopRightRadius: 8,
+                "&:hover": { backgroundColor: "action.hover" },
+              }}
+              label={getRepeatItemLabel(label || "Tab", index)}
+            />
+          ))}
+        </StyledTabs>
+        {tabValues.length > 1 && (
+          <IconButton
+            aria-label={`Remove ${getRepeatItemLabel(label, activeTab)}`}
+            onClick={() => onDeleteTab(activeTab)}
+          >
+            <CloseIcon aria-hidden="true" />
+          </IconButton>
+        )}
         <IconButton
+          aria-label={`Add ${label || "item"}`}
           onClick={onAddTab}
           sx={{
             width: 36,
@@ -135,11 +131,15 @@ export function EditTab<T>(props: EditTabProps<T>) {
             },
           }}
         >
-          <AddIcon />
+          <AddIcon aria-hidden="true" />
         </IconButton>
-      </StyledTabs>
+      </Stack>
       {tabValues[Number(activeTab)] !== undefined && (
-        <TabPane>
+        <TabPane
+          role="tabpanel"
+          id={`${idPrefix}-tabpanel-${activeTab}`}
+          aria-labelledby={`${idPrefix}-tab-${activeTab}`}
+        >
           <Box sx={{ p: 2 }}>
             {renderItem(tabValues[Number(activeTab)], Number(activeTab))}
           </Box>
