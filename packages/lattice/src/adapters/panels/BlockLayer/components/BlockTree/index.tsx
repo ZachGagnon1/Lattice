@@ -11,6 +11,7 @@ import { Box, IconButton } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 // --- Types ---
 interface TreeNode<T> {
@@ -23,7 +24,10 @@ export interface BlockTreeProps<T extends TreeNode<T>> {
   selectedKeys?: string[];
   expandedKeys?: string[];
   onSelect: (selectedId: string) => void;
-  onContextMenu?: (nodeData: T, ev: React.MouseEvent) => void;
+  onContextMenu?: (
+    nodeData: T,
+    position: { left: number; top: number },
+  ) => void;
   onDragStart?: () => void;
   onDragEnd?: () => void;
   onMouseLeave?: () => void;
@@ -49,8 +53,7 @@ interface FlattenedItem<T> {
   hasChildren: boolean;
 }
 
-// --- Flatten Tree Helper ---
-function flattenTree<T extends TreeNode<T>>(
+export function flattenTree<T extends TreeNode<T>>(
   items: T[],
   expandedKeys: string[],
   depth = 0,
@@ -91,17 +94,20 @@ const SortableTreeItem = <T extends TreeNode<T>>({
   onContextMenu,
   onMouseEnter,
   renderTitle,
+  activeId,
+  onActiveIdChange,
 }: {
   node: FlattenedItem<T>;
   index: number;
   selectedKeys: string[];
   onSelect: (id: string) => void;
   onToggleExpand: (id: string) => void;
-  onContextMenu?: (data: T, e: React.MouseEvent) => void;
+  onContextMenu?: (data: T, position: { left: number; top: number }) => void;
   onMouseEnter?: (id: string) => void;
   renderTitle: (data: T) => React.ReactNode;
+  activeId: string;
+  onActiveIdChange: (id: string) => void;
 }) => {
-  // Prevent dragging the root page block
   const isPageBlock = (node.item as any).type === "page" || node.depth === 0;
 
   const { ref, handleRef, isDragging } = useSortable({
@@ -112,11 +118,91 @@ const SortableTreeItem = <T extends TreeNode<T>>({
 
   const isSelected = selectedKeys.includes(node.id);
 
+  const openContextMenu = (target: HTMLElement) => {
+    const rect = target.getBoundingClientRect();
+    onContextMenu?.(node.item, {
+      left: rect.left + Math.min(rect.width, 32),
+      top: rect.top + Math.min(rect.height, 32),
+    });
+  };
+
   return (
     <Box
       ref={ref}
+      role="treeitem"
+      aria-level={node.depth + 1}
+      aria-expanded={node.hasChildren ? node.isExpanded : undefined}
+      aria-selected={isSelected}
+      tabIndex={activeId === node.id ? 0 : -1}
+      data-treeitem-id={node.id}
       onMouseEnter={() => onMouseEnter?.(node.id)}
-      onContextMenu={(e) => onContextMenu?.(node.item, e)}
+      onFocus={() => onActiveIdChange(node.id)}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onContextMenu?.(node.item, {
+          left: event.clientX,
+          top: event.clientY,
+        });
+      }}
+      onKeyDown={(event) => {
+        if (event.currentTarget !== event.target) return;
+
+        const tree = event.currentTarget.closest('[role="tree"]');
+        const items = Array.from(
+          tree?.querySelectorAll<HTMLElement>('[role="treeitem"]') ?? [],
+        );
+        const currentIndex = items.indexOf(event.currentTarget);
+        let target: HTMLElement | undefined;
+
+        if (event.key === "ArrowDown") target = items[currentIndex + 1];
+        if (event.key === "ArrowUp") target = items[currentIndex - 1];
+        if (event.key === "Home") target = items[0];
+        if (event.key === "End") target = items.at(-1);
+        if (event.key === "ArrowRight") {
+          if (node.hasChildren && !node.isExpanded) {
+            onToggleExpand(node.id);
+          } else if (node.hasChildren) {
+            target = items[currentIndex + 1];
+          }
+        }
+        if (event.key === "ArrowLeft") {
+          if (node.hasChildren && node.isExpanded) {
+            onToggleExpand(node.id);
+          } else {
+            target = items
+              .slice(0, currentIndex)
+              .reverse()
+              .find(
+                (item) =>
+                  Number(item.getAttribute("aria-level")) === node.depth,
+              );
+          }
+        }
+        if (event.key === "Enter" || event.key === " ") {
+          onSelect(node.id);
+        }
+        if (event.key === "F10" && event.shiftKey) {
+          openContextMenu(event.currentTarget);
+        }
+
+        if (
+          target ||
+          [
+            "ArrowDown",
+            "ArrowUp",
+            "ArrowRight",
+            "ArrowLeft",
+            "Home",
+            "End",
+            "Enter",
+            " ",
+          ].includes(event.key) ||
+          (event.key === "F10" && event.shiftKey)
+        ) {
+          event.preventDefault();
+        }
+        target?.focus();
+      }}
       sx={{
         display: "flex",
         alignItems: "center",
@@ -124,7 +210,7 @@ const SortableTreeItem = <T extends TreeNode<T>>({
         mx: 1,
         my: "2px",
         pr: 1,
-        pl: `${node.depth * 16 + 8}px`, // Strict indentation
+        pl: `${node.depth * 16 + 8}px`,
         borderRadius: 1,
         cursor: "pointer",
         opacity: isDragging ? 0.4 : 1,
@@ -138,7 +224,6 @@ const SortableTreeItem = <T extends TreeNode<T>>({
       }}
       onClick={() => onSelect(node.id)}
     >
-      {/* Expand / Collapse Chevron */}
       <Box
         sx={{
           width: 24,
@@ -170,7 +255,6 @@ const SortableTreeItem = <T extends TreeNode<T>>({
         ) : null}
       </Box>
 
-      {/* Title / Content Area */}
       <Box
         sx={{
           flex: 1,
@@ -185,7 +269,14 @@ const SortableTreeItem = <T extends TreeNode<T>>({
         {renderTitle(node.item)}
       </Box>
 
-      {/* Drag Handle (Hidden on Page blocks!) */}
+      {isSelected && (
+        <CheckCircleIcon
+          aria-label={t("Selected block")}
+          color="primary"
+          sx={{ fontSize: 16, ml: 0.5 }}
+        />
+      )}
+
       {!isPageBlock && (
         <IconButton
           aria-label={t("Move block")}
@@ -225,6 +316,7 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
   } = props;
 
   const [expandedKeys, setExpandedKeys] = useState<string[]>([]);
+  const [activeId, setActiveId] = useState("");
 
   useEffect(() => {
     if (props.defaultExpandAll) {
@@ -257,18 +349,25 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
     [treeData, expandedKeys],
   );
 
-  // THE FIX: Use a ref so the dnd-kit callbacks always have the absolute latest tree data,
-  // preventing the "only works once" stale closure bug!
+  useEffect(() => {
+    const visibleIds = flattenedItems.map((item) => item.id);
+    if (!visibleIds.includes(activeId)) {
+      setActiveId(
+        selectedKeys.find((key) => visibleIds.includes(key)) ??
+          visibleIds[0] ??
+          "",
+      );
+    }
+  }, [activeId, flattenedItems, selectedKeys]);
+
   const latestItemsRef = useRef(flattenedItems);
   useEffect(() => {
     latestItemsRef.current = flattenedItems;
   }, [flattenedItems]);
 
   const handleDragStart = (event: any) => {
-    // Determine the ID of the dragged item
     const dragId = event?.active?.id || event?.operation?.source?.id;
 
-    // Instantly collapse the node so it picks up all its children visually!
     if (dragId) {
       setExpandedKeys((prev) => prev.filter((k) => k !== dragId));
     }
@@ -279,13 +378,11 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
     onDragEnd?.();
     if (event?.canceled) return;
 
-    // Standardize IDs across different @dnd-kit/react event payloads
     const dragId = event?.active?.id || event?.operation?.source?.id;
     const dropId = event?.over?.id || event?.operation?.target?.id;
 
     if (!dragId || !dropId || dragId === dropId) return;
 
-    // Use the Ref to look up the exact items, making us immune to index shifting!
     const items = latestItemsRef.current;
     const dragIndex = items.findIndex((n) => n.id === dragId);
     const dropIndex = items.findIndex((n) => n.id === dropId);
@@ -298,7 +395,6 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
     const dragType = (dragNode.item as any).type || "";
     const dropType = (dropNode.item as any).type || "";
 
-    // Default to dropping as a sibling
     let dropPosition = dropIndex > dragIndex ? 1 : -1;
 
     const isPage = dropType === "page";
@@ -312,7 +408,6 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
     const isDragSection = dragType.includes("section");
     const isDragColumn = dragType.includes("column");
 
-    // Smart Schema Validation: Force internal drop (0) if the container naturally accepts the dragged element
     if (
       (isPage && isDragWrapper) ||
       (isWrapper && isDragSection) ||
@@ -334,7 +429,7 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
         !isDragWrapper &&
         !isDragColumn &&
         dragType !== "page") ||
-      isPage // You can't put anything "next" to a page, only inside it!
+      isPage
     ) {
       dropPosition = 0;
     }
@@ -358,6 +453,8 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
 
   return (
     <Box
+      role="tree"
+      aria-label={t("Email blocks")}
       onMouseLeave={onMouseLeave}
       sx={{ width: "100%", userSelect: "none", py: 1 }}
     >
@@ -373,6 +470,8 @@ export function BlockTree<T extends TreeNode<T>>(props: BlockTreeProps<T>) {
             onContextMenu={onContextMenu}
             onMouseEnter={onMouseEnter}
             renderTitle={renderTitle}
+            activeId={activeId}
+            onActiveIdChange={setActiveId}
           />
         ))}
       </DragDropProvider>
