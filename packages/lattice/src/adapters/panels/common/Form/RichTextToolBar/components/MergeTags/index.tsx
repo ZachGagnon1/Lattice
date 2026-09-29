@@ -4,6 +4,7 @@ import { MergeTags as MergeTagsOptions } from "@/adapters/panels/AttributePanel"
 import { ToolItem } from "../ToolItem";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import { moveMergeTagFocus } from "./keyboard";
+import { keepToolbarControlFocus, returnFocusToText } from "../../focus";
 
 export interface MergeTagsProps {
   execCommand: (cmd: string, value: any) => void;
@@ -15,10 +16,12 @@ export function MergeTags(props: MergeTagsProps) {
   const { execCommand, getPopoverMountNode } = props;
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const keyboardInteractionRef = useRef(false);
   const popoverId = React.useId();
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    keyboardInteractionRef.current = e.detail === 0;
     if (e.detail > 0) {
       triggerRef.current?.removeAttribute("data-keyboard-focus");
     }
@@ -27,7 +30,14 @@ export function MergeTags(props: MergeTagsProps) {
 
   const handleClose = () => {
     setAnchorEl(null);
-    requestAnimationFrame(() => triggerRef.current?.focus());
+    requestAnimationFrame(() => {
+      if (triggerRef.current) {
+        keepToolbarControlFocus(
+          triggerRef.current,
+          keyboardInteractionRef.current,
+        );
+      }
+    });
   };
 
   const onChange = useCallback(
@@ -95,10 +105,19 @@ export function MergeTags(props: MergeTagsProps) {
         <Box
           onMouseDown={(e) => {
             e.stopPropagation();
+            keyboardInteractionRef.current = false;
             triggerRef.current?.removeAttribute("data-keyboard-focus");
           }}
           onClick={(e) => e.stopPropagation()}
           onKeyDown={(event) => {
+            keyboardInteractionRef.current = true;
+            if (event.key === "Tab") {
+              event.preventDefault();
+              event.stopPropagation();
+              setAnchorEl(null);
+              returnFocusToText(props.selectionRange);
+              return;
+            }
             if (
               moveMergeTagFocus(event.currentTarget, event.target, event.key)
             ) {

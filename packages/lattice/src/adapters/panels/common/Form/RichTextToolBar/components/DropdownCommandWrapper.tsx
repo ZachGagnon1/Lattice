@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { Box, MenuItem, MenuList, Popover } from "@mui/material";
 import { ToolItem } from "@/adapters/panels/common/Form/RichTextToolBar/components/ToolItem";
+import { keepToolbarControlFocus, returnFocusToText } from "../focus";
 
 export interface DropdownOption {
   value: string;
@@ -20,14 +21,17 @@ export function DropdownCommandWrapper({
   title,
   icon,
   options,
+  selectionRange,
   getPopoverMountNode,
   onSelect,
 }: Readonly<DropdownCommandWrapperProps>) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const keyboardInteractionRef = useRef(false);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    keyboardInteractionRef.current = e.detail === 0;
     if (e.detail > 0) {
       triggerRef.current?.removeAttribute("data-keyboard-focus");
     }
@@ -36,7 +40,14 @@ export function DropdownCommandWrapper({
 
   const handleClose = () => {
     setAnchorEl(null);
-    requestAnimationFrame(() => triggerRef.current?.focus());
+    requestAnimationFrame(() => {
+      if (triggerRef.current) {
+        keepToolbarControlFocus(
+          triggerRef.current,
+          keyboardInteractionRef.current,
+        );
+      }
+    });
   };
 
   const handleSelect = (val: string) => {
@@ -90,9 +101,19 @@ export function DropdownCommandWrapper({
         <Box
           onMouseDown={(e) => {
             e.stopPropagation();
+            keyboardInteractionRef.current = false;
             triggerRef.current?.removeAttribute("data-keyboard-focus");
           }}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(event) => {
+            keyboardInteractionRef.current = true;
+            if (event.key === "Tab") {
+              event.preventDefault();
+              event.stopPropagation();
+              setAnchorEl(null);
+              returnFocusToText(selectionRange);
+            }
+          }}
         >
           <MenuList autoFocusItem={isOpen} dense sx={{ py: 0 }}>
             {options.map((item) => (

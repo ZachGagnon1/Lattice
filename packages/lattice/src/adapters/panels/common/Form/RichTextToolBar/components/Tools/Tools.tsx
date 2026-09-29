@@ -29,6 +29,11 @@ import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
 import { getEditableFromRange, isToolbarExitKey } from "./keyboard";
+import {
+  clearToolbarFocusIntent,
+  keepToolbarControlFocus,
+  restoreToolbarControlFocus,
+} from "../../focus";
 
 export interface ToolsProps {
   onChange: (content: string) => any;
@@ -50,6 +55,10 @@ export function Tools(props: ToolsProps) {
     });
   }, [toolbar?.tools, variableData]);
 
+  useEffect(() => {
+    restoreToolbarControlFocus(toolbarRef.current);
+  });
+
   const handleToolbarKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const buttons = Array.from(
       toolbarRef.current?.querySelectorAll<HTMLButtonElement>(
@@ -60,6 +69,7 @@ export function Tools(props: ToolsProps) {
 
     if (isToolbarExitKey(event.key, currentIndex)) {
       event.preventDefault();
+      clearToolbarFocusIntent(event.currentTarget.ownerDocument);
       const editable = getEditableFromRange(selectionRange);
       if (editable && selectionRange) {
         editable.focus();
@@ -91,14 +101,33 @@ export function Tools(props: ToolsProps) {
       button.tabIndex = index === targetIndex ? 0 : -1;
       button.removeAttribute("data-keyboard-focus");
     });
-    buttons[targetIndex]?.setAttribute("data-keyboard-focus", "true");
-    buttons[targetIndex]?.focus();
+    const targetButton = buttons[targetIndex];
+    if (targetButton) {
+      keepToolbarControlFocus(targetButton, true);
+    }
   };
 
-  const handleToolbarPointerDown = () => {
+  const handleToolbarPointerDown = (
+    event: React.PointerEvent<HTMLDivElement>,
+  ) => {
+    clearToolbarFocusIntent(event.currentTarget.ownerDocument);
     toolbarRef.current
       ?.querySelectorAll<HTMLElement>("[data-keyboard-focus]")
       .forEach((element) => element.removeAttribute("data-keyboard-focus"));
+  };
+
+  const handleToolbarClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const button = (event.target as HTMLElement | null)?.closest?.(
+      "button",
+    ) as HTMLButtonElement | null;
+    if (
+      !button ||
+      !toolbarRef.current?.contains(button) ||
+      button.hasAttribute("aria-haspopup")
+    ) {
+      return;
+    }
+    keepToolbarControlFocus(button, event.detail === 0);
   };
 
   const handleToolbarFocus = (event: React.FocusEvent<HTMLDivElement>) => {
@@ -391,6 +420,7 @@ export function Tools(props: ToolsProps) {
       aria-keyshortcuts="Alt+F10"
       onKeyDown={handleToolbarKeyDown}
       onFocus={handleToolbarFocus}
+      onClick={handleToolbarClick}
       onPointerDownCapture={handleToolbarPointerDown}
       style={{ display: "flex", flexWrap: "nowrap" }}
     >

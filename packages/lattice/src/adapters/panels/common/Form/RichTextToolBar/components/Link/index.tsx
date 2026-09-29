@@ -5,6 +5,7 @@ import { SearchField, SwitchField } from "@/adapters/panels/common/Form";
 import { ToolItem } from "../ToolItem";
 import { Box, Popover, Stack } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";
+import { keepToolbarControlFocus, returnFocusToText } from "../../focus";
 
 export interface LinkParams {
   link: string;
@@ -48,9 +49,11 @@ export function Link(props: Readonly<LinkProps>) {
   const [activeNode, setActiveNode] = useState<HTMLAnchorElement | null>(null);
   const [savedRange, setSavedRange] = useState<Range | null>(null);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+  const keyboardInteractionRef = React.useRef(false);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    keyboardInteractionRef.current = event.detail === 0;
     if (event.detail > 0) {
       triggerRef.current?.removeAttribute("data-keyboard-focus");
     }
@@ -68,7 +71,14 @@ export function Link(props: Readonly<LinkProps>) {
 
   const handleClose = () => {
     setAnchorEl(null);
-    requestAnimationFrame(() => triggerRef.current?.focus());
+    requestAnimationFrame(() => {
+      if (triggerRef.current) {
+        keepToolbarControlFocus(
+          triggerRef.current,
+          keyboardInteractionRef.current,
+        );
+      }
+    });
   };
 
   const open = Boolean(anchorEl);
@@ -163,9 +173,19 @@ export function Link(props: Readonly<LinkProps>) {
           sx={{ p: 2, width: 320 }}
           onMouseDown={(e) => {
             e.stopPropagation();
+            keyboardInteractionRef.current = false;
             triggerRef.current?.removeAttribute("data-keyboard-focus");
           }}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(event) => {
+            keyboardInteractionRef.current = true;
+            if (event.key === "Tab") {
+              event.preventDefault();
+              event.stopPropagation();
+              setAnchorEl(null);
+              returnFocusToText(savedRange ?? currentRange);
+            }
+          }}
         >
           <Stack spacing={2}>
             <SearchField

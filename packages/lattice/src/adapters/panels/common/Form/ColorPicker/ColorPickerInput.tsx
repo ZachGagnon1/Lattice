@@ -30,6 +30,8 @@ export interface ColorPickerProps {
   isOpen?: boolean;
   onVisibilityChange?: (isOpen: boolean) => void;
   focusFirstControl?: boolean;
+  onRestoreFocus?: (trigger: HTMLElement, showRing: boolean) => void;
+  onToolbarExit?: () => void;
 }
 
 const transparentColor = "rgba(0,0,0,0)";
@@ -45,6 +47,8 @@ export function ColorPicker(props: ColorPickerProps) {
     onVisibilityChange,
     isOpen: controlledIsOpen,
     focusFirstControl = false,
+    onRestoreFocus,
+    onToolbarExit,
   } = props;
 
   const { colors: presetColors, addCurrentColor } =
@@ -58,16 +62,24 @@ export function ColorPicker(props: ColorPickerProps) {
   const inputId = React.useId();
   const popoverId = React.useId();
   const wasOpenRef = useRef(false);
+  const keyboardInteractionRef = useRef(false);
 
   // Determine if we are currently open based on props or internal state
   const isPopoverOpen = controlledIsOpen ?? internalOpen;
 
   useEffect(() => {
     if (wasOpenRef.current && !isPopoverOpen) {
-      requestAnimationFrame(() => anchorEl?.focus());
+      requestAnimationFrame(() => {
+        if (!anchorEl) return;
+        if (onRestoreFocus) {
+          onRestoreFocus(anchorEl, keyboardInteractionRef.current);
+        } else {
+          anchorEl.focus();
+        }
+      });
     }
     wasOpenRef.current = isPopoverOpen;
-  }, [anchorEl, isPopoverOpen]);
+  }, [anchorEl, isPopoverOpen, onRestoreFocus]);
 
   useEffect(() => {
     // Only overwrite internal color state if the picker isn't actively being edited
@@ -78,6 +90,7 @@ export function ColorPicker(props: ColorPickerProps) {
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
+    keyboardInteractionRef.current = e.detail === 0;
     setAnchorEl(e.currentTarget);
     if (controlledIsOpen === undefined) {
       setInternalOpen(true);
@@ -90,8 +103,7 @@ export function ColorPicker(props: ColorPickerProps) {
       setInternalOpen(false);
     }
     onVisibilityChange?.(false);
-    requestAnimationFrame(() => anchorEl?.focus());
-  }, [anchorEl, controlledIsOpen, onVisibilityChange]);
+  }, [controlledIsOpen, onVisibilityChange]);
 
   const commitColor = useCallback(
     (newColor: string) => {
@@ -289,9 +301,22 @@ export function ColorPicker(props: ColorPickerProps) {
           <Box
             onMouseDown={(e) => {
               e.stopPropagation();
+              keyboardInteractionRef.current = false;
               anchorEl?.removeAttribute("data-keyboard-focus");
             }}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(event) => {
+              keyboardInteractionRef.current = true;
+              if (focusFirstControl && event.key === "Tab") {
+                event.preventDefault();
+                event.stopPropagation();
+                if (controlledIsOpen === undefined) {
+                  setInternalOpen(false);
+                }
+                onVisibilityChange?.(false);
+                onToolbarExit?.();
+              }
+            }}
           >
             <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
               <HexColorPicker color={pickerColor} onChange={onColorChange} />

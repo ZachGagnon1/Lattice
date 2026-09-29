@@ -2,6 +2,7 @@ import { ColorPicker } from "../../../ColorPicker/ColorPickerInput";
 import { getIframeDocument } from "@";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Button } from "@mui/material";
+import { keepToolbarControlFocus, returnFocusToText } from "../../focus";
 
 export interface ColorCommandWrapperProps {
   command: string;
@@ -101,6 +102,10 @@ export function ColorCommandWrapper({
       onVisibilityChange={setIsOpen}
       isOpen={isOpen}
       focusFirstControl
+      onRestoreFocus={(trigger, showRing) =>
+        keepToolbarControlFocus(trigger as HTMLButtonElement, showRing)
+      }
+      onToolbarExit={() => returnFocusToText(lastKnownRange.current)}
     >
       {children(activeColor)}
 
