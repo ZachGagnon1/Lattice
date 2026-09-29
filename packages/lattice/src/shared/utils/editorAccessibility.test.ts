@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { getEditorA11yProps, getMjmlErrorReport } from "./editorAccessibility";
+import {
+  getEditorA11yProps,
+  MJML_PREVIEW_FAILURE_MESSAGE,
+} from "./editorAccessibility";
 
 describe("editor accessibility", () => {
   it("connects an invalid editor to its description and error", () => {
@@ -12,12 +15,10 @@ describe("editor accessibility", () => {
     });
   });
 
-  it("combines MJML errors into one report", () => {
-    expect(
-      getMjmlErrorReport([
-        { formattedMessage: "Line 2: Invalid section" },
-        { formattedMessage: "Line 4: Invalid column" },
-      ]),
-    ).toBe("Line 2: Invalid section\nLine 4: Invalid column");
+  it("gives a user action instead of an MJML compiler detail", () => {
+    expect(MJML_PREVIEW_FAILURE_MESSAGE).toBe(
+      "The preview cannot update. Undo the last change or restore the affected block.",
+    );
+    expect(MJML_PREVIEW_FAILURE_MESSAGE).not.toContain("mj-");
   });
 });

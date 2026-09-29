@@ -77,8 +77,7 @@ export function AttributePanel() {
                 cursor: text;
               }
               .email-block [contentEditable="true"]:focus {
-                outline: 3px solid #005fcc !important;
-                outline-offset: 2px;
+                outline: none !important;
               }
               `}</style>
               </>,
