@@ -28,7 +28,6 @@ import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
-import { getToolbarTargetIndex } from "@/shared/utils/toolbarAccessibility";
 
 export interface ToolsProps {
   onChange: (content: string) => any;
@@ -72,11 +71,15 @@ export function Tools(props: ToolsProps) {
     }
 
     event.preventDefault();
-    const targetIndex = getToolbarTargetIndex(
-      currentIndex,
-      buttons.length,
-      event.key,
-    );
+    let targetIndex = currentIndex;
+    if (event.key === "Home") targetIndex = 0;
+    if (event.key === "End") targetIndex = buttons.length - 1;
+    if (event.key === "ArrowRight") {
+      targetIndex = (currentIndex + 1) % buttons.length;
+    }
+    if (event.key === "ArrowLeft") {
+      targetIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+    }
     buttons.forEach((button, index) => {
       button.tabIndex = index === targetIndex ? 0 : -1;
     });
