@@ -22,6 +22,7 @@ import {
 import { isNavbarBlock } from "./isNavbarBlock";
 import { isTableBlock } from "./isTableBlock";
 import { getCanvasElementKey } from "./canvasAccessibility";
+import { getInlineEditAttributes } from "./inlineEditAccessibility";
 
 const domParser = new DOMParser();
 
@@ -213,6 +214,7 @@ function makeBlockNodeContentEditable(node: ChildNode) {
         ContentEditableType.RichText,
       );
       editNode.setAttribute(DATA_CONTENT_EDITABLE_IDX, idx);
+      setInlineEditAttributes(editNode, getInlineEditAttributes("text"));
     }
   } else if (isButtonBlock(type)) {
     const editNode = node.querySelector("a") || node.querySelector("p");
@@ -223,11 +225,13 @@ function makeBlockNodeContentEditable(node: ChildNode) {
         ContentEditableType.Text,
       );
       editNode.setAttribute(DATA_CONTENT_EDITABLE_IDX, idx);
+      setInlineEditAttributes(editNode, getInlineEditAttributes("button"));
     }
   } else if (isNavbarBlock(type)) {
     node.setAttribute("contentEditable", "true");
     node.setAttribute(DATA_CONTENT_EDITABLE_TYPE, ContentEditableType.Text);
     node.setAttribute(DATA_CONTENT_EDITABLE_IDX, idx);
+    setInlineEditAttributes(node, getInlineEditAttributes("navbar"));
   } else if (isTableBlock(type)) {
     const trNodes = node.querySelectorAll("tr");
     trNodes.forEach((trNode, trIndex) => {
@@ -243,11 +247,27 @@ function makeBlockNodeContentEditable(node: ChildNode) {
           ContentEditableType.RichText,
         );
         tdNode.setAttribute(DATA_CONTENT_EDITABLE_IDX, _idx);
+        setInlineEditAttributes(
+          tdNode,
+          getInlineEditAttributes("table", {
+            row: trIndex,
+            column: tdIndex,
+          }),
+        );
       });
     });
   }
 
   node.childNodes.forEach(makeBlockNodeContentEditable);
+}
+
+function setInlineEditAttributes(
+  node: Element,
+  attributes: ReturnType<typeof getInlineEditAttributes>,
+) {
+  Object.entries(attributes).forEach(([name, value]) => {
+    node.setAttribute(name, value);
+  });
 }
 
 function makeStandardContentEditable(
