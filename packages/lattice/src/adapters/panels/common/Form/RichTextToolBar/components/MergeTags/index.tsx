@@ -3,6 +3,7 @@ import { Box, Popover } from "@mui/material";
 import { MergeTags as MergeTagsOptions } from "@/adapters/panels/AttributePanel";
 import { ToolItem } from "../ToolItem";
 import DataObjectIcon from "@mui/icons-material/DataObject";
+import { moveMergeTagFocus } from "./keyboard";
 
 export interface MergeTagsProps {
   execCommand: (cmd: string, value: any) => void;
@@ -97,6 +98,14 @@ export function MergeTags(props: MergeTagsProps) {
             triggerRef.current?.removeAttribute("data-keyboard-focus");
           }}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(event) => {
+            if (
+              moveMergeTagFocus(event.currentTarget, event.target, event.key)
+            ) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
         >
           <MergeTagsOptions value="" onChange={onChange} />
         </Box>

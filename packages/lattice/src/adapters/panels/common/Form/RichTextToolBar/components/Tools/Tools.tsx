@@ -28,6 +28,7 @@ import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
+import { getEditableFromRange, isToolbarExitKey } from "./keyboard";
 
 export interface ToolsProps {
   onChange: (content: string) => any;
@@ -57,9 +58,15 @@ export function Tools(props: ToolsProps) {
     );
     const currentIndex = buttons.indexOf(event.target as HTMLButtonElement);
 
-    if (event.key === "Escape") {
+    if (isToolbarExitKey(event.key, currentIndex)) {
       event.preventDefault();
-      focusBlockNode?.focus();
+      const editable = getEditableFromRange(selectionRange);
+      if (editable && selectionRange) {
+        editable.focus();
+        restoreRange(selectionRange);
+      } else {
+        focusBlockNode?.focus();
+      }
       return;
     }
 
@@ -378,6 +385,9 @@ export function Tools(props: ToolsProps) {
       id={RICH_TEXT_TOOL_BAR}
       role="toolbar"
       aria-label={t("Text formatting")}
+      aria-description={t(
+        "Press Escape or Tab to return to the selected text block.",
+      )}
       aria-keyshortcuts="Alt+F10"
       onKeyDown={handleToolbarKeyDown}
       onFocus={handleToolbarFocus}

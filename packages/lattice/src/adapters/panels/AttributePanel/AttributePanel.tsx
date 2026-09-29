@@ -68,7 +68,7 @@ export function AttributePanel() {
                   }}
                 >
                   {t(
-                    "Edit this content directly. Press Alt+F10 to move to the text formatting toolbar. On a Mac, press Fn+Option+F10.",
+                    "Edit this content directly. Press Alt+F10 to move to the text formatting toolbar. On a Mac, press Fn+Option+F10. Press Escape or Tab to return to the text block.",
                   )}
                 </div>
                 <style>{`
