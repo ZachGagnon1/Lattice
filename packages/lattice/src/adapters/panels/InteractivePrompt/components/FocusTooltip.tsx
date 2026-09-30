@@ -13,8 +13,6 @@ import DragHandleIcon from "@mui/icons-material/DragHandle"; // MUI Components
 import Box from "@mui/material/Box";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 
-const SELECTED_COLOR = "#1890ff";
-
 export function FocusTooltip() {
   const { focusBlock } = useBlock();
   const { focusIdx } = useFocusIdx();
@@ -68,11 +66,11 @@ export function FocusTooltip() {
                 type={focusBlock.type}
                 action="move"
               >
-                <div
-                  style={
+                <Box
+                  sx={
                     {
-                      backgroundColor: SELECTED_COLOR,
-                      color: "#ffffff",
+                      backgroundColor: "primary.main",
+                      color: "primary.contrastText",
                       height: "28px",
                       width: "28px",
                       display: "flex",
@@ -91,14 +89,14 @@ export function FocusTooltip() {
                   <DragHandleIcon
                     sx={{
                       cursor: "grab !important",
-                      color: "#ffffff",
+                      color: "inherit",
                       fontSize: 20,
                       "&:active": {
                         cursor: "grabbing !important",
                       },
                     }}
                   />
-                </div>
+                </Box>
               </BlockAvatarWrapper>
             </Box>
 
@@ -113,7 +111,7 @@ export function FocusTooltip() {
                 width: "100%",
                 height: "100%",
                 outlineOffset: "-2px",
-                outline: `2px solid ${SELECTED_COLOR}`,
+                outline: (theme) => `2px solid ${theme.palette.primary.main}`,
               }}
             />
 

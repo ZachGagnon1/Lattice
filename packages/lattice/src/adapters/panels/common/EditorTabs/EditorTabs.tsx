@@ -22,6 +22,11 @@ export const EditorTab = styled((props: TabProps) => (
   minHeight: 48,
   minWidth: 0,
   marginRight: theme.spacing(2),
+  color: theme.palette.text.secondary,
+  opacity: 1,
+  "&.Mui-selected": {
+    color: theme.palette.text.primary,
+  },
   "&:last-child": {
     marginRight: 0,
   },

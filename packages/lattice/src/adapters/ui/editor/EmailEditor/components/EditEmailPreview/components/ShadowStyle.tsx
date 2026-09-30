@@ -1,12 +1,14 @@
 import React from "react";
 import styles from "@/styles/block-shadowDom-interactive.css?inline";
+import { useTheme } from "@mui/material/styles";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
 
 export function ShadowStyle() {
+  const theme = useTheme();
   const {
     interactiveStyle: {
-      hoverColor = "rgb(var(--primary-4, #1890ff))",
-      selectedColor = "rgb(var(--primary-6, #1890ff))",
+      hoverColor = theme.palette.primary.light,
+      selectedColor = theme.palette.primary.main,
     } = {},
   } = useEditorProps();
 

@@ -139,6 +139,13 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
     iframe.width = "400px";
     iframe.style.position = "fixed";
     iframe.style.left = "-9999px";
+    // Only measures the email width. visibility: hidden keeps the layout, so
+    // clientWidth still works, but drops it from the accessibility tree and
+    // the tab order. The name covers checkers that still inspect it.
+    iframe.style.visibility = "hidden";
+    iframe.setAttribute("aria-hidden", "true");
+    iframe.tabIndex = -1;
+    iframe.title = "Email width measurement";
     iframe.onload = (evt) => {
       contentWindowRef.current = (evt.target as any)?.contentWindow;
     };
