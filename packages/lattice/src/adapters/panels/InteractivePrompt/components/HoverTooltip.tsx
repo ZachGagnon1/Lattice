@@ -17,6 +17,9 @@ import {
 import { awaitForElement } from "@/shared/utils/panel/awaitForElement";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 
+// A lighter shade of the main toolbar blue (#1890ff)
+const HOVER_COLOR = "#40a9ff";
+
 export function HoverTooltip() {
   const { hoverIdx, direction, isDragging } = useHoverIdx();
   const lazyHoverIdx = useLazyState(hoverIdx, 60);
@@ -155,8 +158,7 @@ function TipNode(props: TipNodeProps) {
           width: "100%",
           height: "100%",
           outlineOffset: `-${lineWidth}px`,
-          outline: (theme) =>
-            `${lineWidth}px solid ${theme.palette.primary.light}`,
+          outline: `${lineWidth}px solid ${HOVER_COLOR}`,
         }}
       >
         {type === "hover" && (
@@ -164,9 +166,8 @@ function TipNode(props: TipNodeProps) {
             <Typography
               variant="caption"
               sx={{
-                backgroundColor: "primary.light",
-                color: (theme) =>
-                  theme.palette.getContrastText(theme.palette.primary.light),
+                backgroundColor: HOVER_COLOR,
+                color: "#ffffff",
                 height: "22px",
                 lineHeight: "22px",
                 display: "inline-flex",
@@ -191,17 +192,15 @@ function TipNode(props: TipNodeProps) {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundImage: (theme) =>
-              getDirectionImage(props.direction, theme.palette.primary.light),
+            ...directionImage[props.direction || "none"],
           }}
         >
           <Typography
             variant="caption"
             sx={{
               position: "absolute",
-              color: (theme) =>
-                theme.palette.getContrastText(theme.palette.primary.light),
-              backgroundColor: "primary.light",
+              color: "#ffffff",
+              backgroundColor: HOVER_COLOR,
               lineHeight: "22px",
               display: "inline-flex",
               maxWidth: "100%",
@@ -258,16 +257,18 @@ const positionStyleMap: Record<string, any> = {
   },
 };
 
-// The side of the block where the drop bar appears, as a gradient direction.
-const directionGradient: Record<string, string> = {
-  top: "to bottom",
-  bottom: "to top",
-  left: "to right",
-  right: "to left",
+const directionImage: Record<string, any> = {
+  top: {
+    backgroundImage: `linear-gradient(to bottom, ${HOVER_COLOR} 3px, transparent 3px)`,
+  },
+  bottom: {
+    backgroundImage: `linear-gradient(to top, ${HOVER_COLOR} 3px, transparent 3px)`,
+  },
+  left: {
+    backgroundImage: `linear-gradient(to right, ${HOVER_COLOR} 3px, transparent 3px)`,
+  },
+  right: {
+    backgroundImage: `linear-gradient(to left, ${HOVER_COLOR} 3px, transparent 3px)`,
+  },
+  none: {},
 };
-
-function getDirectionImage(direction: string | undefined, color: string) {
-  const gradient = direction && directionGradient[direction];
-  if (!gradient) return "none";
-  return `linear-gradient(${gradient}, ${color} 3px, transparent 3px)`;
-}

@@ -86,7 +86,7 @@ export function Toolbar() {
           <Box
             sx={{
               pointerEvents: "auto",
-              color: "primary.contrastText",
+              color: "#ffffff",
               transform: "translateY(-100%)",
               display: "inline-flex",
             }}
@@ -94,8 +94,8 @@ export function Toolbar() {
             {/* Block Title Container */}
             <Box
               sx={{
-                color: "primary.contrastText",
-                backgroundColor: "primary.main",
+                color: "#ffffff",
+                backgroundColor: "#1890ff",
                 height: 22,
                 display: "inline-flex",
                 alignItems: "center",
@@ -120,7 +120,7 @@ export function Toolbar() {
                 alignItems: "center",
                 justifyContent: "center",
                 pointerEvents: "auto",
-                backgroundColor: "primary.main",
+                backgroundColor: "#1890ff",
                 height: 22,
               }}
             >
