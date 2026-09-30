@@ -36,7 +36,6 @@ export function InputWithUnit(props: Readonly<InputWithUnitProps>) {
 
   const baseId = React.useId();
   const inputId = idProp ?? `${baseId}-input`;
-  // NumberInput derives its label and helper text ids from the input id.
   const labelId = `${inputId}-label`;
   const helperTextId = helperText ? `${inputId}-helper-text` : undefined;
   const unitTextId = `${baseId}-unit-text`;
@@ -115,7 +114,6 @@ export function InputWithUnit(props: Readonly<InputWithUnitProps>) {
         }}
         noRightBorder
       />
-      {/* aria-labelledby can reference a hidden element. */}
       <span id={unitTextId} hidden>
         {t("unit")}
       </span>
