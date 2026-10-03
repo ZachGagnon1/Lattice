@@ -1,4 +1,5 @@
 import {
+  BasicType,
   getIframeDocument,
   getParentIdx,
   useBlock,
@@ -15,40 +16,24 @@ import { Stack } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import AddIcon from "@mui/icons-material/Add";
 import { AddBlockMenu } from "@/adapters/panels/common/AddBlockMenu";
+import { KeyboardShortcut } from "@/adapters/panels/common/KeyboardShortcut";
 
 export function BasicTools() {
-  const { copyBlock, removeBlock } = useBlock();
+  const { copyBlock, removeBlock, focusBlock } = useBlock();
+  const isTableCell = focusBlock?.type === BasicType.TABLE;
   const { focusIdx, setFocusIdx } = useFocusIdx();
   const { modal, setModalVisible } = useAddToCollection();
   const { onAddCollection } = useEditorProps();
   const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
+  const shortcutLabel =
+    typeof navigator !== "undefined" && navigator.userAgent.includes("Mac")
+      ? "Fn+⌥F10"
+      : "Alt+F10";
 
-  const handleAddToCollection = () => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    setModalVisible(true);
-  };
-
-  const handleCopy: React.MouseEventHandler<any> = (ev) => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    copyBlock(focusIdx);
-  };
-
-  const handleDelete = () => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    removeBlock(focusIdx);
-  };
-
-  const handleSelectParent = () => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    setFocusIdx(getParentIdx(focusIdx)!);
+  // These actions move or remove the block, so the text must not keep the focus.
+  const blurThen = (action: () => void) => () => {
+    (getIframeDocument()?.activeElement as HTMLElement | null)?.blur();
+    action();
   };
 
   return (
@@ -69,6 +54,21 @@ export function BasicTools() {
         }}
       >
         Text
+        <KeyboardShortcut
+          title={t("Shortcut to the text formatting toolbar")}
+          borderColor="#aeb1b8"
+        >
+          {shortcutLabel}
+        </KeyboardShortcut>
+        {isTableCell && (
+          <KeyboardShortcut
+            title={t("Stop the edit and go back to the cells")}
+            borderColor="#aeb1b8"
+            style={{ marginLeft: 4 }}
+          >
+            Esc
+          </KeyboardShortcut>
+        )}
       </span>
       <ToolItem
         onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}
@@ -81,24 +81,24 @@ export function BasicTools() {
         container={getIframeDocument()?.body}
       />
       <ToolItem
-        onClick={handleSelectParent}
+        onClick={blurThen(() => setFocusIdx(getParentIdx(focusIdx)!))}
         title={t("Select parent block")}
         icon={<ArrowUpwardIcon />}
       />
       <ToolItem
-        onClick={handleCopy}
+        onClick={blurThen(() => copyBlock(focusIdx))}
         title={t("Copy")}
         icon={<ContentCopyIcon />}
       />
       {onAddCollection && (
         <ToolItem
-          onClick={handleAddToCollection}
+          onClick={blurThen(() => setModalVisible(true))}
           title={t("Add to collection")}
           icon={<LibraryAddIcon />}
         />
       )}
       <ToolItem
-        onClick={handleDelete}
+        onClick={blurThen(() => removeBlock(focusIdx))}
         title={t("Delete")}
         icon={<DeleteIcon />}
       />

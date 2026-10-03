@@ -1,10 +1,13 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { EMAIL_BLOCK_CLASS_NAME, getIframeDocument } from "@";
+import { Box, Stack } from "@mui/material";
+import LinkIcon from "@mui/icons-material/Link";
+import LinkOffIcon from "@mui/icons-material/LinkOff";
+import { EMAIL_BLOCK_CLASS_NAME } from "@";
 import { SearchField, SwitchField } from "@/adapters/panels/common/Form";
 import { ToolItem } from "../ToolItem";
-import { Box, Popover, Stack } from "@mui/material";
-import LinkIcon from "@mui/icons-material/Link";
+import { ToolbarPopover, useToolbarPopup } from "../ToolbarPopover";
+import { useToolbar } from "../../ToolbarContext";
 
 export interface LinkParams {
   link: string;
@@ -13,162 +16,115 @@ export interface LinkParams {
   linkNode: HTMLAnchorElement | null;
 }
 
-export interface LinkProps {
-  currentRange: Range | null | undefined;
-  onChange: (val: LinkParams) => void;
-}
+type LinkFormValues = Omit<LinkParams, "linkNode">;
 
-function getAnchorElement(node: Node | null): HTMLAnchorElement | null {
-  if (!node) {
-    return null;
-  }
-  if ((node as Element).classList?.contains(EMAIL_BLOCK_CLASS_NAME)) {
-    return null;
-  }
-  if ((node as Element).tagName?.toLocaleLowerCase() === "a") {
-    return node as HTMLAnchorElement;
-  }
-  return getAnchorElement(node.parentNode);
-}
-
-export function getLinkNode(
-  currentRange: Range | null | undefined,
-): HTMLAnchorElement | null {
-  if (!currentRange) {
-    return null;
-  }
-  return getAnchorElement(currentRange.startContainer);
-}
-
-export function Link(props: Readonly<LinkProps>) {
-  const { currentRange, onChange } = props;
-
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const [activeNode, setActiveNode] = useState<HTMLAnchorElement | null>(null);
-  const [savedRange, setSavedRange] = useState<Range | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-
-    // Clone the exact highlight range so the browser doesn't destroy it when focus shifts
-    if (currentRange) {
-      setSavedRange(currentRange.cloneRange());
-    } else {
-      setSavedRange(null);
+export function getLinkNode(range: Range | null | undefined) {
+  let node: Node | null = range?.startContainer ?? null;
+  while (node) {
+    const element = node as Element;
+    if (element.classList?.contains(EMAIL_BLOCK_CLASS_NAME)) return null;
+    if (element.tagName?.toLowerCase() === "a") {
+      return element as HTMLAnchorElement;
     }
+    node = node.parentNode;
+  }
+  return null;
+}
 
-    setActiveNode(getLinkNode(currentRange));
-    setAnchorEl(event.currentTarget);
+function getFormValues(linkNode: HTMLAnchorElement | null): LinkFormValues {
+  return {
+    link: linkNode?.getAttribute("href") ?? "",
+    blank: linkNode ? linkNode.getAttribute("target") === "_blank" : true,
+    underline: linkNode ? linkNode.style.textDecoration === "underline" : true,
   };
+}
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? "link-popover" : undefined;
-
-  const linkNode = open ? activeNode : getLinkNode(currentRange);
-
-  const initialValues = useMemo(() => {
-    let link = "";
-    let blank = true;
-    let underline = true;
-    if (linkNode) {
-      link = linkNode.getAttribute("href") ?? "";
-      blank = linkNode.getAttribute("target") === "_blank";
-      underline = linkNode.style.textDecoration === "underline";
-    }
-    return { link, blank, underline };
-  }, [linkNode]);
-
-  const onSubmit = useCallback(
-    (values: Omit<LinkParams, "linkNode">) => {
-      if (savedRange) {
-        const iframeWindow = getIframeDocument()?.defaultView;
-
-        if (iframeWindow) {
-          iframeWindow.focus();
-
-          const selection = iframeWindow.getSelection();
-          if (selection) {
-            selection.removeAllRanges();
-            selection.addRange(savedRange);
-          }
-        }
-      }
-
-      onChange({ ...values, linkNode: activeNode });
-      handleClose();
-    },
-    [activeNode, onChange, savedRange],
+export function Link() {
+  const { execCommand, savedRange } = useToolbar();
+  const popup = useToolbarPopup();
+  // The popover input takes the selection, so read the link node before it opens.
+  const [openLinkNode, setOpenLinkNode] = useState<HTMLAnchorElement | null>(
+    null,
   );
+  const currentLinkNode = getLinkNode(savedRange);
+  const linkNode = popup.isOpen ? openLinkNode : currentLinkNode;
+  const defaultValues = useMemo(() => getFormValues(linkNode), [linkNode]);
 
-  const methods = useForm<Omit<LinkParams, "linkNode">>({
-    defaultValues: initialValues,
-  });
+  const methods = useForm<LinkFormValues>({ defaultValues });
   const { reset, setValue, handleSubmit } = methods;
 
   useEffect(() => {
-    reset(initialValues);
-  }, [initialValues, reset]);
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const onSubmit = (values: LinkFormValues) => {
+    popup.close();
+    execCommand("createLink", { ...values, linkNode: openLinkNode });
+  };
 
   return (
     <FormProvider {...methods}>
-      <span
-        style={{
-          height: "27px",
+      <ToolItem
+        {...popup.triggerProps}
+        onClick={(event) => {
+          setOpenLinkNode(currentLinkNode);
+          popup.open(event);
         }}
-        onMouseDown={(e) => e.preventDefault()}
-      >
-        <ToolItem
-          onClick={handleClick}
-          isActive={Boolean(initialValues.link) || open}
-          title="Link"
-          icon={<LinkIcon />}
-        />
-      </span>
-
-      <Popover
-        id={id}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        container={anchorEl?.ownerDocument.body}
-        disableAutoFocus
-        disableEnforceFocus
-        disableRestoreFocus
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-        transformOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Box
-          sx={{ p: 2, width: 320 }}
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
-        >
+        title={t("Link")}
+        icon={<LinkIcon />}
+        isActive={Boolean(currentLinkNode) || popup.isOpen}
+        aria-haspopup="dialog"
+      />
+      <ToolbarPopover popup={popup} label={t("Link")} initialFocus="input">
+        <Box sx={{ p: 2, width: 320 }}>
           <Stack spacing={2}>
             <SearchField
               size="small"
               name="link"
-              label="Link"
+              label={t("Link")}
               labelHidden
-              searchButton="Apply"
+              searchButton={t("Apply")}
               placeholder="https://www.example.com"
-              onSearch={(val) => {
+              onSearch={(value) => {
                 // Skip the 300ms field debounce, so the submit reads the value just typed.
-                setValue("link", val);
+                setValue("link", value);
                 void handleSubmit(onSubmit)();
               }}
             />
-
             <Stack direction="row" spacing={3} sx={{ alignItems: "center" }}>
-              <SwitchField size="small" label="Target Blank" name="blank" />
-              <SwitchField size="small" label="Underline" name="underline" />
+              <SwitchField
+                size="small"
+                label={t("Open in a new tab")}
+                name="blank"
+              />
+              <SwitchField
+                size="small"
+                label={t("Underline")}
+                name="underline"
+              />
             </Stack>
           </Stack>
         </Box>
-      </Popover>
+      </ToolbarPopover>
     </FormProvider>
+  );
+}
+
+export function Unlink() {
+  const { execCommand, savedRange } = useToolbar();
+  const linkNode = getLinkNode(savedRange);
+
+  return (
+    <ToolItem
+      title={t("Remove link")}
+      icon={<LinkOffIcon />}
+      // Stay focusable, so the arrow keys and a screen reader still find the button.
+      aria-disabled={!linkNode}
+      onClick={() => {
+        if (!linkNode) return;
+        linkNode.replaceWith(...linkNode.childNodes);
+        execCommand("");
+      }}
+    />
   );
 }

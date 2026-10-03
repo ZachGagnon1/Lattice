@@ -16,6 +16,7 @@ import { RichTextToolBar } from "../RichTextToolBar";
 import { useEditorField } from "../useEditorField";
 import { debounce } from "lodash-es";
 import { getEditableField } from "@/shared/utils/editableTarget";
+import { isEditingText } from "@/shared/utils/contenteditable";
 
 export const RichTextField = (
   props: Omit<InlineTextProps, "onChange" | "mutators">,
@@ -56,7 +57,12 @@ export const RichTextField = (
 
       const fixedContainer = root.getElementById(FIXED_CONTAINER_ID);
       const richTextBar = root.getElementById(RICH_TEXT_BAR_ID);
-      if (fixedContainer?.contains(target) || richTextBar?.contains(target)) {
+      const toolbarPopup = target.closest("[data-rich-text-toolbar-popup]");
+      if (
+        fixedContainer?.contains(target) ||
+        richTextBar?.contains(target) ||
+        toolbarPopup
+      ) {
         return;
       }
       const editable = getEditableField(
@@ -80,14 +86,10 @@ export const RichTextField = (
     };
   }, [focusBlockNode]);
 
-  // Clean up toolbar visibility if the focus block changes
-  // (e.g., when the block is deleted or a parent is selected via toolbar buttons)
+  // Hide the toolbar when the focus block changes, for example after a delete.
+  // A re-render also changes the block, so keep the toolbar while the user still edits text.
   useEffect(() => {
-    const activeElement = getIframeDocument()?.activeElement;
-    const idxName = activeElement?.getAttribute(DATA_CONTENT_EDITABLE_IDX);
-
-    // If the active element is no longer a valid rich text node, hide the toolbar
-    if (!idxName) {
+    if (!isEditingText(getIframeDocument())) {
       setContentEditableName("");
     }
   }, [focusBlockNode]);

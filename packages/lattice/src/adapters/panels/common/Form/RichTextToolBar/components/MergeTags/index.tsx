@@ -1,111 +1,50 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Box, Popover } from "@mui/material";
-import { MergeTags as MergeTagsOptions } from "@/adapters/panels/AttributePanel";
-import { ToolItem } from "../ToolItem";
-import { getIframeDocument } from "@";
+import React from "react";
 import DataObjectIcon from "@mui/icons-material/DataObject";
+import { MergeTags as MergeTagTree } from "@/adapters/panels/AttributePanel";
+import { ToolItem } from "../ToolItem";
+import { ToolbarPopover, useToolbarPopup } from "../ToolbarPopover";
+import { useToolbar } from "../../ToolbarContext";
+import { moveMergeTagFocus } from "./keyboard";
 
-export interface MergeTagsProps {
-  execCommand: (cmd: string, value: any) => void;
-  selectionRange: Range | null | undefined;
-  getPopoverMountNode?: () => HTMLElement | null;
-}
-
-export function MergeTags(props: MergeTagsProps) {
-  const { execCommand, selectionRange, getPopoverMountNode } = props;
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const lastKnownRange = useRef<Range | null>(null);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const popoverId = React.useId();
-
-  useEffect(() => {
-    if (selectionRange) {
-      lastKnownRange.current = selectionRange.cloneRange();
-    }
-  }, [selectionRange]);
-
-  const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    setAnchorEl(e.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-    requestAnimationFrame(() => triggerRef.current?.focus());
-  };
-
-  const onChange = useCallback(
-    (val: string) => {
-      if (lastKnownRange.current) {
-        const iframeWindow = getIframeDocument()?.defaultView;
-        if (iframeWindow) {
-          iframeWindow.focus();
-          const selection = iframeWindow.getSelection();
-          if (selection) {
-            selection.removeAllRanges();
-            selection.addRange(lastKnownRange.current);
-          }
-        }
-      }
-
-      execCommand("insertHTML", val);
-      handleClose();
-    },
-    [execCommand],
-  );
-
-  const isOpen = Boolean(anchorEl);
+export function MergeTags() {
+  const { execCommand } = useToolbar();
+  const popup = useToolbarPopup();
 
   return (
     <>
       <ToolItem
-        ref={triggerRef}
-        tabIndex={0}
+        {...popup.triggerProps}
         title={t("Merge tag")}
-        icon={<DataObjectIcon aria-hidden="true" />}
-        onClick={handleOpen}
-        onMouseDown={(event) => event.preventDefault()}
-        aria-controls={isOpen ? popoverId : undefined}
-        aria-expanded={isOpen}
-        aria-haspopup="dialog"
-        isActive={isOpen}
+        icon={<DataObjectIcon />}
+        isActive={popup.isOpen}
+        aria-haspopup="tree"
       />
-
-      <Popover
-        id={popoverId}
-        open={isOpen}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        disableAutoFocus
-        disableEnforceFocus
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        transformOrigin={{ vertical: "top", horizontal: "left" }}
-        container={
-          getPopoverMountNode
-            ? getPopoverMountNode()
-            : anchorEl?.ownerDocument.body
-        }
-        slotProps={{
-          paper: {
-            sx: {
-              backgroundColor: "background.paper",
-              zIndex: 10,
-              // FIX: Constrain height and enable scrolling for long lists
-              maxHeight: 350,
-              maxWidth: 300,
-              overflowY: "auto",
-              overflowX: "hidden",
-            },
-          },
+      <ToolbarPopover
+        popup={popup}
+        initialFocus='[role="treeitem"]'
+        paperSx={{
+          sx: { maxHeight: 350, maxWidth: 300, overflowY: "auto" },
         }}
       >
-        <Box
-          onMouseDown={(e) => e.stopPropagation()}
-          onClick={(e) => e.stopPropagation()}
+        <div
+          onKeyDown={(event) => {
+            if (
+              moveMergeTagFocus(event.currentTarget, event.target, event.key)
+            ) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+          }}
         >
-          <MergeTagsOptions value="" onChange={onChange} />
-        </Box>
-      </Popover>
+          <MergeTagTree
+            value=""
+            onChange={(value: string) => {
+              popup.close();
+              execCommand("insertHTML", value);
+            }}
+          />
+        </div>
+      </ToolbarPopover>
     </>
   );
 }

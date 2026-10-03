@@ -7,7 +7,15 @@ import { BlockMarketManager } from "../../utils/BlockMarketManager";
 
 import { defaultCategories } from "./presetTemplate";
 import { Help } from "@/adapters/panels/AttributePanel/components/UI/Help";
-import { Box, IconButton, Paper, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Paper,
+  Stack,
+  Typography,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   EditorTab,
@@ -31,6 +39,8 @@ export const BlocksPanel: React.FC<{
 
   const [activeCategoryTab, setActiveCategoryTab] = useState(0);
   const categoryTabId = React.useId();
+  const theme = useTheme();
+  const isNarrow = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (!isDragging) {
@@ -79,10 +89,10 @@ export const BlocksPanel: React.FC<{
               sx={{
                 pointerEvents: isDragging ? "none" : undefined,
                 position: "fixed",
-                width: isDragging ? 0 : 650,
+                width: isDragging ? 0 : "min(650px, calc(100vw - 16px))",
                 backgroundColor: "background.paper",
                 zIndex: 200,
-                left: 60,
+                left: { xs: 8, sm: 60 },
                 maxHeight: "85vh",
                 display: "flex",
                 flexDirection: "column",
@@ -118,17 +128,24 @@ export const BlocksPanel: React.FC<{
               </Box>
 
               {/* Body - Vertical Layout */}
-              <Box sx={{ display: "flex", flexGrow: 1, overflow: "hidden" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: isNarrow ? "column" : "row",
+                  flexGrow: 1,
+                  overflow: "hidden",
+                }}
+              >
                 {/* Category Tabs (Left) */}
                 <EditorTabs
-                  orientation="vertical"
+                  orientation={isNarrow ? "horizontal" : "vertical"}
                   value={activeCategoryTab}
                   onChange={handleCategoryTabChange}
                   sx={{
-                    borderBottom: 0,
-                    borderRight: 1,
+                    borderRight: isNarrow ? 0 : 1,
+                    borderBottom: isNarrow ? 1 : 0,
                     borderColor: "divider",
-                    minWidth: 120,
+                    minWidth: isNarrow ? 0 : 120,
                     px: 0,
                   }}
                 >
@@ -175,6 +192,7 @@ export const BlocksPanel: React.FC<{
       toggleVisible,
       visible,
       activeCategoryTab,
+      isNarrow,
     ],
   );
 };
@@ -185,6 +203,8 @@ const BlockPanelItem: React.FC<{
 }> = React.memo((props) => {
   const [activeBlockTab, setActiveBlockTab] = useState(0);
   const blockTabId = React.useId();
+  const theme = useTheme();
+  const isNarrow = useMediaQuery(theme.breakpoints.down("sm"));
 
   const handleBlockTabChange = (
     _event: React.SyntheticEvent,
@@ -194,17 +214,24 @@ const BlockPanelItem: React.FC<{
   };
 
   return (
-    <Box sx={{ display: "flex", width: "100%", height: "500px" }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: isNarrow ? "column" : "row",
+        width: "100%",
+        height: "min(500px, 70vh)",
+      }}
+    >
       {/* Nested Block Tabs (Left) */}
       <EditorTabs
-        orientation="vertical"
+        orientation={isNarrow ? "horizontal" : "vertical"}
         value={activeBlockTab}
         onChange={handleBlockTabChange}
         sx={{
-          borderBottom: 0,
-          borderRight: 1,
+          borderRight: isNarrow ? 0 : 1,
+          borderBottom: isNarrow ? 1 : 0,
           borderColor: "divider",
-          minWidth: 160,
+          minWidth: isNarrow ? 0 : 160,
           px: 0,
         }}
       >
@@ -231,7 +258,7 @@ const BlockPanelItem: React.FC<{
           height: "100%",
           overflowY: "auto",
           overflowX: "hidden",
-          p: 3,
+          p: { xs: 1.5, sm: 3 },
           pr: 2,
         }}
       >

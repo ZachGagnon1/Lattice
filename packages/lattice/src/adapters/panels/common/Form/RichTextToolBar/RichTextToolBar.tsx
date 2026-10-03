@@ -10,11 +10,43 @@ import { Tools } from "./components/Tools";
 import styleText from "./shadow-dom.scss?inline";
 import { createPortal } from "react-dom";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
+import { getToolbarItems } from "./focus";
 
 export function RichTextToolBar(props: { onChange: (s: string) => void }) {
   const { initialized } = useEditorContext();
   const { focusBlockNode } = useFocusBlockLayout();
   const [rect, setRect] = useState<DOMRect | null>(null);
+
+  // Alt+F10 is the common shortcut for an editor toolbar, for example in TinyMCE and CKEditor.
+  useEffect(() => {
+    const iframeDocument = getIframeDocument();
+    if (!iframeDocument) return;
+
+    const focusToolbar = (event: KeyboardEvent) => {
+      const isShortcut =
+        event.key === "F10" &&
+        event.altKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.metaKey;
+      const target = event.target as HTMLElement | null;
+      if (!isShortcut || target?.getAttribute("contenteditable") !== "true")
+        return;
+
+      const items = getToolbarItems(
+        iframeDocument.getElementById(RICH_TEXT_BAR_ID),
+      );
+      const item = items.find((button) => button.tabIndex === 0) ?? items[0];
+      if (!item) return;
+      event.preventDefault();
+      item.focus({ preventScroll: true });
+    };
+
+    iframeDocument.addEventListener("keydown", focusToolbar, true);
+    return () => {
+      iframeDocument.removeEventListener("keydown", focusToolbar, true);
+    };
+  }, []);
 
   // Track the position of the focused block dynamically
   useEffect(() => {

@@ -10,6 +10,7 @@ import {
   useEditorContext,
   useFocusIdx,
 } from "@";
+import { useEditorStatus } from "@/application/hooks/useEditorStatus";
 
 const TABLE_CELL_KEYS: (keyof ITableCellData)[] = [
   "content",
@@ -28,9 +29,10 @@ export function TableOperation() {
         : null,
     [initialized],
   );
-  const { focusIdx } = useFocusIdx();
+  const { focusIdx, setFocusIdx } = useFocusIdx();
   const { focusBlock, change } = useBlock();
   const tool = useRef<TableColumnTool | null>(null);
+  const { announce } = useEditorStatus();
 
   // Create the four border-highlight divs imperatively so they're available
   // immediately when the effect runs — no React ref timing issues.
@@ -54,13 +56,15 @@ export function TableOperation() {
     iframeDoc.body.appendChild(container);
 
     tool.current = new TableColumnTool({ top, bottom, left, right }, element);
+    tool.current.announce = announce;
+    tool.current.focusTable = setFocusIdx;
 
     return () => {
       tool.current?.destroy();
       tool.current = null;
       container.remove();
     };
-  }, [element]);
+  }, [announce, element, setFocusIdx]);
 
   // Keep tableData and changeTableData in sync with the focused block.
   useEffect(() => {

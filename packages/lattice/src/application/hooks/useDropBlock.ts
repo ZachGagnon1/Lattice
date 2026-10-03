@@ -12,6 +12,10 @@ import { useBlock } from "@/application/hooks/useBlock";
 import { getDirectionPosition } from "@/shared/utils/getDirectionPosition";
 import { getInsertPosition } from "@/shared/utils/getInsertPosition";
 import { DATA_ATTRIBUTE_DROP_CONTAINER } from "@/constants";
+import {
+  handleCanvasKeyDown,
+  syncBlockSelectionSurfaces,
+} from "@/shared/utils/canvasBlockAccessibility";
 
 export function useDropBlock() {
   const [ref, setRef] = useState<HTMLElement | null>(null);
@@ -31,6 +35,27 @@ export function useDropBlock() {
   const { setFocusIdx, focusIdx } = useFocusIdx();
   const { setHoverIdx, setDirection, isDragging, hoverIdx, direction } =
     useHoverIdx();
+
+  useEffect(() => {
+    if (!ref) return;
+
+    const sync = () =>
+      syncBlockSelectionSurfaces({
+        root: ref,
+        focusIdx,
+        onSelect: setFocusIdx,
+      });
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(ref, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [focusIdx, ref, setFocusIdx, values]);
+
+  useEffect(() => {
+    if (!ref) return;
+    ref.addEventListener("keydown", handleCanvasKeyDown);
+    return () => ref.removeEventListener("keydown", handleCanvasKeyDown);
+  }, [ref]);
 
   useEffect(() => {
     if (ref) {
@@ -185,8 +210,37 @@ export function useDropBlock() {
   useEffect(() => {
     if (!ref) return;
 
+    const showFocusedBlock = (event: FocusEvent) => {
+      const blockNode = getBlockNodeByChildEle(event.target as Element);
+      if (!blockNode) return;
+      setHoverIdx(getNodeIdxFromClassName(blockNode.classList)!);
+    };
+    const hideFocusedBlock = (event: FocusEvent) => {
+      const nextTarget = event.relatedTarget;
+      if (nextTarget instanceof Node && ref.contains(nextTarget)) return;
+      setHoverIdx("");
+    };
+    const dismissBlockLabel = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setHoverIdx("");
+    };
+
+    ref.addEventListener("focusin", showFocusedBlock);
+    ref.addEventListener("focusout", hideFocusedBlock);
+    ref.addEventListener("keydown", dismissBlockLabel);
+    return () => {
+      ref.removeEventListener("focusin", showFocusedBlock);
+      ref.removeEventListener("focusout", hideFocusedBlock);
+      ref.removeEventListener("keydown", dismissBlockLabel);
+    };
+  }, [ref, setHoverIdx]);
+
+  useEffect(() => {
+    if (!ref) return;
+
     const onMouseOut = (ev: MouseEvent) => {
       if (!isDragging) {
+        const nextTarget = ev.relatedTarget;
+        if (nextTarget instanceof Node && ref.contains(nextTarget)) return;
         ev.stopPropagation();
         setHoverIdx("");
       }
