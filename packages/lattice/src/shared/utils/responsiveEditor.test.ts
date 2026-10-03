@@ -10,5 +10,6 @@ describe("showEditorRegion", () => {
   it("shows the selected region on a narrow screen", () => {
     expect(showEditorRegion(false, "canvas", "canvas")).toBe(true);
     expect(showEditorRegion(false, "canvas", "blocks")).toBe(false);
+    expect(showEditorRegion(false, "blocks", "blocks")).toBe(false);
   });
 });

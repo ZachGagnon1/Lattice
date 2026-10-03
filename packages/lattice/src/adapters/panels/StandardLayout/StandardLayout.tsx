@@ -20,6 +20,7 @@ import {
 import { getEditorRegionLabels } from "@/shared/utils/editorRegions";
 import {
   EditorRegion,
+  NarrowEditorRegion,
   showEditorRegion,
 } from "@/shared/utils/responsiveEditor";
 
@@ -84,12 +85,11 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             "& a:focus": { transform: "translateY(0)" },
           }}
         >
-          <a
-            href="#lattice-blocks-region"
-            onClick={(event) => goToRegion(event, "blocks")}
-          >
-            {t("Go to")} {labels.blocks}
-          </a>
+          {isDesktop && (
+            <a href="#lattice-blocks-region">
+              {t("Go to")} {labels.blocks}
+            </a>
+          )}
           <a
             href="#lattice-canvas-region"
             onClick={(event) => goToRegion(event, "canvas")}
@@ -106,16 +106,11 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
         {!isDesktop && (
           <Tabs
             value={activeRegion}
-            onChange={(_, value: EditorRegion) => setActiveRegion(value)}
+            onChange={(_, value: NarrowEditorRegion) => setActiveRegion(value)}
             variant="fullWidth"
             aria-label={labels.navigation}
             sx={{ minHeight: 44 }}
           >
-            <Tab
-              value="blocks"
-              label={labels.blocks}
-              sx={{ minWidth: 0, px: 0.5, flex: 1, fontSize: "0.72rem" }}
-            />
             <Tab
               value="canvas"
               label={labels.canvas}
