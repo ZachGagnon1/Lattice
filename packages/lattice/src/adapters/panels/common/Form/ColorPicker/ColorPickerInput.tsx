@@ -18,6 +18,7 @@ import { HexColorPicker } from "react-colorful";
 import Color from "color";
 import { PresetColorsContext } from "@/adapters/panels/AttributePanel/components/provider/PresetColorsProvider";
 import { debounce } from "lodash-es";
+import { describeColor, toHexColor } from "@/shared/utils/colorName";
 import { getColorControlLabel } from "@/shared/utils/controlAccessibility";
 
 export interface ColorPickerProps {
@@ -29,12 +30,92 @@ export interface ColorPickerProps {
   container?: HTMLElement | (() => HTMLElement | null);
   isOpen?: boolean;
   onVisibilityChange?: (isOpen: boolean) => void;
-  focusFirstControl?: boolean;
-  onRestoreFocus?: (trigger: HTMLElement, showRing: boolean) => void;
-  onToolbarExit?: () => void;
 }
 
 const transparentColor = "rgba(0,0,0,0)";
+
+export interface ColorPickerPanelProps {
+  value: string;
+  onChange: (color: string) => void;
+  /** Runs on a swatch click and on Enter in the hex field, for a picker that applies at once. */
+  onPick?: (color: string) => void;
+  label?: string;
+}
+
+const hexPattern = /^#?[0-9a-f]{6}$/i;
+
+export function ColorPickerPanel(props: ColorPickerPanelProps) {
+  const { value, onChange, onPick, label } = props;
+  const { colors: presetColors } = useContext(PresetColorsContext);
+  const lastValidHex = useRef("#000000");
+
+  const presetColorList = useMemo(() => {
+    return presetColors.filter((item) => item !== transparentColor).slice(-14);
+  }, [presetColors]);
+
+  // HexColorPicker needs a valid hex, but the value can be a partial hex while the user types.
+  let pickerColor = lastValidHex.current;
+  try {
+    pickerColor = Color(
+      hexPattern.test(value) && !value.startsWith("#") ? `#${value}` : value,
+    ).hex();
+    lastValidHex.current = pickerColor;
+  } catch (error) {}
+
+  return (
+    <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
+      <HexColorPicker color={pickerColor} onChange={onChange} />
+      <TextField
+        size="small"
+        value={value}
+        onChange={(event) => {
+          const next = event.target.value;
+          onChange(next && !next.startsWith("#") ? `#${next}` : next);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && onPick) {
+            event.preventDefault();
+            onPick(value);
+          }
+        }}
+        aria-label={`${label || t("Color")} hex value`}
+        sx={(theme) => ({
+          "& input": {
+            fontSize: "13px",
+            textTransform: "uppercase",
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.divider,
+          },
+        })}
+      />
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+        {presetColorList.map((presetColor) => (
+          <Box
+            key={presetColor}
+            component="button"
+            type="button"
+            title={presetColor}
+            aria-label={describeColor(toHexColor(presetColor)) || presetColor}
+            onClick={() => {
+              onChange(presetColor);
+              onPick?.(presetColor);
+            }}
+            sx={(theme) => ({
+              width: 20,
+              height: 20,
+              p: 0,
+              cursor: "pointer",
+              backgroundColor: presetColor,
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: "4px",
+            })}
+          />
+        ))}
+      </Box>
+    </Stack>
+  );
+}
 
 export function ColorPicker(props: ColorPickerProps) {
   const {
@@ -46,13 +127,9 @@ export function ColorPicker(props: ColorPickerProps) {
     container,
     onVisibilityChange,
     isOpen: controlledIsOpen,
-    focusFirstControl = false,
-    onRestoreFocus,
-    onToolbarExit,
   } = props;
 
-  const { colors: presetColors, addCurrentColor } =
-    useContext(PresetColorsContext);
+  const { addCurrentColor } = useContext(PresetColorsContext);
 
   // Internal state for when the component is used non-controlled
   const [internalOpen, setInternalOpen] = useState(false);
@@ -61,25 +138,9 @@ export function ColorPicker(props: ColorPickerProps) {
   const triggerId = React.useId();
   const inputId = React.useId();
   const popoverId = React.useId();
-  const wasOpenRef = useRef(false);
-  const keyboardInteractionRef = useRef(false);
 
   // Determine if we are currently open based on props or internal state
   const isPopoverOpen = controlledIsOpen ?? internalOpen;
-
-  useEffect(() => {
-    if (wasOpenRef.current && !isPopoverOpen) {
-      requestAnimationFrame(() => {
-        if (!anchorEl) return;
-        if (onRestoreFocus) {
-          onRestoreFocus(anchorEl, keyboardInteractionRef.current);
-        } else {
-          anchorEl.focus();
-        }
-      });
-    }
-    wasOpenRef.current = isPopoverOpen;
-  }, [anchorEl, isPopoverOpen, onRestoreFocus]);
 
   useEffect(() => {
     // Only overwrite internal color state if the picker isn't actively being edited
@@ -90,7 +151,6 @@ export function ColorPicker(props: ColorPickerProps) {
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
-    keyboardInteractionRef.current = e.detail === 0;
     setAnchorEl(e.currentTarget);
     if (controlledIsOpen === undefined) {
       setInternalOpen(true);
@@ -103,7 +163,8 @@ export function ColorPicker(props: ColorPickerProps) {
       setInternalOpen(false);
     }
     onVisibilityChange?.(false);
-  }, [controlledIsOpen, onVisibilityChange]);
+    requestAnimationFrame(() => anchorEl?.focus());
+  }, [anchorEl, controlledIsOpen, onVisibilityChange]);
 
   const commitColor = useCallback(
     (newColor: string) => {
@@ -137,32 +198,12 @@ export function ColorPicker(props: ColorPickerProps) {
     return internalColor;
   }, [internalColor]);
 
-  // The toolbar passes a computed color such as `rgb(0, 0, 0)`, and the picker takes only hex.
-  const pickerColor = useMemo(() => {
-    if (/^#?[0-9a-f]{1,5}$/i.test(internalColor)) {
-      try {
-        return Color(value).hex();
-      } catch (error) {
-        return "#000000";
-      }
-    }
-    try {
-      return Color(adapterColor).hex();
-    } catch (error) {
-      return "#000000";
-    }
-  }, [adapterColor, internalColor, value]);
-
   const inputColor = useMemo(() => {
     if (internalColor.startsWith("#") && internalColor.length === 7) {
       return internalColor.replace("#", "");
     }
     return internalColor;
   }, [internalColor]);
-
-  const presetColorList = useMemo(() => {
-    return presetColors.filter((item) => item !== transparentColor).slice(-14);
-  }, [presetColors]);
 
   const childrenArray = React.Children.toArray(children);
   const triggerChild = childrenArray[0];
@@ -260,7 +301,6 @@ export function ColorPicker(props: ColorPickerProps) {
         )}
 
         <Popover
-          data-rich-text-toolbar-popup={focusFirstControl ? "" : undefined}
           id={popoverId}
           role="dialog"
           aria-label={`${label || t("Color")} picker`}
@@ -280,16 +320,6 @@ export function ColorPicker(props: ColorPickerProps) {
           disableEnforceFocus
           sx={{ zIndex: 10000 }}
           slotProps={{
-            transition: focusFirstControl
-              ? {
-                  onEntered: () => {
-                    anchorEl?.ownerDocument
-                      .getElementById(popoverId)
-                      ?.querySelector<HTMLElement>("input, button")
-                      ?.focus();
-                  },
-                }
-              : undefined,
             paper: {
               sx: {
                 backgroundColor: "#FFFFFF",
@@ -299,70 +329,14 @@ export function ColorPicker(props: ColorPickerProps) {
           }}
         >
           <Box
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              keyboardInteractionRef.current = false;
-              anchorEl?.removeAttribute("data-keyboard-focus");
-            }}
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={(event) => {
-              keyboardInteractionRef.current = true;
-              if (focusFirstControl && event.key === "Tab") {
-                event.preventDefault();
-                event.stopPropagation();
-                if (controlledIsOpen === undefined) {
-                  setInternalOpen(false);
-                }
-                onVisibilityChange?.(false);
-                onToolbarExit?.();
-              }
-            }}
           >
-            <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
-              <HexColorPicker color={pickerColor} onChange={onColorChange} />
-              <TextField
-                size="small"
-                value={internalColor}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  const nextColor =
-                    value && !value.startsWith("#") ? `#${value}` : value;
-                  setInternalColor(nextColor);
-                  debouncedCommitColor(nextColor);
-                }}
-                aria-label={`${label || t("Color")} hex value`}
-                sx={(theme) => ({
-                  "& input": {
-                    fontSize: "13px",
-                    textTransform: "uppercase",
-                  },
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: theme.palette.divider,
-                  },
-                })}
-              />
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                {presetColorList.map((presetColor) => (
-                  <Box
-                    key={presetColor}
-                    component="button"
-                    type="button"
-                    title={presetColor}
-                    aria-label={presetColor}
-                    onClick={() => onColorChange(presetColor)}
-                    sx={(theme) => ({
-                      width: 20,
-                      height: 20,
-                      p: 0,
-                      cursor: "pointer",
-                      backgroundColor: presetColor,
-                      border: `1px solid ${theme.palette.divider}`,
-                      borderRadius: "4px",
-                    })}
-                  />
-                ))}
-              </Box>
-            </Stack>
+            <ColorPickerPanel
+              value={internalColor}
+              onChange={onColorChange}
+              label={label}
+            />
             {footerChild}
           </Box>
         </Popover>

@@ -1,9 +1,11 @@
 import React from "react";
-import { DropdownCommandWrapper } from "../DropdownCommandWrapper";
 import FormatSizeIcon from "@mui/icons-material/FormatSize";
+import { DropdownTool } from "../DropdownTool";
+import { useToolbar } from "../../ToolbarContext";
 
-const list = [
-  { value: "1", label: "12px" },
+// `execCommand("fontSize")` takes the HTML sizes 1 to 7. The labels are their pixel sizes.
+const options = [
+  { value: "1", label: "10px" },
   { value: "2", label: "13px" },
   { value: "3", label: "16px" },
   { value: "4", label: "18px" },
@@ -12,21 +14,18 @@ const list = [
   { value: "7", label: "48px" },
 ];
 
-export interface FontSizeProps {
-  execCommand: (cmd: string, value: any) => void;
-  selectionRange: Range | null | undefined;
-  getPopoverMountNode?: () => HTMLElement | null;
-}
+export function FontSize() {
+  const { execCommand, format } = useToolbar();
+  const selected = options.find((option) => option.label === format.fontSize);
 
-export function FontSize(props: FontSizeProps) {
   return (
-    <DropdownCommandWrapper
+    <DropdownTool
       title={t("Font size")}
       icon={<FormatSizeIcon />}
-      options={list}
-      selectionRange={props.selectionRange}
-      getPopoverMountNode={props.getPopoverMountNode}
-      onSelect={(val) => props.execCommand("fontSize", val)}
+      options={options}
+      selected={selected?.value}
+      currentLabel={format.fontSize}
+      onSelect={(value) => execCommand("fontSize", value)}
     />
   );
 }

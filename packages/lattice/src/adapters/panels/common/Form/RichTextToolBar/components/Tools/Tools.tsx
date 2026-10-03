@@ -1,6 +1,11 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import { ToolItem } from "../ToolItem";
-import { getLinkNode, Link, LinkParams } from "../Link";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   AvailableTools,
   getIframeDocument,
@@ -8,19 +13,11 @@ import {
   useEditorProps,
   useFocusBlockLayout,
 } from "@";
-import { FontFamily } from "../FontFamily";
-import { MergeTags } from "../MergeTags";
-import { useSelectionRange } from "@/adapters/panels/AttributePanel/hooks/useSelectionRange";
-import { IconBgColor } from "./IconBgColor";
-import { IconFontColor } from "./IconFontColor";
-import { BasicTools } from "../BasicTools";
-import { Unlink } from "../Unlink";
-import { StrikeThrough } from "../StrikeThrough";
-import { Underline } from "../Underline";
-import { Italic } from "../Italic";
-import { Bold } from "../Bold";
-import { FontSize } from "../FontSize";
 import { RICH_TEXT_TOOL_BAR } from "@/adapters/panels/constants";
+import FormatBoldIcon from "@mui/icons-material/FormatBold";
+import FormatItalicIcon from "@mui/icons-material/FormatItalic";
+import FormatUnderlinedIcon from "@mui/icons-material/FormatUnderlined";
+import FormatStrikethroughIcon from "@mui/icons-material/FormatStrikethrough";
 import FormatClearIcon from "@mui/icons-material/FormatClear";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";
 import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
@@ -28,418 +25,403 @@ import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
 import FormatAlignLeftIcon from "@mui/icons-material/FormatAlignLeft";
 import FormatAlignRightIcon from "@mui/icons-material/FormatAlignRight";
 import FormatAlignCenterIcon from "@mui/icons-material/FormatAlignCenter";
-import { getEditableFromRange, isToolbarExitKey } from "./keyboard";
+import { ToolItem } from "../ToolItem";
+import { BasicTools } from "../BasicTools";
+import { FontFamily } from "../FontFamily";
+import { FontSize } from "../FontSize";
+import { MergeTags } from "../MergeTags";
+import { ColorTool } from "../ColorTool";
+import { getLinkNode, Link, LinkParams, Unlink } from "../Link";
 import {
-  clearToolbarFocusIntent,
-  keepToolbarControlFocus,
-  restoreToolbarControlFocus,
+  EMPTY_FORMAT_STATE,
+  FormatState,
+  readFormatState,
+} from "../../formatState";
+import {
+  focusText,
+  getEditableFromRange,
+  getNextIndex,
+  getToolbarItems,
+  keepScrollPosition,
+  rememberToolbarFocus,
+  selectRange,
+  setRovingItem,
+  takeToolbarFocus,
 } from "../../focus";
+import {
+  restoreSelection,
+  saveSelection,
+  SavedSelection,
+} from "../../savedSelection";
+import {
+  ExecCommand,
+  ToolbarContext,
+  ToolbarContextValue,
+} from "../../ToolbarContext";
 
 export interface ToolsProps {
-  onChange: (content: string) => any;
+  onChange: (content: string) => void;
 }
 
-export function Tools(props: ToolsProps) {
+const DEFAULT_TOOLS = [
+  AvailableTools.MergeTags,
+  AvailableTools.FontFamily,
+  AvailableTools.FontSize,
+  AvailableTools.Bold,
+  AvailableTools.Italic,
+  AvailableTools.StrikeThrough,
+  AvailableTools.Underline,
+  AvailableTools.IconFontColor,
+  AvailableTools.IconBgColor,
+  AvailableTools.Link,
+  AvailableTools.Justify,
+  AvailableTools.Lists,
+  AvailableTools.HorizontalRule,
+  AvailableTools.RemoveFormat,
+];
+
+const TOGGLE_TOOLS: Partial<
+  Record<
+    AvailableTools,
+    {
+      command: string;
+      title: string;
+      icon: React.ReactNode;
+      state: keyof FormatState;
+    }
+  >
+> = {
+  [AvailableTools.Bold]: {
+    command: "bold",
+    title: "Bold",
+    icon: <FormatBoldIcon />,
+    state: "bold",
+  },
+  [AvailableTools.Italic]: {
+    command: "italic",
+    title: "Italic",
+    icon: <FormatItalicIcon />,
+    state: "italic",
+  },
+  [AvailableTools.StrikeThrough]: {
+    command: "strikeThrough",
+    title: "Strikethrough",
+    icon: <FormatStrikethroughIcon />,
+    state: "strikeThrough",
+  },
+  [AvailableTools.Underline]: {
+    command: "underline",
+    title: "Underline",
+    icon: <FormatUnderlinedIcon />,
+    state: "underline",
+  },
+};
+
+const COMMAND_TOOLS: Partial<
+  Record<
+    AvailableTools,
+    Array<{ command: string; title: string; icon: React.ReactNode }>
+  >
+> = {
+  [AvailableTools.Justify]: [
+    {
+      command: "justifyLeft",
+      title: "Align left",
+      icon: <FormatAlignLeftIcon />,
+    },
+    {
+      command: "justifyCenter",
+      title: "Align center",
+      icon: <FormatAlignCenterIcon />,
+    },
+    {
+      command: "justifyRight",
+      title: "Align right",
+      icon: <FormatAlignRightIcon />,
+    },
+  ],
+  [AvailableTools.Lists]: [
+    {
+      command: "insertOrderedList",
+      title: "Numbered list",
+      icon: <FormatListNumberedIcon />,
+    },
+    {
+      command: "insertUnorderedList",
+      title: "Bulleted list",
+      icon: <FormatListBulletedIcon />,
+    },
+  ],
+  [AvailableTools.HorizontalRule]: [
+    {
+      command: "insertHorizontalRule",
+      title: "Horizontal line",
+      icon: <HorizontalRuleIcon />,
+    },
+  ],
+  [AvailableTools.RemoveFormat]: [
+    {
+      command: "removeFormat",
+      title: "Remove format",
+      icon: <FormatClearIcon />,
+    },
+  ],
+};
+
+function runCommand(
+  document: Document,
+  command: string,
+  value: unknown,
+  range: Range,
+  enabledMergeTagsBadge: boolean | undefined,
+) {
+  const id = Date.now().toString();
+
+  if (command === "createLink") {
+    const { link, blank, underline, linkNode } = value as LinkParams;
+    let anchor = linkNode;
+    if (!anchor) {
+      // The browser creates the anchor. A unique href finds it again.
+      document.execCommand("createLink", false, id);
+      anchor = document.querySelector<HTMLAnchorElement>(`a[href="${id}"]`);
+    }
+    if (!anchor) return;
+    if (blank) anchor.setAttribute("target", "_blank");
+    else anchor.removeAttribute("target");
+    anchor.style.color = "inherit";
+    anchor.style.textDecoration = underline ? "underline" : "none";
+    anchor.setAttribute("href", link.trim());
+    return;
+  }
+
+  if (command === "insertHTML") {
+    const html = enabledMergeTagsBadge
+      ? MergeTagBadge.transform(value as string, id)
+      : (value as string);
+    document.execCommand("insertHTML", false, html);
+    // Select the new badge, so the merge tag prompt opens on it.
+    const badge = document.getElementById(id);
+    if (badge) {
+      const badgeRange = document.createRange();
+      badgeRange.selectNode(badge);
+      selectRange(badgeRange);
+    }
+    return;
+  }
+
+  document.execCommand(command, false, value as string | undefined);
+
+  if (command === "foreColor") {
+    // A link keeps its own color unless it inherits the new one.
+    const linkNode = getLinkNode(range);
+    if (linkNode) linkNode.style.color = "inherit";
+  }
+}
+
+export function Tools({ onChange }: Readonly<ToolsProps>) {
   const { variableData, enabledMergeTagsBadge, toolbar } = useEditorProps();
   const { focusBlockNode } = useFocusBlockLayout();
-  const { selectionRange, restoreRange, setRangeByElement } =
-    useSelectionRange();
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const [format, setFormat] = useState<FormatState>(EMPTY_FORMAT_STATE);
+  // The commands read the selection from a ref, so `execCommand` stays stable for `toolbar.suffix`.
+  const savedSelectionRef = useRef<SavedSelection | null>(null);
+
+  /**
+   * Keeps the caret of the text block.
+   * Only a selection made in the text counts. The browser can move the selection while a toolbar button has the focus.
+   * `fromCommand` also accepts the selection that a command leaves.
+   */
+  const captureSelection = useCallback(
+    (fromCommand = false) => {
+      const document = getIframeDocument();
+      const selection = document?.getSelection();
+      if (!document || !selection || selection.rangeCount === 0) return;
+      const range = selection.getRangeAt(0);
+      const editable = getEditableFromRange(range);
+      if (!editable || !focusBlockNode?.contains(editable)) return;
+      if (!fromCommand && document.activeElement !== editable) return;
+
+      const saved = saveSelection(range, editable);
+      savedSelectionRef.current = saved;
+      setSavedRange(saved.range);
+      setFormat(readFormatState(range, editable));
+    },
+    [focusBlockNode],
+  );
 
   useEffect(() => {
-    const buttons = toolbarRef.current?.querySelectorAll<HTMLButtonElement>(
-      ":scope > div button:not(:disabled)",
-    );
-    buttons?.forEach((button, index) => {
-      button.tabIndex = index === 0 ? 0 : -1;
-    });
-  }, [toolbar?.tools, variableData]);
+    const document = getIframeDocument();
+    const onSelectionChange = () => captureSelection();
+    onSelectionChange();
+    document?.addEventListener("selectionchange", onSelectionChange);
+    return () => {
+      document?.removeEventListener("selectionchange", onSelectionChange);
+    };
+  }, [captureSelection]);
 
-  useEffect(() => {
-    restoreToolbarControlFocus(toolbarRef.current);
+  const getSavedRange = useCallback(() => {
+    const document = getIframeDocument();
+    const saved = savedSelectionRef.current;
+    return document && saved ? restoreSelection(document, saved) : null;
+  }, []);
+
+  const returnToText = useCallback(() => {
+    focusText(getSavedRange(), focusBlockNode);
+  }, [focusBlockNode, getSavedRange]);
+
+  const execCommand = useCallback<ExecCommand>(
+    (command, value) => {
+      const document = getIframeDocument();
+      const range = getSavedRange();
+      const editable = getEditableFromRange(range);
+      if (!document || !range || !editable) return;
+
+      const toolbarButton = toolbarRef.current?.contains(document.activeElement)
+        ? (document.activeElement as HTMLElement)
+        : null;
+      if (!toolbarButton && document.activeElement !== editable) {
+        editable.focus({ preventScroll: true });
+      }
+      keepScrollPosition(editable, () => {
+        selectRange(range);
+        if (command) {
+          runCommand(document, command, value, range, enabledMergeTagsBadge);
+        }
+      });
+      onChange(editable.innerHTML);
+      // A command on an empty caret changes no selection, so no selectionchange event comes.
+      captureSelection(true);
+      toolbarButton?.focus({ preventScroll: true });
+    },
+    [captureSelection, enabledMergeTagsBadge, getSavedRange, onChange],
+  );
+
+  // Keep exactly one item in the Tab order.
+  useLayoutEffect(() => {
+    const items = getToolbarItems(toolbarRef.current);
+    const current = items.find((item) => item.tabIndex === 0);
+    if (!current && items[0]) setRovingItem(items, items[0]);
   });
 
-  const handleToolbarKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    const buttons = Array.from(
-      toolbarRef.current?.querySelectorAll<HTMLButtonElement>(
-        ":scope > div button:not(:disabled)",
-      ) ?? [],
-    );
-    const currentIndex = buttons.indexOf(event.target as HTMLButtonElement);
+  // A re-render can replace the toolbar. Give the focus back to the same item.
+  useLayoutEffect(() => {
+    const toolbarElement = toolbarRef.current;
+    if (!toolbarElement) return;
+    const document = toolbarElement.ownerDocument;
+    const index = takeToolbarFocus(document);
+    const items = getToolbarItems(toolbarElement);
+    const lostFocus =
+      !document.activeElement || document.activeElement === document.body;
+    if (index !== undefined && lostFocus && items[index]) {
+      setRovingItem(items, items[index]);
+      items[index].focus({ preventScroll: true });
+    }
+    return () => {
+      const lastIndex = getToolbarItems(toolbarElement).indexOf(
+        document.activeElement as HTMLButtonElement,
+      );
+      if (lastIndex >= 0) rememberToolbarFocus(document, lastIndex);
+    };
+  }, []);
 
-    if (isToolbarExitKey(event.key, currentIndex)) {
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    const items = getToolbarItems(toolbarRef.current);
+    const index = items.indexOf(event.target as HTMLButtonElement);
+    if (index < 0) return;
+
+    if (event.key === "Escape" || event.key === "Tab") {
       event.preventDefault();
-      clearToolbarFocusIntent(event.currentTarget.ownerDocument);
-      const editable = getEditableFromRange(selectionRange);
-      if (editable && selectionRange) {
-        editable.focus();
-        restoreRange(selectionRange);
-      } else {
-        focusBlockNode?.focus();
-      }
+      returnToText();
       return;
     }
 
-    if (
-      currentIndex < 0 ||
-      !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
-    ) {
-      return;
-    }
-
+    const next = items[getNextIndex(event.key, index, items.length)];
+    if (!next) return;
     event.preventDefault();
-    let targetIndex = currentIndex;
-    if (event.key === "Home") targetIndex = 0;
-    if (event.key === "End") targetIndex = buttons.length - 1;
-    if (event.key === "ArrowRight") {
-      targetIndex = (currentIndex + 1) % buttons.length;
-    }
-    if (event.key === "ArrowLeft") {
-      targetIndex = (currentIndex - 1 + buttons.length) % buttons.length;
-    }
-    buttons.forEach((button, index) => {
-      button.tabIndex = index === targetIndex ? 0 : -1;
-      button.removeAttribute("data-keyboard-focus");
-    });
-    const targetButton = buttons[targetIndex];
-    if (targetButton) {
-      keepToolbarControlFocus(targetButton, true);
-    }
+    setRovingItem(items, next);
+    next.focus({ preventScroll: true });
   };
 
-  const handleToolbarPointerDown = (
-    event: React.PointerEvent<HTMLDivElement>,
-  ) => {
-    clearToolbarFocusIntent(event.currentTarget.ownerDocument);
-    toolbarRef.current
-      ?.querySelectorAll<HTMLElement>("[data-keyboard-focus]")
-      .forEach((element) => element.removeAttribute("data-keyboard-focus"));
+  const onFocus = (event: React.FocusEvent<HTMLDivElement>) => {
+    const items = getToolbarItems(toolbarRef.current);
+    const item = event.target as Element as HTMLButtonElement;
+    if (items.includes(item)) setRovingItem(items, item);
   };
 
-  const handleToolbarClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const button = (event.target as HTMLElement | null)?.closest?.(
-      "button",
-    ) as HTMLButtonElement | null;
-    if (
-      !button ||
-      !toolbarRef.current?.contains(button) ||
-      button.hasAttribute("aria-haspopup")
-    ) {
-      return;
-    }
-    keepToolbarControlFocus(button, event.detail === 0);
-  };
-
-  const handleToolbarFocus = (event: React.FocusEvent<HTMLDivElement>) => {
-    if (!(event.target instanceof HTMLButtonElement)) return;
-    const focusedButton = event.target;
-    toolbarRef.current
-      ?.querySelectorAll<HTMLButtonElement>(":scope > div button")
-      .forEach((button) => {
-        button.tabIndex = button === focusedButton ? 0 : -1;
-      });
-  };
-
-  const execCommand = useCallback(
-    (cmd: string, val?: any) => {
-      const iframeWindow = getIframeDocument()?.defaultView;
-      const liveSelection = iframeWindow?.getSelection();
-      const liveRange =
-        liveSelection && liveSelection.rangeCount > 0
-          ? liveSelection.getRangeAt(0)
-          : null;
-      const activeRange =
-        liveRange && focusBlockNode?.contains(liveRange.commonAncestorContainer)
-          ? liveRange
-          : selectionRange;
-
-      if (!activeRange) {
-        console.error("No selectionRange");
-        return;
-      }
-
-      if (!focusBlockNode?.contains(activeRange.commonAncestorContainer)) {
-        console.error("Not commonAncestorContainer");
-        return;
-      }
-
-      restoreRange(activeRange); // Use the live range!
-      const uuid = (+new Date()).toString();
-
-      if (cmd === "createLink") {
-        const linkData = val as LinkParams;
-        const target = linkData.blank ? "_blank" : "";
-        let link: HTMLAnchorElement;
-
-        if (linkData.linkNode) {
-          link = linkData.linkNode;
-        } else {
-          getIframeDocument()?.execCommand(cmd, false, uuid);
-          link = getIframeDocument()?.body?.querySelector(`a[href="${uuid}"]`)!;
-        }
-
-        if (target) {
-          link.setAttribute("target", target);
-        }
-        link.style.color = "inherit";
-        link.style.textDecoration = linkData.underline ? "underline" : "none";
-        link.setAttribute("href", linkData.link.trim());
-      } else if (cmd === "insertHTML") {
-        let newContent = val;
-        if (enabledMergeTagsBadge) {
-          newContent = MergeTagBadge.transform(val, uuid);
-        }
-
-        getIframeDocument()?.execCommand(cmd, false, newContent);
-        const insertMergeTagEle = getIframeDocument()?.getElementById(uuid);
-        if (insertMergeTagEle) {
-          insertMergeTagEle.focus();
-          setRangeByElement(insertMergeTagEle);
-        }
-      } else if (cmd === "foreColor") {
-        getIframeDocument()?.execCommand(cmd, false, val);
-        const linkNode: HTMLAnchorElement | null = getLinkNode(activeRange); // Use activeRange!
-        if (linkNode) {
-          linkNode.style.color = "inherit";
-        }
-      } else {
-        getIframeDocument()?.execCommand(cmd, false, val);
-      }
-
-      const contenteditableElement = getIframeDocument()?.activeElement;
-      if (contenteditableElement?.getAttribute("contenteditable") === "true") {
-        const html = getIframeDocument()?.activeElement?.innerHTML || "";
-        props.onChange(html);
-      }
-    },
-    [
-      enabledMergeTagsBadge,
-      focusBlockNode,
-      props,
-      restoreRange,
-      selectionRange,
-      setRangeByElement,
-    ],
+  const context = useMemo<ToolbarContextValue>(
+    () => ({ execCommand, format, savedRange, returnToText }),
+    [execCommand, format, savedRange, returnToText],
   );
 
-  const execCommandWithRange = useCallback(
-    (cmd: string, val?: any) => {
-      if (selectionRange) {
-        restoreRange(selectionRange);
-      }
-      getIframeDocument()?.execCommand(cmd, false, val);
-      const contenteditableElement = getIframeDocument()?.getSelection()
-        ?.focusNode as HTMLElement | null;
-      if (
-        contenteditableElement?.getAttribute &&
-        contenteditableElement?.getAttribute("contenteditable") === "true"
-      ) {
-        const html = contenteditableElement.innerHTML ?? "";
-        props.onChange(html);
-      }
-    },
-    [props.onChange, restoreRange, selectionRange],
-  );
+  const tools = (toolbar?.tools ?? DEFAULT_TOOLS).flatMap((tool) => {
+    const toggle = TOGGLE_TOOLS[tool];
+    if (toggle) {
+      return [
+        <ToolItem
+          key={tool}
+          title={t(toggle.title)}
+          icon={toggle.icon}
+          isActive={Boolean(format[toggle.state])}
+          onClick={() => execCommand(toggle.command)}
+        />,
+      ];
+    }
 
-  const enabledTools = toolbar?.tools ?? [
-    AvailableTools.MergeTags,
-    AvailableTools.FontFamily,
-    AvailableTools.FontSize,
-    AvailableTools.Bold,
-    AvailableTools.Italic,
-    AvailableTools.StrikeThrough,
-    AvailableTools.Underline,
-    AvailableTools.IconFontColor,
-    AvailableTools.IconBgColor,
-    AvailableTools.Link,
-    AvailableTools.Justify,
-    AvailableTools.Lists,
-    AvailableTools.HorizontalRule,
-    AvailableTools.RemoveFormat,
-  ];
+    const commands = COMMAND_TOOLS[tool];
+    if (commands) {
+      return commands.map((item) => (
+        <ToolItem
+          key={item.command}
+          title={t(item.title)}
+          icon={item.icon}
+          onClick={() => execCommand(item.command)}
+        />
+      ));
+    }
 
-  const tools = enabledTools.flatMap((tool) => {
     switch (tool) {
       case AvailableTools.MergeTags:
-        if (!variableData) {
-          return [];
-        }
-        return [
-          <MergeTags
-            key={tool}
-            execCommand={execCommand}
-            selectionRange={selectionRange}
-          />,
-        ];
+        return variableData ? [<MergeTags key={tool} />] : [];
       case AvailableTools.FontFamily:
-        return [
-          <FontFamily
-            key={tool}
-            execCommand={execCommand}
-            selectionRange={selectionRange}
-          />,
-        ];
+        return [<FontFamily key={tool} />];
       case AvailableTools.FontSize:
-        return [
-          <FontSize
-            key={tool}
-            execCommand={execCommand}
-            selectionRange={selectionRange}
-          />,
-        ];
-      case AvailableTools.Bold:
-        return [
-          <Bold
-            key={tool}
-            currentRange={selectionRange}
-            onChange={() => execCommandWithRange("bold")}
-          />,
-        ];
-      case AvailableTools.Italic:
-        return [
-          <Italic
-            key={tool}
-            currentRange={selectionRange}
-            onChange={() => execCommandWithRange("italic")}
-          />,
-        ];
-      case AvailableTools.StrikeThrough:
-        return [
-          <StrikeThrough
-            key={tool}
-            currentRange={selectionRange}
-            onChange={() => execCommandWithRange("strikeThrough")}
-          />,
-        ];
-      case AvailableTools.Underline:
-        return [
-          <Underline
-            key={tool}
-            currentRange={selectionRange}
-            onChange={() => execCommandWithRange("underline")}
-          />,
-        ];
+        return [<FontSize key={tool} />];
       case AvailableTools.IconFontColor:
-        return [
-          <IconFontColor
-            key={tool}
-            selectionRange={selectionRange}
-            execCommand={execCommand}
-          />,
-        ];
+        return [<ColorTool key={tool} kind="text" />];
       case AvailableTools.IconBgColor:
-        return [
-          <IconBgColor
-            key={tool}
-            selectionRange={selectionRange}
-            execCommand={execCommand}
-          />,
-        ];
+        return [<ColorTool key={tool} kind="background" />];
       case AvailableTools.Link:
-        return [
-          <Link
-            key={`${tool}-link`}
-            currentRange={selectionRange}
-            onChange={(values) => execCommand("createLink", values)}
-          />,
-          <Unlink
-            key={`${tool}-unlink`}
-            currentRange={selectionRange}
-            onChange={() => execCommand("")}
-          />,
-        ];
-      case AvailableTools.Justify:
-        return [
-          <ToolItem
-            key={`${tool}-justify-left`}
-            onClick={() => execCommand("justifyLeft")}
-            icon={<FormatAlignLeftIcon />}
-            title={t("Align left")}
-          />,
-          <ToolItem
-            key={`${tool}-justify-center`}
-            onClick={() => execCommand("justifyCenter")}
-            icon={<FormatAlignCenterIcon />}
-            title={t("Align center")}
-          />,
-          <ToolItem
-            key={`${tool}-justify-right`}
-            onClick={() => execCommand("justifyRight")}
-            icon={<FormatAlignRightIcon />}
-            title={t("Align right")}
-          />,
-        ];
-      case AvailableTools.Lists:
-        return [
-          <ToolItem
-            key={`${tool}-ordered-list`}
-            onClick={() => execCommand("insertOrderedList")}
-            icon={<FormatListNumberedIcon />}
-            title={t("Orderlist")}
-          />,
-          <ToolItem
-            key={`${tool}-unordered-list`}
-            onClick={() => execCommand("insertUnorderedList")}
-            icon={<FormatListBulletedIcon />}
-            title={t("Unorderlist")}
-          />,
-        ];
-      case AvailableTools.HorizontalRule:
-        return [
-          <ToolItem
-            key={tool}
-            onClick={() => execCommand("insertHorizontalRule")}
-            icon={<HorizontalRuleIcon />}
-            title={t("Line")}
-          />,
-        ];
-      case AvailableTools.RemoveFormat:
-        return [
-          <ToolItem
-            key={tool}
-            onClick={() => execCommandWithRange("removeFormat")}
-            icon={<FormatClearIcon />}
-            title={t("Remove format")}
-          />,
-        ];
+        return [<Link key="link" />, <Unlink key="unlink" />];
       default:
-        console.error("Not existing tool", tool);
         throw new Error(`Not existing tool ${tool}`);
     }
   });
 
   return (
-    <div
-      ref={toolbarRef}
-      id={RICH_TEXT_TOOL_BAR}
-      role="toolbar"
-      aria-label={t("Text formatting")}
-      aria-description={t(
-        "Press Escape or Tab to return to the selected text block.",
-      )}
-      aria-keyshortcuts="Alt+F10"
-      onKeyDown={handleToolbarKeyDown}
-      onFocus={handleToolbarFocus}
-      onClick={handleToolbarClick}
-      onPointerDownCapture={handleToolbarPointerDown}
-      style={{ display: "flex", flexWrap: "nowrap" }}
-    >
+    <ToolbarContext.Provider value={context}>
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
+        ref={toolbarRef}
+        id={RICH_TEXT_TOOL_BAR}
+        role="toolbar"
+        aria-label={t("Text formatting")}
+        aria-description={t(
+          "Use the arrow keys to move between the tools. Press Escape or Tab to return to the text.",
+        )}
+        aria-keyshortcuts="Alt+F10"
+        onKeyDown={onKeyDown}
+        onFocus={onFocus}
+        style={{ display: "flex", flexWrap: "nowrap", alignItems: "center" }}
       >
         <BasicTools />
-        {tools.flatMap((tool, index) => [
-          tool,
-          <div
-            className="easy-email-extensions-divider"
-            key={`divider-${index}`}
-          />,
-        ])}
+        {tools.map((tool, index) => (
+          <React.Fragment key={index}>
+            {tool}
+            <div className="easy-email-extensions-divider" aria-hidden="true" />
+          </React.Fragment>
+        ))}
+        {toolbar?.suffix?.(execCommand)}
       </div>
-      {toolbar?.suffix?.(execCommand)}
-    </div>
+    </ToolbarContext.Provider>
   );
 }

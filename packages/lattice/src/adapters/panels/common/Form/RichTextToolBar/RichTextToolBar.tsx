@@ -10,58 +10,43 @@ import { Tools } from "./components/Tools";
 import styleText from "./shadow-dom.scss?inline";
 import { createPortal } from "react-dom";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
-import { useSelectionRange } from "@/adapters/panels/AttributePanel/hooks/useSelectionRange";
+import { getToolbarItems } from "./focus";
 
 export function RichTextToolBar(props: { onChange: (s: string) => void }) {
   const { initialized } = useEditorContext();
   const { focusBlockNode } = useFocusBlockLayout();
-  const { setSelectionRange } = useSelectionRange();
   const [rect, setRect] = useState<DOMRect | null>(null);
 
+  // Alt+F10 is the common shortcut for an editor toolbar, for example in TinyMCE and CKEditor.
   useEffect(() => {
     const iframeDocument = getIframeDocument();
     if (!iframeDocument) return;
 
     const focusToolbar = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      const isToolbarShortcut =
+      const isShortcut =
         event.key === "F10" &&
         event.altKey &&
         !event.ctrlKey &&
         !event.shiftKey &&
         !event.metaKey;
+      const target = event.target as HTMLElement | null;
+      if (!isShortcut || target?.getAttribute("contenteditable") !== "true")
+        return;
 
-      if (!isToolbarShortcut) return;
-      if (target?.getAttribute?.("contenteditable") !== "true") return;
-
-      const firstButton = iframeDocument
-        ?.getElementById(RICH_TEXT_BAR_ID)
-        ?.querySelector<HTMLButtonElement>("button:not(:disabled)");
-      if (!firstButton) return;
-
-      const selection = iframeDocument.getSelection();
-      const range =
-        selection && selection.rangeCount > 0
-          ? selection.getRangeAt(0).cloneRange()
-          : null;
-
+      const items = getToolbarItems(
+        iframeDocument.getElementById(RICH_TEXT_BAR_ID),
+      );
+      const item = items.find((button) => button.tabIndex === 0) ?? items[0];
+      if (!item) return;
       event.preventDefault();
-      if (range && target.contains(range.commonAncestorContainer)) {
-        setSelectionRange(range);
-      }
-      iframeDocument
-        .getElementById(RICH_TEXT_BAR_ID)
-        ?.querySelectorAll<HTMLElement>("[data-keyboard-focus]")
-        .forEach((element) => element.removeAttribute("data-keyboard-focus"));
-      firstButton.setAttribute("data-keyboard-focus", "true");
-      firstButton.focus();
+      item.focus({ preventScroll: true });
     };
 
     iframeDocument.addEventListener("keydown", focusToolbar, true);
     return () => {
       iframeDocument.removeEventListener("keydown", focusToolbar, true);
     };
-  }, [setSelectionRange]);
+  }, []);
 
   // Track the position of the focused block dynamically
   useEffect(() => {

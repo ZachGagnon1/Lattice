@@ -71,6 +71,7 @@
     "@uiw/react-codemirror": "^4.25.12",
     "cheerio": "^1.2.0",
     "color": "^5.0.3",
+    "color-namer": "^1.4.0",
     "he": "^1.2.0",
     "is-hotkey": "^0.2.0",
     "js-beautify": "^1.15.4",

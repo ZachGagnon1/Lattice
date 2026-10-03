@@ -27,32 +27,10 @@ export function BasicTools() {
       ? "Fn+⌥F10"
       : "Alt+F10";
 
-  const handleAddToCollection = () => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    setModalVisible(true);
-  };
-
-  const handleCopy: React.MouseEventHandler<any> = (ev) => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    copyBlock(focusIdx);
-  };
-
-  const handleDelete = () => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    removeBlock(focusIdx);
-  };
-
-  const handleSelectParent = () => {
-    if (getIframeDocument()?.activeElement instanceof HTMLElement) {
-      (getIframeDocument()?.activeElement as HTMLElement).blur();
-    }
-    setFocusIdx(getParentIdx(focusIdx)!);
+  // These actions move or remove the block, so the text must not keep the focus.
+  const blurThen = (action: () => void) => () => {
+    (getIframeDocument()?.activeElement as HTMLElement | null)?.blur();
+    action();
   };
 
   return (
@@ -73,11 +51,10 @@ export function BasicTools() {
         }}
       >
         Text
-        <span style={{ marginLeft: 8, fontSize: 11 }}>Focus:</span>
         <kbd
-          title={t("Focus the text formatting toolbar")}
+          title={t("Shortcut to the text formatting toolbar")}
           style={{
-            marginLeft: 4,
+            marginLeft: 8,
             padding: "1px 5px",
             border: "1px solid #aeb1b8",
             borderRadius: 3,
@@ -98,24 +75,24 @@ export function BasicTools() {
         container={getIframeDocument()?.body}
       />
       <ToolItem
-        onClick={handleSelectParent}
+        onClick={blurThen(() => setFocusIdx(getParentIdx(focusIdx)!))}
         title={t("Select parent block")}
         icon={<ArrowUpwardIcon />}
       />
       <ToolItem
-        onClick={handleCopy}
+        onClick={blurThen(() => copyBlock(focusIdx))}
         title={t("Copy")}
         icon={<ContentCopyIcon />}
       />
       {onAddCollection && (
         <ToolItem
-          onClick={handleAddToCollection}
+          onClick={blurThen(() => setModalVisible(true))}
           title={t("Add to collection")}
           icon={<LibraryAddIcon />}
         />
       )}
       <ToolItem
-        onClick={handleDelete}
+        onClick={blurThen(() => removeBlock(focusIdx))}
         title={t("Delete")}
         icon={<DeleteIcon />}
       />

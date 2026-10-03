@@ -1,72 +1,119 @@
-interface ToolbarFocusIntent {
-  label: string;
-  showRing: boolean;
+const TOOLBAR_ITEM_SELECTOR = "button:not(:disabled)";
+
+// The toolbar can re-render during a command. Keep the index, not the node.
+const focusBeforeUnmount = new WeakMap<Document, number>();
+
+export function getToolbarItems(toolbar: HTMLElement | null | undefined) {
+  return Array.from(
+    toolbar?.querySelectorAll<HTMLButtonElement>(TOOLBAR_ITEM_SELECTOR) ?? [],
+  );
 }
 
-const focusIntents = new WeakMap<Document, ToolbarFocusIntent>();
-
-export function keepToolbarControlFocus(
-  button: HTMLButtonElement,
-  showRing: boolean,
-) {
-  const label = button.getAttribute("aria-label");
-  if (!label) return;
-
-  const intent = { label, showRing };
-  const document = button.ownerDocument;
-  focusIntents.set(document, intent);
-  restoreToolbarControlFocus(button.closest<HTMLElement>('[role="toolbar"]'));
-  document.defaultView?.setTimeout(() => {
-    if (focusIntents.get(document) !== intent) return;
-    restoreToolbarControlFocus(
-      document.querySelector<HTMLElement>('[role="toolbar"]'),
-    );
-  }, 300);
-}
-
-export function restoreToolbarControlFocus(
-  toolbar: HTMLElement | null | undefined,
-) {
-  if (!toolbar) return;
-  const intent = focusIntents.get(toolbar.ownerDocument);
-  if (!intent) return;
-
-  const buttons = Array.from(
-    toolbar.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
-  );
-  const button = buttons.find(
-    (item) => item.getAttribute("aria-label") === intent.label,
-  );
-  if (!button) return;
-
-  buttons.forEach((item) => {
-    item.tabIndex = item === button ? 0 : -1;
-    item.removeAttribute("data-keyboard-focus");
-  });
-  if (intent.showRing) {
-    button.setAttribute("data-keyboard-focus", "true");
+export function getNextIndex(key: string, current: number, count: number) {
+  if (count === 0) return -1;
+  switch (key) {
+    case "ArrowRight":
+      return (current + 1) % count;
+    case "ArrowLeft":
+      return (current - 1 + count) % count;
+    case "Home":
+      return 0;
+    case "End":
+      return count - 1;
+    default:
+      return -1;
   }
-  button.focus();
 }
 
-export function clearToolbarFocusIntent(document: Document) {
-  focusIntents.delete(document);
+/** Makes `active` the only item in the Tab order (the roving tabindex pattern). */
+export function setRovingItem(items: HTMLElement[], active: HTMLElement) {
+  items.forEach((item) => {
+    item.tabIndex = item === active ? 0 : -1;
+  });
 }
 
-export function returnFocusToText(range: Range | null | undefined) {
-  if (!range) return;
-  const node = range.commonAncestorContainer;
+export function rememberToolbarFocus(document: Document, index: number) {
+  focusBeforeUnmount.set(document, index);
+}
+
+export function takeToolbarFocus(document: Document) {
+  const index = focusBeforeUnmount.get(document);
+  focusBeforeUnmount.delete(document);
+  return index;
+}
+
+export function getEditableFromRange(range: Range | null | undefined) {
+  const node = range?.commonAncestorContainer;
   const element =
-    node.nodeType === 1
+    node?.nodeType === Node.ELEMENT_NODE
       ? (node as HTMLElement)
-      : (node.parentElement as HTMLElement | null);
-  const editable = element?.closest?.<HTMLElement>('[contenteditable="true"]');
-  if (!editable) return;
+      : node?.parentElement;
+  return element?.closest<HTMLElement>('[contenteditable="true"]') ?? null;
+}
 
-  const document = editable.ownerDocument;
-  clearToolbarFocusIntent(document);
-  editable.focus();
-  const selection = document.getSelection();
-  selection?.removeAllRanges();
-  selection?.addRange(range.cloneRange());
+function isSameRange(a: Range, b: Range) {
+  return (
+    a.startContainer === b.startContainer &&
+    a.startOffset === b.startOffset &&
+    a.endContainer === b.endContainer &&
+    a.endOffset === b.endOffset
+  );
+}
+
+/**
+ * Puts `range` back as the document selection.
+ * A new selection clears the pending caret format, such as bold on an empty caret.
+ * The function therefore does nothing when the selection already matches.
+ */
+export function selectRange(range: Range) {
+  const selection = range.startContainer.ownerDocument?.getSelection();
+  if (!selection) return;
+  const current = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+  if (current && isSameRange(current, range)) return;
+  selection.removeAllRanges();
+  selection.addRange(range.cloneRange());
+}
+
+/**
+ * Moves the focus back to the text that owns `range`.
+ * `fallback` gets the focus when a re-render removed the nodes of the range.
+ */
+export function focusText(
+  range: Range | null | undefined,
+  fallback?: HTMLElement | null,
+) {
+  const editable = getEditableFromRange(range);
+  if (range && editable?.isConnected) {
+    editable.focus({ preventScroll: true });
+    selectRange(range);
+    return;
+  }
+  const target = fallback?.matches('[contenteditable="true"]')
+    ? fallback
+    : fallback?.querySelector<HTMLElement>('[contenteditable="true"]');
+  target?.focus({ preventScroll: true });
+}
+
+/**
+ * Runs `action` and then puts back the scroll position of each ancestor of `element`.
+ * The browser scrolls the selection into view after a command, but a format command does not move the caret.
+ * The walk goes past the iframe, because the browser also scrolls the page around the iframe.
+ */
+export function keepScrollPosition(element: HTMLElement, action: () => void) {
+  const positions: Array<[Element, number, number]> = [];
+  let node: Element | null | undefined = element.parentElement;
+  while (node) {
+    if (
+      node.scrollHeight > node.clientHeight ||
+      node.scrollWidth > node.clientWidth
+    ) {
+      positions.push([node, node.scrollTop, node.scrollLeft]);
+    }
+    node = node.parentElement ?? node.ownerDocument.defaultView?.frameElement;
+  }
+  action();
+  positions.forEach(([scroller, top, left]) => {
+    scroller.scrollTop = top;
+    scroller.scrollLeft = left;
+  });
 }

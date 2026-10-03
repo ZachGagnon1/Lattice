@@ -7,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   focusBlockNode: null as HTMLElement | null,
   iframeDocument: null as Document | null,
-  savedRange: null as Range | null,
 }));
 
 vi.mock("@", () => ({
@@ -39,14 +38,6 @@ vi.mock("../useEditorField", () => ({
 
 vi.mock("../RichTextToolBar/components/Tools", () => ({
   Tools: () => React.createElement("button", null, "Bold"),
-}));
-
-vi.mock("@/adapters/panels/AttributePanel/hooks/useSelectionRange", () => ({
-  useSelectionRange: () => ({
-    setSelectionRange: (range: Range) => {
-      state.savedRange = range;
-    },
-  }),
 }));
 
 vi.mock("@/adapters/ui/Provider/IframeCacheProvider", () => ({
@@ -94,7 +85,6 @@ describe("RichTextField toolbar focus", () => {
     document.body.replaceChildren();
     state.focusBlockNode = null;
     state.iframeDocument = null;
-    state.savedRange = null;
   });
 
   function createEditable(path: string, text: string) {
@@ -161,8 +151,6 @@ describe("RichTextField toolbar focus", () => {
 
     expect(shortcutEvent.defaultPrevented).toBe(true);
     expect(iframeDocument.activeElement).toBe(firstButton);
-    expect(firstButton?.getAttribute("data-keyboard-focus")).toBe("true");
-    expect(state.savedRange?.toString()).toBe("First text block");
   });
 
   it("keeps the toolbar visible when a toolbar popover receives focus", async () => {

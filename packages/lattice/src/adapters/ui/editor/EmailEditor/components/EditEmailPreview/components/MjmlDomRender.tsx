@@ -5,6 +5,7 @@ import { cloneDeep, isEqual } from "lodash-es";
 import { useEditorContext } from "@/application/hooks/useEditorContext";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
 import { getIframeDocument } from "@/shared/utils";
+import { isEditingText } from "@/shared/utils/contenteditable";
 import { DATA_RENDER_COUNT, FIXED_CONTAINER_ID } from "@/constants";
 import { HtmlStringToReactNodes } from "@/shared/utils/HtmlStringToReactNodes";
 import { createPortal } from "react-dom";
@@ -23,12 +24,13 @@ export function MjmlDomRender() {
   const [previewStatus, setPreviewStatus] = useState("");
   const previousErrorRef = useRef("");
 
-  const isTextFocusing =
-    getIframeDocument()?.activeElement?.getAttribute("contenteditable") ===
-    "true";
+  const isTextFocusing = isEditingText(getIframeDocument());
 
   useEffect(() => {
-    if (!isTextFocus && !isEqual(content, pageData)) {
+    // A re-render replaces the text block that has the focus, so wait until the edit ends.
+    // Read the focus now. The state can be stale after a move to the toolbar and back.
+    const editing = isTextFocus || isEditingText(getIframeDocument());
+    if (!editing && !isEqual(content, pageData)) {
       setPageData(cloneDeep(content));
     }
   }, [content, pageData, isTextFocus]);
@@ -60,10 +62,7 @@ export function MjmlDomRender() {
     const root = getIframeDocument();
     if (!root) return;
     const onClick = (_e: Event) => {
-      const isFocusing =
-        getIframeDocument()?.activeElement?.getAttribute("contenteditable") ===
-        "true";
-      if (isFocusing) {
+      if (isEditingText(getIframeDocument())) {
         setIsTextFocus(true);
       }
     };
