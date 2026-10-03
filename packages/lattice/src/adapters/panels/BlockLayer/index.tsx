@@ -30,6 +30,7 @@ import {
 import { getIconNameByBlockType } from "../../../shared/utils/panel/getIconNameByBlockType";
 import { getBlockTitle } from "@/shared/utils/panel/getBlockTitle";
 import { Stack } from "@mui/material";
+import { useEditorStatus } from "@/application/hooks/useEditorStatus";
 
 export interface IBlockDataWithId extends IBlockData {
   id: string;
@@ -49,6 +50,7 @@ export function BlockLayer(props: BlockLayerProps) {
   const { setHoverIdx, setIsDragging, setDirection } = useHoverIdx();
   const { moveBlock, setValueByIdx, copyBlock, removeBlock, values } =
     useBlock();
+  const { announce } = useEditorStatus();
 
   const { setBlockLayerRef, allowDrop, removeHightLightClassName } =
     useAvatarWrapperDrop();
@@ -69,9 +71,15 @@ export function BlockLayer(props: BlockLayerProps) {
       if (blockData) {
         blockData.data.hidden = !Boolean(blockData.data.hidden);
         setValueByIdx(id, blockData);
+        const title = getBlockTitle(blockData, false);
+        announce(
+          blockData.data.hidden
+            ? `${title} ${t("hidden")}.`
+            : `${title} ${t("visible")}.`,
+        );
       }
     },
-    [setValueByIdx, valueRef],
+    [announce, setValueByIdx, valueRef],
   );
 
   const renderTitle = useCallback(

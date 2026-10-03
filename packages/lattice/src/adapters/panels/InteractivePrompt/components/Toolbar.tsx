@@ -41,30 +41,18 @@ export function Toolbar() {
   }, []);
 
   const handleAddToCollection = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     setModalVisible(true);
   };
 
-  const handleCopy = (ev: React.MouseEvent<HTMLButtonElement>) => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
+  const handleCopy = () => {
     copyBlock(focusIdx);
   };
 
   const handleDelete = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     removeBlock(focusIdx);
   };
 
   const handleSelectParent = () => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
     setFocusIdx(getParentIdx(focusIdx)!);
   };
 

@@ -17,6 +17,7 @@ import {
 } from "../EditorFormProvider";
 import { overrideErrorLog, restoreErrorLog } from "@/shared/utils/logger";
 import { isEqual } from "lodash-es";
+import { EditorStatusProvider } from "../EditorStatusProvider";
 
 export interface EmailEditorProviderProps<
   T extends IEmailTemplate = IEmailTemplate,
@@ -69,17 +70,19 @@ export const EmailEditorProvider = (props: EmailEditorProviderProps) => {
         <PropsProvider {...props}>
           <LanguageProvider locale={props.locale}>
             <PreviewEmailProvider>
-              <RecordProvider>
-                <BlocksProvider>
-                  <HoverIdxProvider>
-                    <ScrollProvider>
-                      <FocusBlockLayoutProvider>
-                        <RenderChildren children={children} />
-                      </FocusBlockLayoutProvider>
-                    </ScrollProvider>
-                  </HoverIdxProvider>
-                </BlocksProvider>
-              </RecordProvider>
+              <EditorStatusProvider>
+                <RecordProvider>
+                  <BlocksProvider>
+                    <HoverIdxProvider>
+                      <ScrollProvider>
+                        <FocusBlockLayoutProvider>
+                          <RenderChildren children={children} />
+                        </FocusBlockLayoutProvider>
+                      </ScrollProvider>
+                    </HoverIdxProvider>
+                  </BlocksProvider>
+                </RecordProvider>
+              </EditorStatusProvider>
             </PreviewEmailProvider>
           </LanguageProvider>
         </PropsProvider>
