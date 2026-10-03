@@ -1,12 +1,16 @@
 import React from "react";
 import styles from "@/styles/block-shadowDom-interactive.css?inline";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
+import {
+  EDITOR_HOVER_COLOR,
+  EDITOR_SELECTED_COLOR,
+} from "@/shared/utils/overlayAccessibility";
 
 export function ShadowStyle() {
   const {
     interactiveStyle: {
-      hoverColor = "rgb(var(--primary-4, #1890ff))",
-      selectedColor = "rgb(var(--primary-6, #1890ff))",
+      hoverColor = EDITOR_HOVER_COLOR,
+      selectedColor = EDITOR_SELECTED_COLOR,
     } = {},
   } = useEditorProps();
 

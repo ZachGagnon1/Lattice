@@ -13,8 +13,9 @@ import DragHandleIcon from "@mui/icons-material/DragHandle"; // MUI Components
 import Box from "@mui/material/Box";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 import { getBlockStateOutline } from "@/shared/utils/blockPromptAccessibility";
+import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
 
-const SELECTED_COLOR = "#1890ff";
+const SELECTED_COLOR = EDITOR_SELECTED_COLOR;
 
 export function FocusTooltip() {
   const { focusBlock } = useBlock();
@@ -115,6 +116,9 @@ export function FocusTooltip() {
                 height: "100%",
                 outlineOffset: "-2px",
                 outline: getBlockStateOutline("selected", SELECTED_COLOR),
+                "@media (forced-colors: active)": {
+                  outlineColor: "Highlight",
+                },
               }}
             />
 

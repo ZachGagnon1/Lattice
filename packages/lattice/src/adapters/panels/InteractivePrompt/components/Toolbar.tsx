@@ -23,6 +23,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
 
 export function Toolbar() {
   const { copyBlock, removeBlock, focusBlock } = useBlock();
@@ -95,18 +96,18 @@ export function Toolbar() {
             <Box
               sx={{
                 color: "#ffffff",
-                backgroundColor: "#1890ff",
-                height: 22,
+                backgroundColor: EDITOR_SELECTED_COLOR,
+                minHeight: 22,
                 display: "inline-flex",
                 alignItems: "center",
-                padding: "0 5px",
+                padding: "2px 6px",
                 boxSizing: "border-box",
                 whiteSpace: "nowrap",
                 maxWidth: 300,
                 overflow: "hidden",
               }}
             >
-              <Typography variant="caption" sx={{ lineHeight: "22px" }}>
+              <Typography variant="caption">
                 {focusBlock && getBlockTitle(focusBlock, false)}
               </Typography>
             </Box>
@@ -120,8 +121,15 @@ export function Toolbar() {
                 alignItems: "center",
                 justifyContent: "center",
                 pointerEvents: "auto",
-                backgroundColor: "#1890ff",
-                height: 22,
+                backgroundColor: EDITOR_SELECTED_COLOR,
+                minHeight: 26,
+                "& button:focus-visible": {
+                  outline: "2px solid #ffffff",
+                  outlineOffset: -3,
+                },
+                "@media (forced-colors: active)": {
+                  border: "1px solid ButtonText",
+                },
               }}
             >
               <Tooltip

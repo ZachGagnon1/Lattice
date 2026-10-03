@@ -1,5 +1,5 @@
-import { useEditorProps, useFocusIdx } from "@";
-import React, { useEffect } from "react";
+import { useEditorProps } from "@";
+import React, { useState } from "react";
 import { InteractivePrompt } from "../InteractivePrompt";
 import { MergeTagBadgePrompt } from "@/adapters/panels/MergeTagBadgePrompt";
 import { EditPanel } from "../EditPanel";
@@ -8,8 +8,20 @@ import {
   ExtensionProps,
   ExtensionProvider,
 } from "@/adapters/panels/common/Providers/ExtensionProvider";
-import { Box, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Grid,
+  Paper,
+  Tab,
+  Tabs,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import { getEditorRegionLabels } from "@/shared/utils/editorRegions";
+import {
+  EditorRegion,
+  showEditorRegion,
+} from "@/shared/utils/responsiveEditor";
 
 export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   const { height: containerHeight } = useEditorProps();
@@ -23,17 +35,21 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   const labels = getEditorRegionLabels(regionLabels);
 
   const theme = useTheme();
-  const { setFocusIdx } = useFocusIdx();
-
-  // The side panels show from the md breakpoint (900px) up.
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const [activeRegion, setActiveRegion] = useState<EditorRegion>("canvas");
 
-  useEffect(() => {
-    // Below md the side panels hide, so a selection has no panel to show in.
+  const goToRegion = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    region: EditorRegion,
+  ) => {
     if (!isDesktop) {
-      setFocusIdx("");
+      event.preventDefault();
+      setActiveRegion(region);
+      requestAnimationFrame(() => {
+        document.getElementById(`lattice-${region}-region`)?.focus();
+      });
     }
-  }, [isDesktop, setFocusIdx]);
+  };
 
   return (
     <ExtensionProvider {...props} categories={categories}>
@@ -68,22 +84,55 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             "& a:focus": { transform: "translateY(0)" },
           }}
         >
-          <a href="#lattice-blocks-region">
+          <a
+            href="#lattice-blocks-region"
+            onClick={(event) => goToRegion(event, "blocks")}
+          >
             {t("Go to")} {labels.blocks}
           </a>
-          <a href="#lattice-canvas-region">
+          <a
+            href="#lattice-canvas-region"
+            onClick={(event) => goToRegion(event, "canvas")}
+          >
             {t("Go to")} {labels.canvas}
           </a>
-          <a href="#lattice-configuration-region">
+          <a
+            href="#lattice-configuration-region"
+            onClick={(event) => goToRegion(event, "configuration")}
+          >
             {t("Go to")} {labels.configuration}
           </a>
         </Box>
+        {!isDesktop && (
+          <Tabs
+            value={activeRegion}
+            onChange={(_, value: EditorRegion) => setActiveRegion(value)}
+            variant="fullWidth"
+            aria-label={labels.navigation}
+            sx={{ minHeight: 44 }}
+          >
+            <Tab
+              value="blocks"
+              label={labels.blocks}
+              sx={{ minWidth: 0, px: 0.5, flex: 1, fontSize: "0.72rem" }}
+            />
+            <Tab
+              value="canvas"
+              label={labels.canvas}
+              sx={{ minWidth: 0, px: 0.5, flex: 1, fontSize: "0.72rem" }}
+            />
+            <Tab
+              value="configuration"
+              label={labels.configuration}
+              sx={{ minWidth: 0, px: 0.5, flex: 1, fontSize: "0.72rem" }}
+            />
+          </Tabs>
+        )}
         <Grid
           container
           sx={{
-            height: "100%",
-            // Stacks items on mobile, forces them onto one row on desktop
-            flexWrap: { xs: "wrap", md: "nowrap" },
+            height: isDesktop ? "100%" : "calc(100% - 44px)",
+            flexWrap: "nowrap",
           }}
         >
           {/* LEFT PANEL: Editor Tools */}
@@ -92,9 +141,11 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             id="lattice-blocks-region"
             aria-label={labels.blocks}
             tabIndex={-1}
-            size={{ xs: 12, md: 2.5 }} // Explicit size ensures it doesn't get crushed
+            size={{ xs: 12, md: 2.5 }}
             sx={{
-              display: { xs: "none", md: "block" }, // Hides completely on mobile
+              display: showEditorRegion(isDesktop, activeRegion, "blocks")
+                ? "block"
+                : "none",
               height: "100%",
               overflowY: "auto", // Allows independent scrolling if panel content gets long
             }}
@@ -108,8 +159,11 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             id="lattice-canvas-region"
             aria-label={labels.canvas}
             tabIndex={-1}
-            size={{ xs: 12, md: 7 }} // 7/12 columns on desktop
+            size={{ xs: 12, md: 7 }}
             sx={{
+              display: showEditorRegion(isDesktop, activeRegion, "canvas")
+                ? "block"
+                : "none",
               height: "100%",
               overflowY: "auto",
             }}
@@ -122,9 +176,15 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             id="lattice-configuration-region"
             aria-label={labels.configuration}
             tabIndex={-1}
-            size={{ xs: 12, md: 2.5 }} // 3/12 columns on desktop (2 + 7 + 3 = 12 total columns)
+            size={{ xs: 12, md: 2.5 }}
             sx={{
-              display: { xs: "none", md: "block" }, // Hides completely on mobile
+              display: showEditorRegion(
+                isDesktop,
+                activeRegion,
+                "configuration",
+              )
+                ? "block"
+                : "none",
               height: "100%",
               overflowY: "auto",
             }}

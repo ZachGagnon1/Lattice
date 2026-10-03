@@ -20,9 +20,9 @@ import {
   getBlockStateOutline,
   shouldShowHoverPrompt,
 } from "@/shared/utils/blockPromptAccessibility";
+import { EDITOR_HOVER_COLOR } from "@/shared/utils/overlayAccessibility";
 
-// A lighter shade of the main toolbar blue (#1890ff)
-const HOVER_COLOR = "#40a9ff";
+const HOVER_COLOR = EDITOR_HOVER_COLOR;
 
 export function HoverTooltip() {
   const { hoverIdx, direction, isDragging } = useHoverIdx();
@@ -178,13 +178,16 @@ function TipNode(props: TipNodeProps) {
               sx={{
                 backgroundColor: HOVER_COLOR,
                 color: "#ffffff",
-                height: "22px",
-                lineHeight: "22px",
+                minHeight: "22px",
                 display: "inline-flex",
-                padding: "1px 5px",
+                alignItems: "center",
+                padding: "2px 6px",
                 boxSizing: "border-box",
                 whiteSpace: "nowrap",
                 transform: "translateY(-100%)",
+                "@media (forced-colors: active)": {
+                  border: "1px solid ButtonText",
+                },
               }}
             >
               {title}
