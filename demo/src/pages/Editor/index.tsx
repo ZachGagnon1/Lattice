@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
-import { cloneDeep } from "lodash";
 import Handlebars from "handlebars";
 
 import {
+  defaultCategories,
   downloadFile,
   exportToHtml,
   exportToJson,
@@ -11,8 +11,20 @@ import {
   LatticeEditor,
   unlayerToLattice,
 } from "lattice";
-import { TEMPLATE_DATA } from "@demo/pages/Editor/Arturia - Newsletter"; // Import the converter we created! Adjust the path to wherever you saved it.
-// Import the converter we created! Adjust the path to wherever you saved it.
+import { COUPON_TYPE, registerDemoBlocks } from "@demo/blocks";
+import { DEFAULT_TEMPLATE } from "@demo/pages/Editor/defaultTemplate";
+
+registerDemoBlocks();
+
+// The Coupon block joins the Content category, after the built-in blocks.
+const CATEGORIES = defaultCategories.map((category) =>
+  category.label === "Content"
+    ? ({
+        ...category,
+        blocks: [...category.blocks, { type: COUPON_TYPE }],
+      } as typeof category)
+    : category,
+);
 
 /**
  * The seven helpers that the Lattice Condition compiler emits.
@@ -121,10 +133,7 @@ export default function Editor() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [unlayerJson, setUnlayerJson] = useState("");
 
-  const [template, setTemplate] = useState<IEmailTemplate>(() => ({
-    ...TEMPLATE_DATA,
-    content: cloneDeep(JSON.parse(TEMPLATE_DATA.content.content)),
-  }));
+  const [template, setTemplate] = useState<IEmailTemplate>(DEFAULT_TEMPLATE);
 
   /**
    * Expands Handlebars logic before mjml() compiles the markup.
@@ -281,6 +290,7 @@ export default function Editor() {
         data={template}
         onChange={setTemplate}
         onUploadImage={mockImageUpload}
+        components={CATEGORIES}
         config={{
           showSourceCode: true,
         }}
