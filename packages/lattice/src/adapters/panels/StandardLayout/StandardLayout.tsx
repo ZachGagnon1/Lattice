@@ -8,7 +8,8 @@ import {
   ExtensionProps,
   ExtensionProvider,
 } from "@/adapters/panels/common/Providers/ExtensionProvider";
-import { Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Grid, Paper, useMediaQuery, useTheme } from "@mui/material";
+import { getEditorRegionLabels } from "@/shared/utils/editorRegions";
 
 export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   const { height: containerHeight } = useEditorProps();
@@ -17,7 +18,9 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
     categories,
     jsonReadOnly = false,
     mjmlReadOnly = true,
+    regionLabels = {},
   } = props;
+  const labels = getEditorRegionLabels(regionLabels);
 
   const theme = useTheme();
   const { setFocusIdx } = useFocusIdx();
@@ -38,9 +41,43 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
         sx={{
           padding: 0,
           height: containerHeight,
+          position: "relative",
           overflow: "hidden", // Keeps the layout contained
         }}
       >
+        <Box
+          component="nav"
+          aria-label={labels.navigation}
+          sx={{
+            position: "absolute",
+            zIndex: 10000,
+            "& a": {
+              position: "absolute",
+              left: 8,
+              top: 8,
+              transform: "translateY(-200%)",
+              backgroundColor: "background.paper",
+              color: "text.primary",
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 1,
+              px: 1.5,
+              py: 1,
+              whiteSpace: "nowrap",
+            },
+            "& a:focus": { transform: "translateY(0)" },
+          }}
+        >
+          <a href="#lattice-blocks-region">
+            {t("Go to")} {labels.blocks}
+          </a>
+          <a href="#lattice-canvas-region">
+            {t("Go to")} {labels.canvas}
+          </a>
+          <a href="#lattice-configuration-region">
+            {t("Go to")} {labels.configuration}
+          </a>
+        </Box>
         <Grid
           container
           sx={{
@@ -52,7 +89,9 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
           {/* LEFT PANEL: Editor Tools */}
           <Grid
             component="aside"
-            aria-label="Editor Tools"
+            id="lattice-blocks-region"
+            aria-label={labels.blocks}
+            tabIndex={-1}
             size={{ xs: 12, md: 2.5 }} // Explicit size ensures it doesn't get crushed
             sx={{
               display: { xs: "none", md: "block" }, // Hides completely on mobile
@@ -63,10 +102,12 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             <EditPanel />
           </Grid>
 
-          {/* MIDDLE PANEL: Email Canvas */}
           <Grid
-            component="main"
-            aria-label="Email Canvas"
+            component="section"
+            role="region"
+            id="lattice-canvas-region"
+            aria-label={labels.canvas}
+            tabIndex={-1}
             size={{ xs: 12, md: 7 }} // 7/12 columns on desktop
             sx={{
               height: "100%",
@@ -76,10 +117,11 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             {props.children}
           </Grid>
 
-          {/* RIGHT PANEL: Configuration Settings */}
           <Grid
             component="aside"
-            aria-label="Configuration Settings"
+            id="lattice-configuration-region"
+            aria-label={labels.configuration}
+            tabIndex={-1}
             size={{ xs: 12, md: 2.5 }} // 3/12 columns on desktop (2 + 7 + 3 = 12 total columns)
             sx={{
               display: { xs: "none", md: "block" }, // Hides completely on mobile

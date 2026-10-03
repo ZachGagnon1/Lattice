@@ -12,6 +12,7 @@ import { Toolbar } from "./Toolbar";
 import DragHandleIcon from "@mui/icons-material/DragHandle"; // MUI Components
 import Box from "@mui/material/Box";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
+import { getBlockStateOutline } from "@/shared/utils/blockPromptAccessibility";
 
 const SELECTED_COLOR = "#1890ff";
 
@@ -113,7 +114,7 @@ export function FocusTooltip() {
                 width: "100%",
                 height: "100%",
                 outlineOffset: "-2px",
-                outline: `2px solid ${SELECTED_COLOR}`,
+                outline: getBlockStateOutline("selected", SELECTED_COLOR),
               }}
             />
 

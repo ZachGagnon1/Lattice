@@ -16,6 +16,10 @@ import {
 } from "@";
 import { awaitForElement } from "@/shared/utils/panel/awaitForElement";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
+import {
+  getBlockStateOutline,
+  shouldShowHoverPrompt,
+} from "@/shared/utils/blockPromptAccessibility";
 
 // A lighter shade of the main toolbar blue (#1890ff)
 const HOVER_COLOR = "#40a9ff";
@@ -69,7 +73,7 @@ export function HoverTooltip() {
       : null;
   }, [blockNode]);
 
-  if (focusIdx === hoverIdx && !isDragging) return null;
+  if (!shouldShowHoverPrompt(focusIdx, hoverIdx, isDragging)) return null;
   if (!block || !blockNode) return null;
 
   return (
@@ -149,7 +153,6 @@ function TipNode(props: TipNodeProps) {
       `}
       </style>
 
-      {/* Outline */}
       <Box
         sx={{
           position: "absolute",
@@ -158,11 +161,18 @@ function TipNode(props: TipNodeProps) {
           width: "100%",
           height: "100%",
           outlineOffset: `-${lineWidth}px`,
-          outline: `${lineWidth}px solid ${HOVER_COLOR}`,
+          outline: getBlockStateOutline("hover", HOVER_COLOR),
         }}
       >
         {type === "hover" && (
-          <Box sx={{ position: "absolute", left: 0, top: 0 }}>
+          <Box
+            sx={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              pointerEvents: "auto",
+            }}
+          >
             <Typography
               variant="caption"
               sx={{
@@ -183,7 +193,6 @@ function TipNode(props: TipNodeProps) {
         )}
       </Box>
 
-      {/* Drag direction tip */}
       {props.isDragging && (
         <Box
           sx={{
