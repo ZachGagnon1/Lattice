@@ -6,20 +6,13 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import {
-  BasicType,
-  BlockManager,
-  IBlockData,
-  useBlock,
-  useEditorProps,
-  useFocusIdx,
-} from "@";
+import { BasicType, BlockManager, IBlockData } from "@";
 import { getIconNameByBlockType } from "@/shared/utils/panel/getIconNameByBlockType";
 import {
   ExtensionProps,
   useExtensionProps,
 } from "@/adapters/panels/common/Providers/ExtensionProvider";
-import { resolveAddTarget } from "@/shared/utils/panel/resolveAddTarget";
+import { useAddBlockAtFocus } from "@/application/hooks/useAddBlockAtFocus";
 
 export interface AddBlockMenuProps {
   anchorEl: HTMLElement | null;
@@ -97,9 +90,7 @@ export function AddBlockMenu({
   container,
 }: Readonly<AddBlockMenuProps>) {
   const { categories } = useExtensionProps();
-  const { values, addBlock } = useBlock();
-  const { focusIdx } = useFocusIdx();
-  const { autoComplete = false } = useEditorProps();
+  const { getTarget, addAtFocus } = useAddBlockAtFocus();
 
   const groups = useMemo(() => toGroups(categories), [categories]);
   const open = Boolean(anchorEl);
@@ -118,24 +109,13 @@ export function AddBlockMenu({
             {group.label}
           </ListSubheader>,
           ...group.items.map((item) => {
-            const target = resolveAddTarget({
-              type: item.type,
-              focusIdx,
-              values,
-              autoComplete,
-            });
+            const target = getTarget(item.type);
             return (
               <MenuItem
                 key={item.key}
                 disabled={!target}
                 onClick={() => {
-                  if (!target) return;
-                  addBlock({
-                    type: item.type,
-                    payload: item.payload,
-                    ...target,
-                  });
-                  onClose();
+                  if (addAtFocus(item.type, item.payload)) onClose();
                 }}
               >
                 <ListItemIcon>{getIconNameByBlockType(item.type)}</ListItemIcon>
