@@ -15,6 +15,7 @@ import { Stack } from "@mui/material";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import AddIcon from "@mui/icons-material/Add";
 import { AddBlockMenu } from "@/adapters/panels/common/AddBlockMenu";
+import { KeyboardShortcut } from "@/adapters/panels/common/KeyboardShortcut";
 
 export function BasicTools() {
   const { copyBlock, removeBlock } = useBlock();
@@ -51,18 +52,12 @@ export function BasicTools() {
         }}
       >
         Text
-        <kbd
+        <KeyboardShortcut
           title={t("Shortcut to the text formatting toolbar")}
-          style={{
-            marginLeft: 8,
-            padding: "1px 5px",
-            border: "1px solid #aeb1b8",
-            borderRadius: 3,
-            fontSize: 11,
-          }}
+          borderColor="#aeb1b8"
         >
           {shortcutLabel}
-        </kbd>
+        </KeyboardShortcut>
       </span>
       <ToolItem
         onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}

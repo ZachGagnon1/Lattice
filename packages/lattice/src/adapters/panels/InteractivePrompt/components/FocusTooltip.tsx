@@ -14,6 +14,10 @@ import Box from "@mui/material/Box";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 import { getBlockStateOutline } from "@/shared/utils/blockPromptAccessibility";
 import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
+import {
+  BLOCK_KEYBOARD_HINT_CLASS,
+  BLOCK_SELECTION_SURFACE,
+} from "@/shared/utils/canvasBlockAccessibility";
 
 const SELECTED_COLOR = EDITOR_SELECTED_COLOR;
 
@@ -45,6 +49,9 @@ export function FocusTooltip() {
               {`
                 .email-block {
                   position: relative;
+                }
+                .email-block > [${BLOCK_SELECTION_SURFACE}]:focus ~ #easy-email-extensions-InteractivePrompt-FocusTooltip .${BLOCK_KEYBOARD_HINT_CLASS} {
+                  display: inline;
                 }
               `}
             </style>

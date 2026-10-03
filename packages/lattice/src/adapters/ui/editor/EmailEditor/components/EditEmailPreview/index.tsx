@@ -69,7 +69,9 @@ export function EditEmailPreview() {
           border: 0,
         }}
       >
-        {t("Press Enter to use the block actions.")}
+        {t(
+          "Press Enter to use the block actions. Use the arrow keys to move between the actions.",
+        )}
       </div>
       <div
         className={classnames(
