@@ -8,7 +8,6 @@ import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { uniqueId } from "lodash-es";
 
 /**
  * This component is a placeholder for FormControl to correctly set the shrink label state on SSR.
@@ -34,7 +33,10 @@ export function NumberInput({
   size = "medium",
   ...other
 }: Readonly<NumberFieldProps>) {
-  const [id] = React.useState(() => idProp ?? uniqueId("number-field-"));
+  const generatedId = React.useId();
+  const id = idProp ?? generatedId;
+  const labelId = `${id}-label`;
+  const helperTextId = helperText ? `${id}-helper-text` : undefined;
 
   return (
     <BaseNumberField.Root
@@ -53,9 +55,13 @@ export function NumberInput({
       )}
     >
       <SSRInitialFilled {...other} />
-      <InputLabel htmlFor={id}>{label}</InputLabel>
+      <InputLabel id={labelId} htmlFor={id}>
+        {label}
+      </InputLabel>
       <BaseNumberField.Input
         id={id}
+        aria-describedby={helperTextId}
+        aria-invalid={error || undefined}
         render={(props, state) => (
           <OutlinedInput
             label={label}
@@ -87,7 +93,13 @@ export function NumberInput({
                 }}
               >
                 <BaseNumberField.Increment
-                  render={<IconButton size={size} aria-label="Increase" />}
+                  render={
+                    <IconButton
+                      size={size}
+                      aria-label="Increase"
+                      aria-controls={id}
+                    />
+                  }
                 >
                   <KeyboardArrowUpIcon
                     fontSize={size}
@@ -96,7 +108,13 @@ export function NumberInput({
                 </BaseNumberField.Increment>
 
                 <BaseNumberField.Decrement
-                  render={<IconButton size={size} aria-label="Decrease" />}
+                  render={
+                    <IconButton
+                      size={size}
+                      aria-label="Decrease"
+                      aria-controls={id}
+                    />
+                  }
                 >
                   <KeyboardArrowDownIcon
                     fontSize={size}
@@ -113,7 +131,7 @@ export function NumberInput({
           />
         )}
       />
-      <FormHelperText sx={{ ml: 0, "&:empty": { mt: 0 } }}>
+      <FormHelperText id={helperTextId} sx={{ ml: 0, "&:empty": { mt: 0 } }}>
         {helperText}
       </FormHelperText>
     </BaseNumberField.Root>

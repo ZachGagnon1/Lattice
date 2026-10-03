@@ -27,8 +27,19 @@ export function InputWithUnit(props: Readonly<InputWithUnitProps>) {
     onChange,
     unitOptions: propsUnitOptions,
     size = "small",
+    error,
+    helperText,
+    disabled,
+    id: idProp,
     ...restProps
   } = props;
+
+  const baseId = React.useId();
+  const inputId = idProp ?? `${baseId}-input`;
+  const labelId = `${inputId}-label`;
+  const helperTextId = helperText ? `${inputId}-helper-text` : undefined;
+  const unitTextId = `${baseId}-unit-text`;
+  const unitValueId = `${baseId}-unit-value`;
 
   const options = useMemo(() => {
     if (propsUnitOptions === "percent") {
@@ -68,8 +79,12 @@ export function InputWithUnit(props: Readonly<InputWithUnitProps>) {
     return (
       <NumberInput
         {...restProps}
+        id={inputId}
         label={label}
         size={size}
+        error={error}
+        helperText={helperText}
+        disabled={disabled}
         value={numValue}
         onValueChange={handleNumberChange} // Swapped onChange for onValueChange
       />
@@ -77,11 +92,19 @@ export function InputWithUnit(props: Readonly<InputWithUnitProps>) {
   }
 
   return (
-    <Box sx={{ display: "flex", alignItems: "flex-start", width: "100%" }}>
+    <Box
+      role="group"
+      aria-labelledby={label ? labelId : undefined}
+      sx={{ display: "flex", alignItems: "flex-start", width: "100%" }}
+    >
       <NumberInput
         {...restProps}
+        id={inputId}
         label={label}
         size={size}
+        error={error}
+        helperText={helperText}
+        disabled={disabled}
         value={numValue}
         onValueChange={handleNumberChange} // Swapped onChange for onValueChange
         style={{
@@ -91,10 +114,20 @@ export function InputWithUnit(props: Readonly<InputWithUnitProps>) {
         }}
         noRightBorder
       />
+      <span id={unitTextId} hidden>
+        {t("unit")}
+      </span>
       <Select
         value={currentUnit}
         onChange={handleUnitChange}
         size={size}
+        // MUI joins labelId and the display id into aria-labelledby, so the
+        // name reads as the field label, then "unit", then the current unit.
+        labelId={label ? `${labelId} ${unitTextId}` : unitTextId}
+        SelectDisplayProps={{ id: unitValueId }}
+        error={error}
+        disabled={disabled}
+        aria-describedby={helperTextId}
         sx={{
           width: "70px",
           borderTopLeftRadius: 0,
