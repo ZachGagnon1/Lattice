@@ -17,6 +17,9 @@ import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
 import {
   BLOCK_KEYBOARD_HINT_CLASS,
   BLOCK_SELECTION_SURFACE,
+  TABLE_CELL_CONTROL,
+  TABLE_CELL_HINT_CLASS,
+  TABLE_EDIT_HINT_CLASS,
 } from "@/shared/utils/canvasBlockAccessibility";
 
 const SELECTED_COLOR = EDITOR_SELECTED_COLOR;
@@ -51,6 +54,10 @@ export function FocusTooltip() {
                   position: relative;
                 }
                 .email-block > [${BLOCK_SELECTION_SURFACE}]:focus ~ #easy-email-extensions-InteractivePrompt-FocusTooltip .${BLOCK_KEYBOARD_HINT_CLASS} {
+                  display: inline;
+                }
+                .email-block:has(> [${TABLE_CELL_CONTROL}]:focus) > #easy-email-extensions-InteractivePrompt-FocusTooltip .${TABLE_CELL_HINT_CLASS},
+                .email-block:has(td[contenteditable]:focus) > #easy-email-extensions-InteractivePrompt-FocusTooltip .${TABLE_EDIT_HINT_CLASS} {
                   display: inline;
                 }
               `}

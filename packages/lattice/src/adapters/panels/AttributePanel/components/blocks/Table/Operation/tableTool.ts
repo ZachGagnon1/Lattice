@@ -13,8 +13,49 @@ import {
   getTableBlockPath,
   getTableCellTarget,
   isTableSourceCellPath,
+  isTypingKey,
 } from "@/shared/utils/tableKeyboard";
 import { DATA_CONTENT_EDITABLE_IDX } from "@/constants";
+import { EMAIL_BLOCK_CLASS_NAME } from "@/domain/constants";
+import {
+  focusBlockSelectionSurface,
+  focusEditableAtEnd,
+  TABLE_CELL_ACTIVE,
+  TABLE_CELL_CONTROL,
+} from "@/shared/utils/canvasBlockAccessibility";
+
+const EDITABLE_CELL_SELECTOR = `td[${DATA_CONTENT_EDITABLE_IDX}]`;
+
+function getCellControl(table: HTMLTableElement, row: number, column: number) {
+  return table
+    .closest(`.${EMAIL_BLOCK_CLASS_NAME}`)
+    ?.querySelector<HTMLButtonElement>(
+      `:scope > [${TABLE_CELL_CONTROL}="${row}-${column}"]`,
+    );
+}
+
+// The control outlives a re-render of its cell, so look the cell up on each use.
+function getControlCell(control: HTMLElement) {
+  const table = control.parentElement
+    ?.querySelector(EDITABLE_CELL_SELECTOR)
+    ?.closest("table");
+  const [row, column] = (control.getAttribute(TABLE_CELL_CONTROL) ?? "")
+    .split("-")
+    .map(Number);
+  const cell = table?.rows[row]?.cells[column];
+  return table && cell ? { table, cell } : null;
+}
+
+function setActiveControl(control: HTMLElement) {
+  control.parentElement
+    ?.querySelectorAll<HTMLElement>(`:scope > [${TABLE_CELL_ACTIVE}]`)
+    .forEach((item) => {
+      item.removeAttribute(TABLE_CELL_ACTIVE);
+      item.tabIndex = -1;
+    });
+  control.setAttribute(TABLE_CELL_ACTIVE, "");
+  control.tabIndex = 0;
+}
 
 interface IBorderTool {
   top: HTMLElement;
@@ -38,7 +79,6 @@ class TableColumnTool {
   tableMenu?: TableOperationMenu;
   changeTableData?: (e: ITableCellData[][]) => void;
   tableData: ITableCellData[][] = [];
-  cellControls: HTMLButtonElement[] = [];
   actionButton?: HTMLButtonElement;
   observer?: MutationObserver;
   announce?: (message: string) => void;
@@ -47,9 +87,7 @@ class TableColumnTool {
   getEditableTables() {
     if (!this.root) return [];
     const cells = Array.from(
-      this.root.querySelectorAll<HTMLElement>(
-        `td[${DATA_CONTENT_EDITABLE_IDX}]`,
-      ),
+      this.root.querySelectorAll<HTMLElement>(EDITABLE_CELL_SELECTOR),
     ).filter((cell) =>
       isTableSourceCellPath(cell.getAttribute(DATA_CONTENT_EDITABLE_IDX)),
     );
@@ -93,6 +131,10 @@ class TableColumnTool {
       "keydown",
       this.hideBorderByKeyDown as EventListener,
     );
+    this.root?.addEventListener(
+      "keydown",
+      this.handleEditKeyDown as EventListener,
+    );
   }
 
   destroy() {
@@ -118,15 +160,21 @@ class TableColumnTool {
       "keydown",
       this.hideBorderByKeyDown as EventListener,
     );
+    this.root?.removeEventListener(
+      "keydown",
+      this.handleEditKeyDown as EventListener,
+    );
     this.tableMenu?.destroy();
     this.observer?.disconnect();
-    this.cellControls.forEach((control) => control.remove());
+    this.root
+      ?.querySelectorAll(`[${TABLE_CELL_CONTROL}]`)
+      .forEach((control) => control.remove());
     this.actionButton?.remove();
   }
 
   hideBorder = (e: MouseEvent) => {
     if (
-      this.cellControls.includes(e.target as HTMLButtonElement) ||
+      (e.target as Element).hasAttribute?.(TABLE_CELL_CONTROL) ||
       e.target === this.actionButton
     ) {
       return;
@@ -136,7 +184,9 @@ class TableColumnTool {
   };
 
   hideBorderByKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") this.visibleBorder(false);
+    if (event.key === "Escape" && !event.defaultPrevented) {
+      this.visibleBorder(false);
+    }
   };
 
   hideTableMenu = (e?: MouseEvent) => {
@@ -217,6 +267,8 @@ class TableColumnTool {
 
     this.actionButton = iframeDocument.createElement("button");
     this.actionButton.type = "button";
+    // Keyboard users open the same menu with Shift+F10, so the button stays out of the Tab order.
+    this.actionButton.tabIndex = -1;
     this.actionButton.textContent = "⋯";
     this.actionButton.setAttribute("aria-label", t("Table actions"));
     this.actionButton.title = t("Table actions");
@@ -240,41 +292,74 @@ class TableColumnTool {
     this.observer.observe(this.root, { childList: true, subtree: true });
   }
 
+  // Reuse each control. A new node on each run would trigger this observer again.
   syncKeyboardCells = () => {
     const iframeDocument = getIframeDocument();
-    const container = this.root?.parentElement;
-    if (!iframeDocument || !container || !this.root) return;
+    if (!iframeDocument || !this.root) return;
 
-    this.cellControls.forEach((control) => control.remove());
-    this.cellControls = [];
-    const tables = this.getEditableTables();
-    tables.forEach((table, tableIndex) => {
+    const liveControls = new Set<Element>();
+    this.getEditableTables().forEach((table) => {
+      const block = table.closest<HTMLElement>(`.${EMAIL_BLOCK_CLASS_NAME}`);
+      if (!block) return;
       Array.from(table.rows).forEach((row, rowIndex) => {
         Array.from(row.cells).forEach((cell, columnIndex) => {
           cell.setAttribute("aria-rowindex", String(rowIndex + 1));
           cell.setAttribute("aria-colindex", String(columnIndex + 1));
-          const control = iframeDocument.createElement("button");
-          control.type = "button";
-          control.tabIndex = this.cellControls.length === 0 ? 0 : -1;
-          control.setAttribute(
-            "aria-label",
-            `${t("Select table cell")} ${t("row")} ${rowIndex + 1}, ${t("column")} ${columnIndex + 1}`,
-          );
-          control.dataset.tableIndex = String(tableIndex);
-          control.dataset.rowIndex = String(rowIndex);
-          control.dataset.columnIndex = String(columnIndex);
-          control.style.cssText =
-            "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;";
-          control.onfocus = () => this.selectCell(cell as HTMLElement, false);
-          control.onclick = () => this.selectCell(cell as HTMLElement, false);
-          control.onkeydown = (event) =>
-            this.handleCellKeyDown(event, table, cell as HTMLElement);
-          container.appendChild(control);
-          this.cellControls.push(control);
+          let control = getCellControl(table, rowIndex, columnIndex);
+          if (!control) {
+            control = this.createCellControl(
+              iframeDocument,
+              rowIndex,
+              columnIndex,
+            );
+            block.appendChild(control);
+          }
+          liveControls.add(control);
         });
       });
+      const firstControl = getCellControl(table, 0, 0);
+      if (
+        firstControl &&
+        !block.querySelector(`:scope > [${TABLE_CELL_ACTIVE}]`)
+      ) {
+        firstControl.setAttribute(TABLE_CELL_ACTIVE, "");
+      }
+    });
+
+    this.root.querySelectorAll(`[${TABLE_CELL_CONTROL}]`).forEach((control) => {
+      if (!liveControls.has(control)) control.remove();
     });
   };
+
+  createCellControl(document: Document, row: number, column: number) {
+    const control = document.createElement("button");
+    control.type = "button";
+    control.tabIndex = -1;
+    control.setAttribute(TABLE_CELL_CONTROL, `${row}-${column}`);
+    control.setAttribute(
+      "aria-label",
+      `${t("Table cell")} ${t("row")} ${row + 1}, ${t("column")} ${column + 1}`,
+    );
+    control.setAttribute(
+      "aria-description",
+      t(
+        "Use the arrow keys to move between the cells. Press Enter or type to edit the cell.",
+      ),
+    );
+    control.style.cssText =
+      "position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;";
+    control.addEventListener("focus", () => {
+      const target = getControlCell(control);
+      // An arrow key selects the cell before the focus moves. Do not undo a Shift range.
+      if (target && target.cell !== this.endDom) {
+        this.selectCell(target.cell, false);
+      }
+    });
+    control.addEventListener("keydown", (event) =>
+      this.handleCellKeyDown(event, control),
+    );
+    return control;
+  }
 
   selectCell(cell: HTMLElement, extend: boolean) {
     const tablePath = getTableBlockPath(
@@ -295,41 +380,80 @@ class TableColumnTool {
     }
   }
 
-  handleCellKeyDown(
-    event: KeyboardEvent,
-    table: HTMLTableElement,
-    cell: HTMLElement,
-  ) {
-    if (event.key === "F10" && event.shiftKey) {
+  handleCellKeyDown(event: KeyboardEvent, control: HTMLElement) {
+    const target = getControlCell(control);
+    if (!target) return;
+    const { table, cell } = target;
+
+    if (
+      (event.key === "F10" && event.shiftKey) ||
+      event.key === "ContextMenu"
+    ) {
       event.preventDefault();
       this.openMenuFromKeyboard();
       return;
     }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      this.visibleBorder(false);
+      const tablePath = getTableBlockPath(
+        cell.getAttribute(DATA_CONTENT_EDITABLE_IDX),
+      );
+      if (tablePath) {
+        focusBlockSelectionSurface(control.ownerDocument, tablePath);
+      }
+      return;
+    }
+    if (event.key === "Enter" || event.key === "F2") {
+      event.preventDefault();
+      focusEditableAtEnd(cell);
+      return;
+    }
+    // Leave the default action, so the browser types this key into the cell.
+    if (isTypingKey(event)) {
+      focusEditableAtEnd(cell);
+      return;
+    }
     if (!event.key.startsWith("Arrow")) return;
-    const currentRow = (cell.parentElement as HTMLTableRowElement).rowIndex;
-    const currentColumn = (cell as HTMLTableCellElement).cellIndex;
+
     const rows = Array.from(table.rows);
-    const target = getTableCellTarget(
-      currentRow,
-      currentColumn,
+    const next = getTableCellTarget(
+      (cell.parentElement as HTMLTableRowElement).rowIndex,
+      cell.cellIndex,
       event.key,
       rows.map((row) => row.cells.length),
     );
-    if (!target) return;
+    if (!next) return;
     event.preventDefault();
-    const targetCell = rows[target.row].cells[target.column] as HTMLElement;
-    const targetControl = this.cellControls.find(
-      (control) =>
-        control.dataset.tableIndex ===
-          String(this.getEditableTables().indexOf(table)) &&
-        control.dataset.rowIndex === String(target.row) &&
-        control.dataset.columnIndex === String(target.column),
-    );
-    this.cellControls.forEach((control) => (control.tabIndex = -1));
-    if (targetControl) targetControl.tabIndex = 0;
-    this.selectCell(targetCell, event.shiftKey);
-    targetControl?.focus();
+    const nextControl = getCellControl(table, next.row, next.column);
+    if (!nextControl) return;
+    setActiveControl(nextControl);
+    this.selectCell(rows[next.row].cells[next.column], event.shiftKey);
+    nextControl.focus();
   }
+
+  // Escape in an edited cell goes back to cell selection, as in a spreadsheet.
+  handleEditKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== "Escape" || event.defaultPrevented) return;
+    const cell = (event.target as Element).closest?.<HTMLTableCellElement>(
+      EDITABLE_CELL_SELECTOR,
+    );
+    const row = cell?.parentElement as HTMLTableRowElement | undefined;
+    const table = cell?.closest("table");
+    if (
+      !cell ||
+      !row ||
+      !table ||
+      !isTableSourceCellPath(cell.getAttribute(DATA_CONTENT_EDITABLE_IDX))
+    ) {
+      return;
+    }
+    const control = getCellControl(table, row.rowIndex, cell.cellIndex);
+    if (!control) return;
+    event.preventDefault();
+    setActiveControl(control);
+    control.focus();
+  };
 
   updateCellSelection() {
     if (!this.selectedLeftTopCell || !this.selectedBottomRightCell) return;
@@ -361,7 +485,11 @@ class TableColumnTool {
     this.tableMenu.setTableData(this.tableData);
     this.tableMenu.changeTableData = this.changeTableData;
     this.tableMenu.announce = this.announce;
-    this.tableMenu.returnFocus = this.actionButton;
+    const activeElement = getIframeDocument()?.activeElement as
+      HTMLElement | null | undefined;
+    this.tableMenu.returnFocus = activeElement?.hasAttribute(TABLE_CELL_CONTROL)
+      ? activeElement
+      : this.actionButton;
     this.tableMenu.setTableIndexBoundary(boundary);
     const rect = bottomRightCell.getBoundingClientRect();
     this.tableMenu.showMenu({ x: rect.right, y: rect.bottom });

@@ -3,6 +3,7 @@ import {
   getTableBlockPath,
   getTableCellTarget,
   isTableSourceCellPath,
+  isTypingKey,
 } from "./tableKeyboard";
 
 describe("getTableCellTarget", () => {
@@ -38,5 +39,25 @@ describe("isTableSourceCellPath", () => {
         "content.children.0.data.value.tableSource.0.1.content",
       ),
     ).toBe("content.children.0");
+  });
+});
+
+describe("isTypingKey", () => {
+  const key = (value: string, modifiers = {}) => ({
+    key: value,
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    ...modifiers,
+  });
+
+  it("accepts a character key", () => {
+    expect(isTypingKey(key("a"))).toBe(true);
+    expect(isTypingKey(key(" "))).toBe(true);
+  });
+
+  it("rejects a named key and a shortcut", () => {
+    expect(isTypingKey(key("Enter"))).toBe(false);
+    expect(isTypingKey(key("c", { metaKey: true }))).toBe(false);
   });
 });

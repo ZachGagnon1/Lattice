@@ -1,4 +1,5 @@
 import {
+  BasicType,
   getIframeDocument,
   getParentIdx,
   useBlock,
@@ -18,7 +19,8 @@ import { AddBlockMenu } from "@/adapters/panels/common/AddBlockMenu";
 import { KeyboardShortcut } from "@/adapters/panels/common/KeyboardShortcut";
 
 export function BasicTools() {
-  const { copyBlock, removeBlock } = useBlock();
+  const { copyBlock, removeBlock, focusBlock } = useBlock();
+  const isTableCell = focusBlock?.type === BasicType.TABLE;
   const { focusIdx, setFocusIdx } = useFocusIdx();
   const { modal, setModalVisible } = useAddToCollection();
   const { onAddCollection } = useEditorProps();
@@ -58,6 +60,15 @@ export function BasicTools() {
         >
           {shortcutLabel}
         </KeyboardShortcut>
+        {isTableCell && (
+          <KeyboardShortcut
+            title={t("Stop the edit and go back to the cells")}
+            borderColor="#aeb1b8"
+            style={{ marginLeft: 4 }}
+          >
+            Esc
+          </KeyboardShortcut>
+        )}
       </span>
       <ToolItem
         onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}

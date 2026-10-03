@@ -1,4 +1,5 @@
 import React from "react";
+import { flushSync } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import {
   Divider,
@@ -115,7 +116,11 @@ export default class TableOperationMenu {
       this.domNode.style.top = `${y}px`;
     }
 
-    this.renderReact();
+    // autoFocusItem acts only on the first mount. The menu stays mounted after that.
+    flushSync(() => this.renderReact());
+    this.domNode
+      ?.querySelector<HTMLElement>('[role="menuitem"]')
+      ?.focus({ preventScroll: true });
   }
 
   renderReact() {

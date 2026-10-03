@@ -24,3 +24,15 @@ export function getTableBlockPath(path: string | null) {
   const markerIndex = path?.indexOf(marker) ?? -1;
   return markerIndex >= 0 ? path!.slice(0, markerIndex) : null;
 }
+
+/** True for a key that types a character, so the cell can start the edit with it. */
+export function isTypingKey(event: {
+  key: string;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  altKey: boolean;
+}) {
+  return (
+    event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey
+  );
+}
