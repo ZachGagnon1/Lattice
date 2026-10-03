@@ -16,6 +16,10 @@ import {
   handleCanvasKeyDown,
   syncBlockSelectionSurfaces,
 } from "@/shared/utils/canvasBlockAccessibility";
+import {
+  isBlockSettingsShortcut,
+  requestBlockSettings,
+} from "@/shared/utils/blockSettingsNavigation";
 
 export function useDropBlock() {
   const [ref, setRef] = useState<HTMLElement | null>(null);
@@ -55,6 +59,20 @@ export function useDropBlock() {
     if (!ref) return;
     ref.addEventListener("keydown", handleCanvasKeyDown);
     return () => ref.removeEventListener("keydown", handleCanvasKeyDown);
+  }, [ref]);
+
+  useEffect(() => {
+    if (!ref) return;
+    const iframeDocument = ref.ownerDocument;
+    // The capture phase runs first, so a text or table cell handler cannot take the shortcut.
+    const openBlockSettings = (event: KeyboardEvent) => {
+      if (!isBlockSettingsShortcut(event)) return;
+      event.preventDefault();
+      requestBlockSettings();
+    };
+    iframeDocument.addEventListener("keydown", openBlockSettings, true);
+    return () =>
+      iframeDocument.removeEventListener("keydown", openBlockSettings, true);
   }, [ref]);
 
   useEffect(() => {

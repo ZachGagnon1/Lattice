@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AttributePanel } from "@/adapters/panels/AttributePanel";
 import { SourceCodePanel } from "@/adapters/panels/SourceCodePanel";
 import { FullHeightOverlayScrollbars } from "@/adapters/panels/common/FullHeightOverlayScrollbars";
@@ -10,6 +10,10 @@ import {
   EditorTabs,
 } from "@/adapters/panels/common/EditorTabs/EditorTabs";
 import { getTabA11yProps } from "@/shared/utils/accessibility";
+import {
+  focusBlockSettingsWhenReady,
+  OPEN_BLOCK_SETTINGS_EVENT,
+} from "@/shared/utils/blockSettingsNavigation";
 
 export interface ConfigurationPanelProps {
   showSourceCode: boolean;
@@ -27,6 +31,19 @@ export function ConfigurationPanel({
 }: ConfigurationPanelProps) {
   const [activeTab, setActiveTab] = useState(0);
   const tabId = React.useId();
+
+  useEffect(() => {
+    const openBlockSettings = () => {
+      setActiveTab(0);
+      focusBlockSettingsWhenReady(document);
+    };
+    document.addEventListener(OPEN_BLOCK_SETTINGS_EVENT, openBlockSettings);
+    return () =>
+      document.removeEventListener(
+        OPEN_BLOCK_SETTINGS_EVENT,
+        openBlockSettings,
+      );
+  }, []);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
