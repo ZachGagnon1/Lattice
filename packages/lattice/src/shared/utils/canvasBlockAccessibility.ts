@@ -3,13 +3,19 @@ import {
   getNodeIdxFromClassName,
   getNodeTypeFromClassName,
 } from "@/domain/blocks/block";
-import { EMAIL_BLOCK_CLASS_NAME } from "@/domain/constants";
+import { BasicType, EMAIL_BLOCK_CLASS_NAME } from "@/domain/constants";
 import { isTextBlock } from "./isTextBlock";
 
 export const BLOCK_SELECTION_SURFACE = "data-block-selection-surface";
 export const BLOCK_SELECTION_INSTRUCTIONS = "block-selection-instructions";
 export const BLOCK_KEYBOARD_HINT_CLASS = "block-keyboard-hint";
 export const TOOLBAR_KEYBOARD_HINT_CLASS = "block-toolbar-keyboard-hint";
+export const TABLE_CELL_HINT_CLASS = "table-cell-keyboard-hint";
+export const TABLE_EDIT_HINT_CLASS = "table-edit-keyboard-hint";
+/** Marks the hidden button of a table cell. The value is `row-column`. */
+export const TABLE_CELL_CONTROL = "data-table-cell-control";
+/** Marks the cell that Tab returns to in each table. */
+export const TABLE_CELL_ACTIVE = "data-table-cell-active";
 
 const EDITABLE_SELECTOR = '[contenteditable="true"]';
 
@@ -75,7 +81,8 @@ function isSelectionButton(target: HTMLElement) {
   return target.tagName === "BUTTON";
 }
 
-function placeCaretAtEnd(editable: HTMLElement) {
+export function focusEditableAtEnd(editable: HTMLElement) {
+  editable.focus();
   const selection = editable.ownerDocument.getSelection();
   if (!selection) return;
   const range = editable.ownerDocument.createRange();
@@ -86,14 +93,37 @@ function placeCaretAtEnd(editable: HTMLElement) {
 }
 
 function focusTarget(target: HTMLElement) {
-  target.focus();
-  if (target.isContentEditable) placeCaretAtEnd(target);
+  if (target.isContentEditable) focusEditableAtEnd(target);
+  else target.focus();
 }
 
-function getTabTargets(document: Document) {
+/** A table takes the focus in its cells, so the arrow keys work at once. */
+function findTabTarget(block: HTMLElement, type: string) {
+  if (type === BasicType.TABLE) {
+    const cell =
+      block.querySelector<HTMLElement>(
+        `:scope > [${TABLE_CELL_CONTROL}][${TABLE_CELL_ACTIVE}]`,
+      ) ?? block.querySelector<HTMLElement>(`:scope > [${TABLE_CELL_CONTROL}]`);
+    if (cell) return cell;
+  }
+  if (isTextBlock(type)) {
+    const editable = block.querySelector<HTMLElement>(
+      `${EDITABLE_SELECTOR}[${BLOCK_SELECTION_SURFACE}]`,
+    );
+    if (editable) return editable;
+  }
+  return getSelectionButton(block);
+}
+
+function getBlockTargets(root: ParentNode) {
   return Array.from(
-    document.querySelectorAll<HTMLElement>(`[${BLOCK_SELECTION_SURFACE}]`),
-  );
+    root.querySelectorAll<HTMLElement>(`.${EMAIL_BLOCK_CLASS_NAME}`),
+  ).flatMap((block) => {
+    const idx = getNodeIdxFromClassName(block.classList);
+    const type = getNodeTypeFromClassName(block.classList);
+    const element = type ? findTabTarget(block, type) : null;
+    return idx && element ? [{ idx, element }] : [];
+  });
 }
 
 export function syncBlockSelectionSurfaces({
@@ -110,72 +140,84 @@ export function syncBlockSelectionSurfaces({
     editable.tabIndex = -1;
   });
 
-  const blocks = Array.from(
-    root.querySelectorAll<HTMLElement>(`.${EMAIL_BLOCK_CLASS_NAME}`),
-  );
-  const targets = blocks.flatMap((block) => {
-    const idx = getNodeIdxFromClassName(block.classList);
-    const type = getNodeTypeFromClassName(block.classList);
-    if (!idx || !type) return [];
+  root
+    .querySelectorAll<HTMLElement>(
+      `[${BLOCK_SELECTION_SURFACE}], [${TABLE_CELL_CONTROL}]`,
+    )
+    .forEach((element) => {
+      element.tabIndex = -1;
+    });
 
-    const target = getTabTarget(block, idx, type);
-    if (isSelectionButton(target)) {
-      target.setAttribute("aria-pressed", String(idx === focusIdx));
-      target.onclick = () => onSelect(idx);
-    }
-    target.tabIndex = -1;
-    target.onfocus = () => onSelect(idx);
-    return [target];
-  });
+  root
+    .querySelectorAll<HTMLElement>(`.${EMAIL_BLOCK_CLASS_NAME}`)
+    .forEach((block) => {
+      const idx = getNodeIdxFromClassName(block.classList);
+      const type = getNodeTypeFromClassName(block.classList);
+      if (!idx || !type) return;
 
-  const activeTarget =
-    targets.find(
-      (target) => target.getAttribute(BLOCK_SELECTION_SURFACE) === focusIdx,
-    ) ?? targets[0];
-  if (activeTarget) activeTarget.tabIndex = 0;
-
-  targets.forEach((target, index) => {
-    target.onkeydown = (event) => {
-      if (event.key === "Enter" && isSelectionButton(target)) {
-        event.preventDefault();
-        root.ownerDocument
-          .querySelector<HTMLButtonElement>(
-            "#easy-email-extensions-InteractivePrompt-Toolbar [role=toolbar] button",
-          )
-          ?.focus();
-        return;
+      const surface = getTabTarget(block, idx, type);
+      if (isSelectionButton(surface)) {
+        surface.setAttribute("aria-pressed", String(idx === focusIdx));
+        surface.onclick = () => onSelect(idx);
       }
-      if (event.key !== "Tab") return;
-      const targetIndex = getNextBlockIndex(
-        index,
-        targets.length,
-        event.shiftKey,
-      );
-      if (targetIndex < 0) return;
-      event.preventDefault();
-      targets.forEach((item, itemIndex) => {
-        item.tabIndex = itemIndex === targetIndex ? 0 : -1;
-      });
-      focusTarget(targets[targetIndex]);
-    };
-  });
+      surface.onfocus = () => onSelect(idx);
+    });
+
+  const targets = getBlockTargets(root);
+  const activeTarget =
+    targets.find((target) => target.idx === focusIdx) ?? targets[0];
+  if (activeTarget) activeTarget.element.tabIndex = 0;
+}
+
+/** Handles Tab and Enter for the whole canvas, so each element inside a block follows the same rules. */
+export function handleCanvasKeyDown(event: KeyboardEvent) {
+  if (event.defaultPrevented) return;
+  const element = event.target as HTMLElement;
+
+  if (
+    event.key === "Enter" &&
+    isSelectionButton(element) &&
+    element.hasAttribute(BLOCK_SELECTION_SURFACE)
+  ) {
+    event.preventDefault();
+    element.ownerDocument
+      .querySelector<HTMLButtonElement>(
+        "#easy-email-extensions-InteractivePrompt-Toolbar [role=toolbar] button",
+      )
+      ?.focus();
+    return;
+  }
+
+  if (event.key !== "Tab" || event.altKey || event.ctrlKey || event.metaKey) {
+    return;
+  }
+  const block = element.closest(`.${EMAIL_BLOCK_CLASS_NAME}`);
+  const idx = block && getNodeIdxFromClassName(block.classList);
+  if (idx && focusAdjacentBlock(element.ownerDocument, idx, event.shiftKey)) {
+    event.preventDefault();
+  }
 }
 
 export function focusBlockSelectionSurface(document: Document, idx: string) {
-  const target = getTabTargets(document).find(
-    (item) => item.getAttribute(BLOCK_SELECTION_SURFACE) === idx,
+  const target = document.querySelector<HTMLElement>(
+    `[${BLOCK_SELECTION_SURFACE}="${idx}"]`,
   );
   if (target) focusTarget(target);
 }
 
-/** Moves the focus from the block `idx` to the next block. Returns false at the last block. */
-export function focusNextBlock(document: Document, idx: string) {
-  const targets = getTabTargets(document);
-  const index = targets.findIndex(
-    (item) => item.getAttribute(BLOCK_SELECTION_SURFACE) === idx,
-  );
-  const next = targets[getNextBlockIndex(index, targets.length, false)];
+/** Moves the focus from the block `idx` to the next or previous block. Returns false at either end. */
+export function focusAdjacentBlock(
+  document: Document,
+  idx: string,
+  backwards: boolean,
+) {
+  const targets = getBlockTargets(document);
+  const index = targets.findIndex((target) => target.idx === idx);
+  const next = targets[getNextBlockIndex(index, targets.length, backwards)];
   if (index < 0 || !next) return false;
-  focusTarget(next);
+  targets.forEach((target) => {
+    target.element.tabIndex = target === next ? 0 : -1;
+  });
+  focusTarget(next.element);
   return true;
 }

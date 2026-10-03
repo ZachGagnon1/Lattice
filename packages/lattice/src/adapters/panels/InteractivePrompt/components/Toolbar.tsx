@@ -28,7 +28,9 @@ import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
 import {
   BLOCK_KEYBOARD_HINT_CLASS,
   focusBlockSelectionSurface,
-  focusNextBlock,
+  focusAdjacentBlock,
+  TABLE_CELL_HINT_CLASS,
+  TABLE_EDIT_HINT_CLASS,
   TOOLBAR_KEYBOARD_HINT_CLASS,
 } from "@/shared/utils/canvasBlockAccessibility";
 import {
@@ -45,6 +47,7 @@ export function Toolbar() {
 
   const isPage = focusBlock?.type === BasicType.PAGE;
   const isText = isTextBlock(focusBlock?.type);
+  const isTable = focusBlock?.type === BasicType.TABLE;
 
   // Crucial for telling MUI where to render Tooltips inside the iframe
   const iframeBody = useMemo(() => {
@@ -89,8 +92,14 @@ export function Toolbar() {
               color: "#ffffff",
               transform: "translateY(-100%)",
               display: "inline-flex",
-              [`& .${BLOCK_KEYBOARD_HINT_CLASS}, & .${TOOLBAR_KEYBOARD_HINT_CLASS}`]:
-                { display: "none" },
+              [[
+                BLOCK_KEYBOARD_HINT_CLASS,
+                TOOLBAR_KEYBOARD_HINT_CLASS,
+                TABLE_CELL_HINT_CLASS,
+                TABLE_EDIT_HINT_CLASS,
+              ]
+                .map((name) => `& .${name}`)
+                .join(", ")]: { display: "none" },
               [`&:has([role=toolbar]:focus-within) .${TOOLBAR_KEYBOARD_HINT_CLASS}`]:
                 { display: "inline" },
             }}
@@ -135,6 +144,40 @@ export function Toolbar() {
               >
                 Esc
               </KeyboardShortcut>
+              {isTable && (
+                <>
+                  <KeyboardShortcut
+                    title={t("Edit the cell")}
+                    borderColor="#ffffff"
+                    className={TABLE_CELL_HINT_CLASS}
+                  >
+                    Enter
+                  </KeyboardShortcut>
+                  <KeyboardShortcut
+                    title={t("Open the table menu")}
+                    borderColor="#ffffff"
+                    className={TABLE_CELL_HINT_CLASS}
+                    style={{ marginLeft: 4 }}
+                  >
+                    Shift+F10
+                  </KeyboardShortcut>
+                  <KeyboardShortcut
+                    title={t("Go to the table block")}
+                    borderColor="#ffffff"
+                    className={TABLE_CELL_HINT_CLASS}
+                    style={{ marginLeft: 4 }}
+                  >
+                    Esc
+                  </KeyboardShortcut>
+                  <KeyboardShortcut
+                    title={t("Stop the edit")}
+                    borderColor="#ffffff"
+                    className={TABLE_EDIT_HINT_CLASS}
+                  >
+                    Esc
+                  </KeyboardShortcut>
+                </>
+              )}
             </Box>
 
             {/* Action Buttons Container */}
@@ -164,7 +207,7 @@ export function Toolbar() {
                 const leaveToNextBlock =
                   event.key === "Tab" &&
                   !event.shiftKey &&
-                  focusNextBlock(iframeDocument, focusIdx);
+                  focusAdjacentBlock(iframeDocument, focusIdx, false);
                 const leaveToBlock =
                   event.key === "Escape" ||
                   (event.key === "Tab" && event.shiftKey);

@@ -12,7 +12,10 @@ import { useBlock } from "@/application/hooks/useBlock";
 import { getDirectionPosition } from "@/shared/utils/getDirectionPosition";
 import { getInsertPosition } from "@/shared/utils/getInsertPosition";
 import { DATA_ATTRIBUTE_DROP_CONTAINER } from "@/constants";
-import { syncBlockSelectionSurfaces } from "@/shared/utils/canvasBlockAccessibility";
+import {
+  handleCanvasKeyDown,
+  syncBlockSelectionSurfaces,
+} from "@/shared/utils/canvasBlockAccessibility";
 
 export function useDropBlock() {
   const [ref, setRef] = useState<HTMLElement | null>(null);
@@ -47,6 +50,12 @@ export function useDropBlock() {
     observer.observe(ref, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, [focusIdx, ref, setFocusIdx, values]);
+
+  useEffect(() => {
+    if (!ref) return;
+    ref.addEventListener("keydown", handleCanvasKeyDown);
+    return () => ref.removeEventListener("keydown", handleCanvasKeyDown);
+  }, [ref]);
 
   useEffect(() => {
     if (ref) {
