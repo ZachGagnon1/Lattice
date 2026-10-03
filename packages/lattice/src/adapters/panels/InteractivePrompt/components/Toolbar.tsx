@@ -12,6 +12,7 @@ import { useAddToCollection } from "@/application/hooks/useAddToCollection";
 import { getBlockTitle } from "@/shared/utils/panel/getBlockTitle";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 import { AddBlockMenu } from "@/adapters/panels/common/AddBlockMenu";
+import { KeyboardShortcut } from "@/adapters/panels/common/KeyboardShortcut";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -24,6 +25,16 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
+import {
+  BLOCK_KEYBOARD_HINT_CLASS,
+  focusBlockSelectionSurface,
+  focusNextBlock,
+  TOOLBAR_KEYBOARD_HINT_CLASS,
+} from "@/shared/utils/canvasBlockAccessibility";
+import {
+  getNextIndex,
+  getToolbarItems,
+} from "@/adapters/panels/common/Form/RichTextToolBar/focus";
 
 export function Toolbar() {
   const { copyBlock, removeBlock, focusBlock } = useBlock();
@@ -78,6 +89,10 @@ export function Toolbar() {
               color: "#ffffff",
               transform: "translateY(-100%)",
               display: "inline-flex",
+              [`& .${BLOCK_KEYBOARD_HINT_CLASS}, & .${TOOLBAR_KEYBOARD_HINT_CLASS}`]:
+                { display: "none" },
+              [`&:has([role=toolbar]:focus-within) .${TOOLBAR_KEYBOARD_HINT_CLASS}`]:
+                { display: "inline" },
             }}
           >
             {/* Block Title Container */}
@@ -91,19 +106,75 @@ export function Toolbar() {
                 padding: "2px 6px",
                 boxSizing: "border-box",
                 whiteSpace: "nowrap",
-                maxWidth: 300,
+                maxWidth: 420,
                 overflow: "hidden",
               }}
             >
               <Typography variant="caption">
                 {focusBlock && getBlockTitle(focusBlock, false)}
               </Typography>
+              <KeyboardShortcut
+                title={t("Shortcut to the block actions")}
+                borderColor="#ffffff"
+                className={BLOCK_KEYBOARD_HINT_CLASS}
+              >
+                Enter
+              </KeyboardShortcut>
+              <KeyboardShortcut
+                title={t("Move between the block actions")}
+                borderColor="#ffffff"
+                className={TOOLBAR_KEYBOARD_HINT_CLASS}
+              >
+                ← →
+              </KeyboardShortcut>
+              <KeyboardShortcut
+                title={t("Return to the block")}
+                borderColor="#ffffff"
+                className={TOOLBAR_KEYBOARD_HINT_CLASS}
+                style={{ marginLeft: 4 }}
+              >
+                Esc
+              </KeyboardShortcut>
             </Box>
 
             {/* Action Buttons Container */}
             <Box
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(ev) => ev.preventDefault()}
+              role="toolbar"
+              aria-label={t("Block actions")}
+              onKeyDown={(event) => {
+                const iframeDocument = getIframeDocument();
+                if (!iframeDocument) return;
+                const items = getToolbarItems(event.currentTarget);
+                const nextItem =
+                  items[
+                    getNextIndex(
+                      event.key,
+                      items.indexOf(event.target as HTMLButtonElement),
+                      items.length,
+                    )
+                  ];
+                if (nextItem) {
+                  event.preventDefault();
+                  nextItem.focus();
+                  return;
+                }
+                // Tab continues the walk through the blocks, so the actions do not trap the user.
+                const leaveToNextBlock =
+                  event.key === "Tab" &&
+                  !event.shiftKey &&
+                  focusNextBlock(iframeDocument, focusIdx);
+                const leaveToBlock =
+                  event.key === "Escape" ||
+                  (event.key === "Tab" && event.shiftKey);
+                if (leaveToNextBlock) {
+                  event.preventDefault();
+                } else if (leaveToBlock) {
+                  event.preventDefault();
+                  focusBlockSelectionSurface(iframeDocument, focusIdx);
+                }
+              }}
               sx={{
                 display: "flex",
                 alignItems: "center",

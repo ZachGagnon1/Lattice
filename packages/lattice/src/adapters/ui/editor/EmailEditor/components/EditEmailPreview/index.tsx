@@ -14,6 +14,7 @@ import { useActiveTab } from "@/application/hooks/useActiveTab";
 import { SyncScrollIframeComponent } from "@/adapters/ui/kit/SyncScrollIframeComponent";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
+import { BLOCK_SELECTION_INSTRUCTIONS } from "@/shared/utils/canvasBlockAccessibility";
 
 export function EditEmailPreview() {
   useHotKeys();
@@ -54,6 +55,24 @@ export function EditEmailPreview() {
         border: "none",
       }}
     >
+      <div
+        id={BLOCK_SELECTION_INSTRUCTIONS}
+        style={{
+          position: "absolute",
+          width: 1,
+          height: 1,
+          padding: 0,
+          margin: -1,
+          overflow: "hidden",
+          clip: "rect(0, 0, 0, 0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      >
+        {t(
+          "Press Enter to use the block actions. Use the arrow keys to move between the actions.",
+        )}
+      </div>
       <div
         className={classnames(
           "shadow-container",
