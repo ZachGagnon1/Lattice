@@ -4,6 +4,7 @@ packages:
 allowBuilds:
   '@parcel/watcher': false
   core-js: false
+  es5-ext: false
   esbuild: false
   highlight.js: false
   nx: false

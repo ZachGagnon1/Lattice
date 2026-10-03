@@ -3,6 +3,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -17,6 +18,7 @@ import { HexColorPicker } from "react-colorful";
 import Color from "color";
 import { PresetColorsContext } from "@/adapters/panels/AttributePanel/components/provider/PresetColorsProvider";
 import { debounce } from "lodash-es";
+import { describeColor, toHexColor } from "@/shared/utils/colorName";
 import { getColorControlLabel } from "@/shared/utils/controlAccessibility";
 
 export interface ColorPickerProps {
@@ -32,6 +34,89 @@ export interface ColorPickerProps {
 
 const transparentColor = "rgba(0,0,0,0)";
 
+export interface ColorPickerPanelProps {
+  value: string;
+  onChange: (color: string) => void;
+  /** Runs on a swatch click and on Enter in the hex field, for a picker that applies at once. */
+  onPick?: (color: string) => void;
+  label?: string;
+}
+
+const hexPattern = /^#?[0-9a-f]{6}$/i;
+
+export function ColorPickerPanel(props: ColorPickerPanelProps) {
+  const { value, onChange, onPick, label } = props;
+  const { colors: presetColors } = useContext(PresetColorsContext);
+  const lastValidHex = useRef("#000000");
+
+  const presetColorList = useMemo(() => {
+    return presetColors.filter((item) => item !== transparentColor).slice(-14);
+  }, [presetColors]);
+
+  // HexColorPicker needs a valid hex, but the value can be a partial hex while the user types.
+  let pickerColor = lastValidHex.current;
+  try {
+    pickerColor = Color(
+      hexPattern.test(value) && !value.startsWith("#") ? `#${value}` : value,
+    ).hex();
+    lastValidHex.current = pickerColor;
+  } catch (error) {}
+
+  return (
+    <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
+      <HexColorPicker color={pickerColor} onChange={onChange} />
+      <TextField
+        size="small"
+        value={value}
+        onChange={(event) => {
+          const next = event.target.value;
+          onChange(next && !next.startsWith("#") ? `#${next}` : next);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && onPick) {
+            event.preventDefault();
+            onPick(value);
+          }
+        }}
+        aria-label={`${label || t("Color")} hex value`}
+        sx={(theme) => ({
+          "& input": {
+            fontSize: "13px",
+            textTransform: "uppercase",
+          },
+          "& .MuiOutlinedInput-notchedOutline": {
+            borderColor: theme.palette.divider,
+          },
+        })}
+      />
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+        {presetColorList.map((presetColor) => (
+          <Box
+            key={presetColor}
+            component="button"
+            type="button"
+            title={presetColor}
+            aria-label={describeColor(toHexColor(presetColor)) || presetColor}
+            onClick={() => {
+              onChange(presetColor);
+              onPick?.(presetColor);
+            }}
+            sx={(theme) => ({
+              width: 20,
+              height: 20,
+              p: 0,
+              cursor: "pointer",
+              backgroundColor: presetColor,
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: "4px",
+            })}
+          />
+        ))}
+      </Box>
+    </Stack>
+  );
+}
+
 export function ColorPicker(props: ColorPickerProps) {
   const {
     value = "",
@@ -44,8 +129,7 @@ export function ColorPicker(props: ColorPickerProps) {
     isOpen: controlledIsOpen,
   } = props;
 
-  const { colors: presetColors, addCurrentColor } =
-    useContext(PresetColorsContext);
+  const { addCurrentColor } = useContext(PresetColorsContext);
 
   // Internal state for when the component is used non-controlled
   const [internalOpen, setInternalOpen] = useState(false);
@@ -114,32 +198,12 @@ export function ColorPicker(props: ColorPickerProps) {
     return internalColor;
   }, [internalColor]);
 
-  // The toolbar passes a computed color such as `rgb(0, 0, 0)`, and the picker takes only hex.
-  const pickerColor = useMemo(() => {
-    if (/^#?[0-9a-f]{1,5}$/i.test(internalColor)) {
-      try {
-        return Color(value).hex();
-      } catch (error) {
-        return "#000000";
-      }
-    }
-    try {
-      return Color(adapterColor).hex();
-    } catch (error) {
-      return "#000000";
-    }
-  }, [adapterColor, internalColor, value]);
-
   const inputColor = useMemo(() => {
     if (internalColor.startsWith("#") && internalColor.length === 7) {
       return internalColor.replace("#", "");
     }
     return internalColor;
   }, [internalColor]);
-
-  const presetColorList = useMemo(() => {
-    return presetColors.filter((item) => item !== transparentColor).slice(-14);
-  }, [presetColors]);
 
   const childrenArray = React.Children.toArray(children);
   const triggerChild = childrenArray[0];
@@ -268,51 +332,11 @@ export function ColorPicker(props: ColorPickerProps) {
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           >
-            <Stack spacing={1} sx={{ p: 1.5, width: 200 }}>
-              <HexColorPicker color={pickerColor} onChange={onColorChange} />
-              <TextField
-                size="small"
-                value={internalColor}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  const nextColor =
-                    value && !value.startsWith("#") ? `#${value}` : value;
-                  setInternalColor(nextColor);
-                  debouncedCommitColor(nextColor);
-                }}
-                aria-label={`${label || t("Color")} hex value`}
-                sx={(theme) => ({
-                  "& input": {
-                    fontSize: "13px",
-                    textTransform: "uppercase",
-                  },
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: theme.palette.divider,
-                  },
-                })}
-              />
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                {presetColorList.map((presetColor) => (
-                  <Box
-                    key={presetColor}
-                    component="button"
-                    type="button"
-                    title={presetColor}
-                    aria-label={presetColor}
-                    onClick={() => onColorChange(presetColor)}
-                    sx={(theme) => ({
-                      width: 20,
-                      height: 20,
-                      p: 0,
-                      cursor: "pointer",
-                      backgroundColor: presetColor,
-                      border: `1px solid ${theme.palette.divider}`,
-                      borderRadius: "4px",
-                    })}
-                  />
-                ))}
-              </Box>
-            </Stack>
+            <ColorPickerPanel
+              value={internalColor}
+              onChange={onColorChange}
+              label={label}
+            />
             {footerChild}
           </Box>
         </Popover>

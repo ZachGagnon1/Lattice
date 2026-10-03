@@ -6,54 +6,41 @@ export interface ToolItemProps extends Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   "title"
 > {
-  title?: string;
+  /** The accessible name and the tooltip text. */
+  title: string;
   icon: React.ReactNode;
-  trigger?: string;
+  /** Sets `aria-pressed`. Leave it out for a button that has no on and off state. */
   isActive?: boolean;
 }
 
 export const ToolItem = React.forwardRef<HTMLButtonElement, ToolItemProps>(
   function ToolItem(props, ref) {
-    const { title, icon, trigger, isActive, className, ...buttonProps } = props;
-    if (!props.title) {
-      return (
-        <button
-          ref={ref}
-          tabIndex={-1}
-          className="easy-email-extensions-emailToolItem"
-          {...buttonProps}
-        >
-          {icon}
-        </button>
-      );
-    }
+    const { title, icon, isActive, className, ...buttonProps } = props;
 
     return (
       <Tooltip
         placement="bottom"
-        title={props.title}
-        sx={{
-          fontSize: 12,
-          padding: "4px 8px",
-        }}
-        slotProps={{
-          popper: {
-            sx: { zIndex: 9999 },
-          },
-        }}
+        title={title}
+        slotProps={{ popper: { sx: { zIndex: 9999 } } }}
       >
         <button
           ref={ref}
+          type="button"
           tabIndex={-1}
           aria-label={title}
+          aria-pressed={buttonProps["aria-haspopup"] ? undefined : isActive}
           className={classnames(
             "easy-email-extensions-emailToolItem",
             isActive && "easy-email-extensions-emailToolItem-active",
             className,
           )}
+          // A mouse click must keep the focus and the selection in the text.
+          onMouseDown={(event) => event.preventDefault()}
           {...buttonProps}
         >
-          {icon}
+          <span aria-hidden="true" style={{ display: "contents" }}>
+            {icon}
+          </span>
         </button>
       </Tooltip>
     );

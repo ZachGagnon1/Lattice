@@ -1,27 +1,29 @@
 import React from "react";
 import { useFontFamily } from "@/application/hooks/useFontFamily";
-import { DropdownCommandWrapper } from "../DropdownCommandWrapper";
 import { FontFamilyIcon } from "@/adapters/ui/kit/Icons/FontFamilyIcon";
+import { DropdownTool } from "../DropdownTool";
+import { useToolbar } from "../../ToolbarContext";
+import { firstFontFamily } from "../../formatState";
 
-export interface FontFamilyProps {
-  execCommand: (cmd: string, value: any) => void;
-  selectionRange: Range | null | undefined;
-  getPopoverMountNode?: () => HTMLElement | null;
-}
-
-export function FontFamily(props: FontFamilyProps) {
+export function FontFamily() {
+  const { execCommand, format } = useToolbar();
   const { fontList } = useFontFamily();
 
   if (fontList.length === 0) return null;
 
+  const current = format.fontFamily.toLowerCase();
+  const selected = fontList.find(
+    (font) => firstFontFamily(font.value).toLowerCase() === current,
+  );
+
   return (
-    <DropdownCommandWrapper
+    <DropdownTool
       title={t("Font family")}
       icon={<FontFamilyIcon />}
       options={fontList}
-      selectionRange={props.selectionRange}
-      getPopoverMountNode={props.getPopoverMountNode}
-      onSelect={(val) => props.execCommand("fontName", val)}
+      selected={selected?.value}
+      currentLabel={format.fontFamily}
+      onSelect={(value) => execCommand("fontName", value)}
     />
   );
 }
