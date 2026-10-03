@@ -1,3 +1,13 @@
+// The domain and shared exports load first. A module that reads one of them from "@" at load time then finds it defined.
+export * from "./domain/constants";
+export * from "./domain/typings/index";
+export * from "./domain/blocks";
+export * as components from "./domain/blocks/render";
+export { JsonToMjml } from "./domain/compile/JsonToMjml";
+export * from "./constants";
+export * from "./shared/typings";
+export * from "./shared/utils";
+
 // export components
 export * from "./adapters/ui/Provider/EmailEditorProvider";
 
@@ -12,7 +22,6 @@ export { DesktopEmailPreview } from "./adapters/ui/editor/EmailEditor/components
 export { ToolsPanel } from "./adapters/ui/editor/EmailEditor/components/ToolsPanel";
 
 // export utils
-export * from "./shared/utils";
 
 // export hooks
 export { useActiveTab } from "./application/hooks/useActiveTab";
@@ -35,7 +44,6 @@ export { IconFont } from "./adapters/ui/IconFont";
 export { TextStyle } from "./adapters/ui/kit/TextStyle";
 export { Stack } from "./adapters/ui/kit/Stack";
 
-export * from "./shared/typings";
 export type { StackProps } from "./adapters/ui/kit/Stack";
 export type { PropsProviderProps } from "./adapters/ui/Provider/PropsProvider";
 export { AvailableTools } from "./adapters/ui/Provider/PropsProvider";
@@ -55,11 +63,6 @@ export * from "./adapters/panels/MergeTagBadgePrompt";
 export * from "./adapters/panels/common/Providers/ExtensionProvider";
 export * from "./adapters/panels/constants";
 export * from "./adapters/panels/common/Form";
-export { JsonToMjml } from "./domain/compile/JsonToMjml";
-export * from "./domain/blocks";
-export * as components from "./domain/blocks/render";
-export * from "./domain/typings/index";
-export * from "./domain/constants";
 
 export {
   getLoopScopes,
@@ -79,8 +82,6 @@ export {
 } from "./shared/utils/panel/getIconNameByBlockType";
 export { getBlockTitle } from "./shared/utils/panel/getBlockTitle";
 export { MjmlToJson } from "./shared/utils/panel/MjmlToJson";
-
-export * from "./constants";
 
 export { LatticeEditor } from "./adapters/ui/editor/LatticeEditor";
 export * from "./adapters/ui/editor/LatticeEditor/defaults";
