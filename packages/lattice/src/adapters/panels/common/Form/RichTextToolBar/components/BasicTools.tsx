@@ -18,6 +18,7 @@ import AddIcon from "@mui/icons-material/Add";
 import TuneIcon from "@mui/icons-material/Tune";
 import { AddBlockMenu } from "@/adapters/panels/common/AddBlockMenu";
 import { KeyboardShortcut } from "@/adapters/panels/common/KeyboardShortcut";
+import { useMoveBlockActions } from "@/application/hooks/useMoveBlockActions";
 import {
   getBlockSettingsShortcutLabel,
   requestBlockSettings,
@@ -30,6 +31,7 @@ export function BasicTools() {
   const { modal, setModalVisible } = useAddToCollection();
   const { onAddCollection } = useEditorProps();
   const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
+  const moveActions = useMoveBlockActions();
   const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
   const shortcutLabel = userAgent.includes("Mac") ? "Fn+⌥F10" : "Alt+F10";
 
@@ -97,6 +99,15 @@ export function BasicTools() {
         aria-keyshortcuts="Alt+Enter"
         icon={<TuneIcon />}
       />
+      {moveActions.map((action) => (
+        <ToolItem
+          key={action.key}
+          title={action.title}
+          icon={action.icon}
+          disabled={action.disabled}
+          onClick={blurThen(action.onClick)}
+        />
+      ))}
       <ToolItem
         onClick={blurThen(() => setFocusIdx(getParentIdx(focusIdx)!))}
         title={t("Select parent block")}

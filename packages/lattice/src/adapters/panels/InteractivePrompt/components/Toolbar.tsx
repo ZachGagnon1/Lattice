@@ -13,6 +13,7 @@ import { getBlockTitle } from "@/shared/utils/panel/getBlockTitle";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 import { AddBlockMenu } from "@/adapters/panels/common/AddBlockMenu";
 import { KeyboardShortcut } from "@/adapters/panels/common/KeyboardShortcut";
+import { useMoveBlockActions } from "@/application/hooks/useMoveBlockActions";
 
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
@@ -49,6 +50,7 @@ export function Toolbar() {
   const { modal, setModalVisible } = useAddToCollection();
   const props = useEditorProps();
   const [addMenuAnchor, setAddMenuAnchor] = useState<HTMLElement | null>(null);
+  const moveActions = useMoveBlockActions();
 
   const isPage = focusBlock?.type === BasicType.PAGE;
   const isText = isTextBlock(focusBlock?.type);
@@ -294,6 +296,33 @@ export function Toolbar() {
                   <TuneIcon sx={{ fontSize: 14 }} />
                 </IconButton>
               </Tooltip>
+
+              {moveActions.map((action) => (
+                <Tooltip
+                  key={action.key}
+                  title={action.title}
+                  slotProps={{ popper: { container: iframeBody } }}
+                >
+                  {/* A disabled button fires no events, so the tooltip needs a wrapper. */}
+                  <span>
+                    <IconButton
+                      aria-label={action.title}
+                      disabled={action.disabled}
+                      onClick={action.onClick}
+                      sx={{
+                        color: "inherit",
+                        p: 0,
+                        width: 22,
+                        height: 22,
+                        borderRadius: 0,
+                        "& svg": { fontSize: 14 },
+                      }}
+                    >
+                      {action.icon}
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              ))}
 
               {!isPage && (
                 <>

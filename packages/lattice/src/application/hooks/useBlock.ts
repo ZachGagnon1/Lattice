@@ -21,6 +21,7 @@ import { scrollBlockEleIntoView } from "@/shared/utils";
 import { useEditorStatus } from "./useEditorStatus";
 import { getBlockActionMessage } from "@/shared/utils/editorStatus";
 import { focusEditorBlock } from "@/shared/utils/focusEditorBlock";
+import { getIdxAfterRemoval } from "@/shared/utils/panel/resolveMoveTarget";
 
 export function useBlock() {
   const {
@@ -163,7 +164,8 @@ export function useBlock() {
           )}]`;
       } else {
         destinationParent.children.splice(positionIndex, 0, removed);
-        nextFocusIdx = destinationIdx;
+        // The removal shifts a later sibling of the source, and the destination can be inside one.
+        nextFocusIdx = getIdxAfterRemoval(destinationIdx, sourceIdx);
       }
 
       change(getPageIdx(), { ...values.content });
