@@ -5,3 +5,4 @@ package.json
 
 *.yml
 pnpm-lock.yaml
+tools/a11y-agent/reports/
