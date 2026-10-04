@@ -38,7 +38,7 @@ pnpm start --model clef:latest --task add-button --runs 5
 | `--task`      | all ten; see `src/tasks.mjs`. A comma list picks some, for example `reach-canvas,open-settings`                                                             |
 | `--max-steps` | `40` key presses for each run                                                                                                                               |
 | `--vision`    | `auto`: on for Clef models. `on` or `off` to force it                                                                                                       |
-| `--key-hints` | `basic`: short key descriptions. `rich` says what each key does and when to use it                                                                          |
+| `--key-hints` | `rich`: says what each key does and when to use it, and asks for proof before finish. `basic`: short key descriptions                                       |
 | `--persona`   | `blind`: the model hears only the screen reader text. `sighted` (Clef only) also sends a screenshot with each key choice, like a sighted keyboard-only user |
 | `--seed`      | a new seed from the clock. The report records it; pass it again to repeat a session                                                                         |
 | `--headed`    | off: show the browser                                                                                                                                       |

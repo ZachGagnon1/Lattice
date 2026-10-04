@@ -34,7 +34,7 @@ const { values: options } = parseArgs({
     task: { type: "string", default: TASKS.map((task) => task.id).join(",") },
     "max-steps": { type: "string", default: "40" },
     vision: { type: "string", default: "auto" },
-    "key-hints": { type: "string", default: "basic" },
+    "key-hints": { type: "string", default: "rich" },
     // "sighted" sends a screenshot with each key choice; only Clef reads images.
     persona: { type: "string", default: "blind" },
     // A new seed each session explores new paths; the report records it, so --seed repeats a session.
