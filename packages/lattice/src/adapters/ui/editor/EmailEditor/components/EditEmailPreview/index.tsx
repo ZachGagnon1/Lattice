@@ -70,7 +70,7 @@ export function EditEmailPreview() {
         }}
       >
         {t(
-          "Press Enter to use the block actions. Use the arrow keys to move between the actions.",
+          "Press Enter to use the block actions. Use the arrow keys to move between the actions. Press Alt+Enter to go to the block settings. On a Mac, press Option+Enter.",
         )}
       </div>
       <div
