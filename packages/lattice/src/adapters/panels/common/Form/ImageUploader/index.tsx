@@ -24,7 +24,7 @@ import {
   UploaderServer,
 } from "@/adapters/panels/AttributePanel/utils/Uploader";
 import { previewLoadImage } from "@/adapters/panels/AttributePanel/utils/previewLoadImage";
-import { MergeTags } from "@/adapters/panels";
+import { MergeTags } from "@/adapters/panels/AttributePanel/components/attributes/MergeTags";
 import { useEditorProps } from "@";
 import { TextInput } from "@/adapters/panels/common/Form/TextInput";
 import { getImageControlLabels } from "@/shared/utils/controlAccessibility";

@@ -15,7 +15,7 @@ import CodeIcon from "@mui/icons-material/Code";
 
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { HtmlEditor } from "../../UI/HtmlEditor";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { IconButton, Stack, Tooltip } from "@mui/material";
 

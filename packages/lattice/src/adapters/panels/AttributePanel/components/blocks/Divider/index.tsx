@@ -8,7 +8,7 @@ import { Width } from "@/adapters/panels/AttributePanel/components/attributes/Wi
 import { Align } from "@/adapters/panels/AttributePanel/components/attributes/Align";
 
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { Stack } from "@mui/material";
 

@@ -4,7 +4,7 @@ import { Background } from "@/adapters/panels/AttributePanel/components/attribut
 import { TextField } from "@/adapters/panels/common/Form";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { useFocusIdx } from "@";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { Stack } from "@mui/material";
 

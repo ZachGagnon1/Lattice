@@ -1,25 +1,23 @@
 import React, { useState } from "react";
-import {
-  Align,
-  AttributesPanelWrapper,
-  BackgroundColor,
-  Border,
-  ClassName,
-  Color,
-  ContainerBackgroundColor,
-  FontFamily,
-  FontSize,
-  FontStyle,
-  FontWeight,
-  LetterSpacing,
-  LineHeight,
-  Link,
-  MergeTags,
-  Padding,
-  TextDecoration,
-  TextField,
-  Width,
-} from "@/adapters/panels";
+import { Align } from "@/adapters/panels/AttributePanel/components/attributes/Align";
+import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
+import { BackgroundColor } from "@/adapters/panels/AttributePanel/components/attributes/BackgroundColor";
+import { Border } from "@/adapters/panels/AttributePanel/components/attributes/Border";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
+import { Color } from "@/adapters/panels/AttributePanel/components/attributes/Color";
+import { ContainerBackgroundColor } from "@/adapters/panels/AttributePanel/components/attributes/ContainerBackgroundColor";
+import { FontFamily } from "@/adapters/panels/AttributePanel/components/attributes/FontFamily";
+import { FontSize } from "@/adapters/panels/AttributePanel/components/attributes/FontSize";
+import { FontStyle } from "@/adapters/panels/AttributePanel/components/attributes/FontStyle";
+import { FontWeight } from "@/adapters/panels/AttributePanel/components/attributes/FontWeight";
+import { LetterSpacing } from "@/adapters/panels/AttributePanel/components/attributes/LetterSpacing";
+import { LineHeight } from "@/adapters/panels/AttributePanel/components/attributes/LineHeight";
+import { Link } from "@/adapters/panels/AttributePanel/components/attributes/Link";
+import { MergeTags } from "@/adapters/panels/AttributePanel/components/attributes/MergeTags";
+import { Padding } from "@/adapters/panels/AttributePanel/components/attributes/Padding";
+import { TextDecoration } from "@/adapters/panels/AttributePanel/components/attributes/TextDecoration";
+import { TextField } from "@/adapters/panels/common/Form";
+import { Width } from "@/adapters/panels/AttributePanel/components/attributes/Width";
 import { useEditorProps, useFocusIdx } from "@";
 import { useEditorField } from "@/adapters/panels/common/Form/useEditorField";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";

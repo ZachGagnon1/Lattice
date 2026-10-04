@@ -5,7 +5,7 @@ import {
   IBlockData,
   RecursivePartial,
 } from "@";
-import { getIconNameByBlockType } from "@/adapters/panels";
+import { getIconNameByBlockType } from "@/shared/utils/panel/getIconNameByBlockType";
 import { IconButton, Tooltip } from "@mui/material";
 
 export interface DragIconProps<T extends IBlockData> {

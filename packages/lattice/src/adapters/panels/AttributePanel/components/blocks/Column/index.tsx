@@ -4,7 +4,8 @@ import { Padding } from "@/adapters/panels/AttributePanel/components/attributes/
 import { Width } from "@/adapters/panels/AttributePanel/components/attributes/Width";
 import { VerticalAlign } from "@/adapters/panels/AttributePanel/components/attributes/VerticalAlign";
 import { Border } from "@/adapters/panels/AttributePanel/components/attributes/Border";
-import { BackgroundColor, ClassName } from "@/adapters/panels";
+import { BackgroundColor } from "@/adapters/panels/AttributePanel/components/attributes/BackgroundColor";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { Stack } from "@mui/material";
 

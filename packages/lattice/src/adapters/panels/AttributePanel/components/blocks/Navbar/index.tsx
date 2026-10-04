@@ -9,16 +9,14 @@ import { Align } from "@/adapters/panels/AttributePanel/components/attributes/Al
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { NavbarLinkPadding } from "@/adapters/panels/AttributePanel/components/attributes/NavbarLinkPadding";
 import { INavbar, useFocusIdx } from "@";
-import {
-  ClassName,
-  FontFamily,
-  FontStyle,
-  FontWeight,
-  LetterSpacing,
-  LineHeight,
-  TextDecoration,
-  TextTransform,
-} from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
+import { FontFamily } from "@/adapters/panels/AttributePanel/components/attributes/FontFamily";
+import { FontStyle } from "@/adapters/panels/AttributePanel/components/attributes/FontStyle";
+import { FontWeight } from "@/adapters/panels/AttributePanel/components/attributes/FontWeight";
+import { LetterSpacing } from "@/adapters/panels/AttributePanel/components/attributes/LetterSpacing";
+import { LineHeight } from "@/adapters/panels/AttributePanel/components/attributes/LineHeight";
+import { TextDecoration } from "@/adapters/panels/AttributePanel/components/attributes/TextDecoration";
+import { TextTransform } from "@/adapters/panels/AttributePanel/components/attributes/TextTransform";
 import { pixelAdapter } from "../../adapter";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { InputAdornment, Stack } from "@mui/material";
