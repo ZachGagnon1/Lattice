@@ -41,9 +41,11 @@ export const TASKS = [
   },
   {
     id: "open-settings",
-    goal: "Select any block in the email, then move to the settings of that block.",
+    goal: "Select a content block in the email, such as an Image, a Text, or a Button block, then move to the settings of that block.",
     start: async () => ({}),
-    reached: (page) => inSettings(page),
+    // The Page block is selected at the start, and its settings are the last Tab stops, so they do not count.
+    reached: async (page) =>
+      (await inSettings(page)) && !(await inSettings(page, "Page")),
   },
   {
     id: "text-settings",
