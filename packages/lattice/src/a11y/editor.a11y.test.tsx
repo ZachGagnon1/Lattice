@@ -258,3 +258,14 @@ describe("Merge tag button", () => {
     expect(document.activeElement).toBe(trigger);
   });
 });
+
+describe("Screen reader hints", () => {
+  it("name Alt+Enter in the block and the text descriptions", () => {
+    const { frameDocument } = getCanvas();
+    const find = (id: string) =>
+      (document.getElementById(id) ?? frameDocument.getElementById(id))
+        ?.textContent ?? "";
+    expect(find("block-selection-instructions")).toContain("Alt+Enter");
+    expect(find("lattice-inline-edit-instructions")).toContain("Alt+Enter");
+  });
+});
