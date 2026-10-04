@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useFocusIdx } from "@";
 import { TextAreaField } from "@/adapters/panels/common/Form";
-import { AttributesPanelWrapper } from "@/adapters/panels";
+import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { IconButton, Stack, Tooltip } from "@mui/material";
 import { HtmlEditor } from "../../UI/HtmlEditor";
 import CodeIcon from "@mui/icons-material/Code";

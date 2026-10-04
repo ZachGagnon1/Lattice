@@ -6,7 +6,7 @@ import { defaultCategories, defaultFontList } from "./defaults";
 import { IEmailTemplate } from "@/shared/typings";
 import { useEditorContext } from "@/application/hooks/useEditorContext";
 import { BasicType } from "@/domain/constants";
-import { ExtensionProps } from "@/adapters/panels";
+import { ExtensionProps } from "@/adapters/panels/common/Providers/ExtensionProvider";
 import { PropsProviderProps } from "@/adapters/ui/Provider/PropsProvider";
 import { useDebouncedCallback } from "use-debounce";
 import { toVariableSample } from "@/shared/utils/variableSchema";

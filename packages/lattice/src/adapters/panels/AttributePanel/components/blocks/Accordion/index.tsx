@@ -11,7 +11,7 @@ import {
   SelectField,
   TextField,
 } from "@/adapters/panels/common/Form";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { Stack } from "@mui/material";
 

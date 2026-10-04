@@ -19,7 +19,7 @@ import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/compone
 import { TextDecoration } from "@/adapters/panels/AttributePanel/components/attributes/TextDecoration";
 import { LineHeight } from "@/adapters/panels/AttributePanel/components/attributes/LineHeight";
 import { ISocial, useBlock, useEditorProps, useFocusIdx } from "@";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { InputAdornment, Stack } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";

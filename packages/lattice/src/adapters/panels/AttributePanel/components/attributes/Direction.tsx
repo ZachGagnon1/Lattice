@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useFocusIdx } from "@";
-import { RadioGroupField } from "@/adapters/panels";
+import { RadioGroupField } from "@/adapters/panels/common/Form";
 
 const options = [
   {

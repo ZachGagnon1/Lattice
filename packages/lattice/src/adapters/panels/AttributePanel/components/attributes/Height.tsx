@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { InputWithUnitField } from "@/adapters/panels";
+import { InputWithUnitField } from "@/adapters/panels/common/Form";
 import { useFocusIdx } from "@";
 import type { FieldAdapter } from "@/adapters/panels/common/Form/enhancer";
 

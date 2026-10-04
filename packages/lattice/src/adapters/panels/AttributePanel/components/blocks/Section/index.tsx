@@ -5,7 +5,7 @@ import { Border } from "@/adapters/panels/AttributePanel/components/attributes/B
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { BlockManager, useBlock, useFocusIdx } from "@";
 import { BasicType } from "@/domain/constants";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { TextField } from "@/adapters/panels/common/Form";
 import { Stack } from "@mui/material";

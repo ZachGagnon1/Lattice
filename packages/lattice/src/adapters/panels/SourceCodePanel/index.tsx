@@ -12,7 +12,7 @@ import {
 } from "@";
 import { cloneDeep } from "lodash-es";
 import React, { useCallback, useEffect, useState } from "react";
-import { MjmlToJson } from "@/adapters/panels";
+import { MjmlToJson } from "@/shared/utils/panel/MjmlToJson";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 
 import { Box, Button, Stack } from "@mui/material";

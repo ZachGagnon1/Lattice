@@ -1,16 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel";
-import {
-  Border,
-  Color,
-  ContainerBackgroundColor,
-  FontFamily,
-  FontSize,
-  FontStyle,
-  Padding,
-  TextAlign,
-  Width,
-} from "@/adapters/panels";
+import { Border } from "@/adapters/panels/AttributePanel/components/attributes/Border";
+import { Color } from "@/adapters/panels/AttributePanel/components/attributes/Color";
+import { ContainerBackgroundColor } from "@/adapters/panels/AttributePanel/components/attributes/ContainerBackgroundColor";
+import { FontFamily } from "@/adapters/panels/AttributePanel/components/attributes/FontFamily";
+import { FontSize } from "@/adapters/panels/AttributePanel/components/attributes/FontSize";
+import { FontStyle } from "@/adapters/panels/AttributePanel/components/attributes/FontStyle";
+import { Padding } from "@/adapters/panels/AttributePanel/components/attributes/Padding";
+import { TextAlign } from "@/adapters/panels/AttributePanel/components/attributes/TextAlign";
+import { Width } from "@/adapters/panels/AttributePanel/components/attributes/Width";
 import { HtmlEditor } from "../../UI/HtmlEditor";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import {

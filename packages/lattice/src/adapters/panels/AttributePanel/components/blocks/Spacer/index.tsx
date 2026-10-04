@@ -3,7 +3,7 @@ import { Height } from "@/adapters/panels/AttributePanel/components/attributes/H
 import { ContainerBackgroundColor } from "@/adapters/panels/AttributePanel/components/attributes/ContainerBackgroundColor";
 import { Padding } from "@/adapters/panels/AttributePanel/components/attributes/Padding";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { Stack } from "@mui/material";
 

@@ -138,3 +138,31 @@ describe("LatticeEditor keyboard paths", () => {
     ).toBe(true);
   });
 });
+
+describe("Add block menu", () => {
+  it("opens from the Add Block button of the block toolbar", async () => {
+    const { frameDocument } = getCanvas();
+    const surface = frameDocument.querySelector<HTMLElement>(
+      "[data-block-selection-surface]",
+    );
+    expect(surface).not.toBeNull();
+    await act(async () => {
+      surface!.focus();
+    });
+    await waitForFrames();
+    const addButton = frameDocument.querySelector<HTMLElement>(
+      '#easy-email-extensions-InteractivePrompt-Toolbar [aria-label="Add Block"]',
+    );
+    await act(async () => {
+      addButton!.click();
+    });
+    await waitForFrames();
+    const menus = [
+      ...frameDocument.querySelectorAll('[role="menu"]'),
+      ...document.querySelectorAll('[role="menu"]'),
+    ];
+    expect(menus.length).toBeGreaterThan(0);
+    // jsdom does not render the text toolbar, so this checks the marker that keeps it open.
+    expect(menus[0].closest("[data-rich-text-toolbar-popup]")).not.toBeNull();
+  });
+});

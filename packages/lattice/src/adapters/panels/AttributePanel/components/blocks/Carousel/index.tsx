@@ -11,7 +11,7 @@ import {
 import { ICarousel, useEditorProps, useFocusIdx } from "@";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { Align } from "@/adapters/panels/AttributePanel/components/attributes/Align";
-import { ClassName } from "@/adapters/panels";
+import { ClassName } from "@/adapters/panels/AttributePanel/components/attributes/ClassName";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { InputAdornment, Stack } from "@mui/material";
 import LinkIcon from "@mui/icons-material/Link";

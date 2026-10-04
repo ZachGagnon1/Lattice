@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { NumberField, TextField } from "@/adapters/panels";
+import { NumberField, TextField } from "@/adapters/panels/common/Form";
 import { useFocusIdx } from "@";
 
 import Stack from "@mui/material/Stack";
