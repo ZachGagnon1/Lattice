@@ -253,3 +253,40 @@ export async function runAxe(page) {
   const canvas = frame ? await runAxeIn(frame) : [];
   return { editor, canvas };
 }
+
+export async function countAllBlocks(page) {
+  const frame = await canvasFrame(page);
+  if (!frame) return 0;
+  return frame.evaluate(() => document.querySelectorAll(".email-block").length);
+}
+
+/** True when the first block of one type comes before the first block of another type. */
+export async function blockComesFirst(page, firstType, secondType) {
+  const frame = await canvasFrame(page);
+  if (!frame) return false;
+  return frame.evaluate(
+    ([first, second]) => {
+      const a = document.querySelector(`.email-block.node-type-${first}`);
+      const b = document.querySelector(`.email-block.node-type-${second}`);
+      return Boolean(
+        a &&
+        b &&
+        a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+    },
+    [firstType, secondType],
+  );
+}
+
+/** The add menu opens in the canvas frame or in the main page, so this checks every frame. */
+export async function isMenuOpen(page) {
+  for (const frame of page.frames()) {
+    const open = await frame
+      .evaluate(() =>
+        Boolean(document.querySelector('[role="menu"] [role="menuitem"]')),
+      )
+      .catch(() => false);
+    if (open) return true;
+  }
+  return false;
+}

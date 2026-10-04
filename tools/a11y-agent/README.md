@@ -29,17 +29,17 @@ OLLAMA_HOST=http://ai-brain.home:11434 pnpm start
 pnpm start --model clef:latest --task add-button --runs 5
 ```
 
-| Option        | Default                                                                             |
-| ------------- | ----------------------------------------------------------------------------------- |
-| `--url`       | `$A11Y_AGENT_URL` or `http://localhost:5173/`                                       |
-| `--host`      | `$OLLAMA_HOST` or `http://localhost:11434`                                          |
-| `--model`     | `nimble:latest`                                                                     |
-| `--runs`      | `3` for each task                                                                   |
-| `--task`      | all: `add-button`, `text-settings`, `color-picker`                                  |
-| `--max-steps` | `40` key presses for each run                                                       |
-| `--vision`    | `auto`: on for Clef models. `on` or `off` to force it                               |
-| `--seed`      | a new seed from the clock. The report records it; pass it again to repeat a session |
-| `--headed`    | off: show the browser                                                               |
+| Option        | Default                                                                                         |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| `--url`       | `$A11Y_AGENT_URL` or `http://localhost:5173/`                                                   |
+| `--host`      | `$OLLAMA_HOST` or `http://localhost:11434`                                                      |
+| `--model`     | `nimble:latest`                                                                                 |
+| `--runs`      | `3` for each task                                                                               |
+| `--task`      | all ten; see `src/tasks.mjs`. A comma list picks some, for example `reach-canvas,open-settings` |
+| `--max-steps` | `40` key presses for each run                                                                   |
+| `--vision`    | `auto`: on for Clef models. `on` or `off` to force it                                           |
+| `--seed`      | a new seed from the clock. The report records it; pass it again to repeat a session             |
+| `--headed`    | off: show the browser                                                                           |
 
 The script uses the installed Chrome. Set `A11Y_AGENT_BROWSER_PATH` to use another Chromium build. Reports go to `reports/`, which git ignores.
 
