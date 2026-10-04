@@ -153,13 +153,14 @@ export const PreviewEmailProvider: React.FC<{ children?: React.ReactNode }> = (
     document.body.appendChild(iframe);
 
     return () => {
-      document.body.removeChild(iframe);
+      iframe.remove();
     };
   }, [errMsg, html, iframe]);
 
   useEffect(() => {
-    if (!contentWindowRef.current) return;
-    const innerBody = contentWindowRef.current.document.body;
+    // The effect above removes the frame on each change, and a removed frame can lose its document.
+    const innerBody = contentWindowRef.current?.document?.body;
+    if (!innerBody) return;
     innerBody.innerHTML = html;
     const a = innerBody.querySelector(".mjml-body") as HTMLElement;
     if (a) {

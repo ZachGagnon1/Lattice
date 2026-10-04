@@ -1,4 +1,5 @@
-import { BlockManager, IBlockData, BasicType } from "@";
+import { BlockManager, IBlockData } from "@";
+import { BasicType } from "@/domain/constants";
 
 const tempEle = document.createElement("div");
 export function getBlockTitle(

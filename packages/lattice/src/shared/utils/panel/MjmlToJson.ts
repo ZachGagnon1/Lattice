@@ -1,4 +1,5 @@
-import { BasicType, BlockManager, IBlockData, IPage } from "@";
+import { BlockManager, IBlockData, IPage } from "@";
+import { BasicType } from "@/domain/constants";
 import { identity, isString, pickBy } from "lodash-es";
 import { parseXMLtoBlock } from "./parseXMLtoBlock";
 import { htmlToTableSource } from "@/domain/blocks/definitions/Table/tableSource";

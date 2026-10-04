@@ -1,5 +1,6 @@
 import React from "react";
-import { BasicType, BlockManager } from "@";
+import { BlockManager } from "@";
+import { BasicType } from "@/domain/constants";
 import TagIcon from "@mui/icons-material/Tag";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
 import HorizontalRuleIcon from "@mui/icons-material/HorizontalRule";

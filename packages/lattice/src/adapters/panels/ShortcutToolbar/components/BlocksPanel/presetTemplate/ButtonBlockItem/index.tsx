@@ -1,6 +1,7 @@
 import React from "react";
 import { Stack } from "@";
-import { BasicType, IButton, RecursivePartial } from "@";
+import { IButton, RecursivePartial } from "@";
+import { BasicType } from "@/domain/constants";
 import { BlockMaskWrapper } from "@/adapters/panels/ShortcutToolbar/components/BlockMaskWrapper";
 import { getImg } from "@/adapters/panels/ShortcutToolbar/utils/getImg";
 import { Picture } from "@/adapters/panels/ShortcutToolbar/components/Picture";

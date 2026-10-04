@@ -19,7 +19,7 @@ import { Hero } from "./Hero";
 import { Navbar } from "./Navbar";
 import { Social } from "./Social";
 import { Table } from "./Table";
-import { BasicType } from "@";
+import { BasicType } from "@/domain/constants";
 import { Condition } from "@/adapters/panels/AttributePanel/components/blocks/Condition";
 import { ForLoop } from "@/adapters/panels/AttributePanel/components/blocks/ForLoop";
 

@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
 import { Box, Button, Drawer, Stack, Typography } from "@mui/material";
 import { useBlock, useEditorContext, useFocusIdx } from "@";
-import { BasicType } from "@";
+import { BasicType } from "@/domain/constants";
 import {
   htmlToTableSource,
   tableSourceToHtml,
