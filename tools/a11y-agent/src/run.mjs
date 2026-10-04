@@ -258,26 +258,10 @@ function toMarkdown(report) {
   return lines.join("\n");
 }
 
-async function main() {
-  const tasks = TASKS.filter((task) =>
-    options.task.split(",").includes(task.id),
-  );
-  const runsPerTask = Number(options.runs);
-  const { browser, page } = await launch({
-    url: options.url,
-    headed: options.headed,
-  });
-  try {
-    const axe = await runAxe(page);
-    const runs = [];
-    for (const task of tasks) {
-      for (let run = 1; run <= runsPerTask; run++) {
-        console.log(`${task.id}, run ${run} of ${runsPerTask}`);
-        runs.push(await runTask(page, task, run));
-      }
-    }
-
-    const summaries = tasks.map((task) => {
+async function saveReport({ date, tasks, runsPerTask, axe, runs }) {
+  const summaries = tasks
+    .filter((task) => runs.some((run) => run.task === task.id))
+    .map((task) => {
       const taskRuns = runs.filter((run) => run.task === task.id);
       return {
         task: task.id,
@@ -294,34 +278,60 @@ async function main() {
         medianDifficulty: median(taskRuns.map((run) => run.difficulty)),
       };
     });
-    const report = {
-      date: new Date().toISOString(),
-      url: options.url,
-      model: options.model,
-      vision: useVision,
-      seed,
-      runsPerTask,
-      overall: Math.round(
-        summaries.reduce((sum, s) => sum + s.medianScore, 0) /
-          (summaries.length || 1),
-      ),
-      tasks: summaries,
-      axe,
-      runs,
-    };
+  const report = {
+    date,
+    url: options.url,
+    model: options.model,
+    vision: useVision,
+    seed,
+    runsPerTask,
+    overall: Math.round(
+      summaries.reduce((sum, s) => sum + s.medianScore, 0) /
+        (summaries.length || 1),
+    ),
+    tasks: summaries,
+    axe,
+    runs,
+  };
 
-    const directory = new URL(
-      `../reports/${report.date.replace(/[:.]/g, "-")}-${options.model.replace(/[^a-z0-9]/gi, "-")}/`,
-      import.meta.url,
-    );
-    await mkdir(directory, { recursive: true });
-    await writeFile(
-      new URL("report.json", directory),
-      JSON.stringify(report, null, 2),
-    );
-    await writeFile(new URL("report.md", directory), toMarkdown(report));
+  const directory = new URL(
+    `../reports/${report.date.replace(/[:.]/g, "-")}-${options.model.replace(/[^a-z0-9]/gi, "-")}/`,
+    import.meta.url,
+  );
+  await mkdir(directory, { recursive: true });
+  await writeFile(
+    new URL("report.json", directory),
+    JSON.stringify(report, null, 2),
+  );
+  await writeFile(new URL("report.md", directory), toMarkdown(report));
+  return { ...report, path: new URL("report.md", directory).pathname };
+}
+
+async function main() {
+  const tasks = TASKS.filter((task) =>
+    options.task.split(",").includes(task.id),
+  );
+  const runsPerTask = Number(options.runs);
+  const { browser, page } = await launch({
+    url: options.url,
+    headed: options.headed,
+  });
+  try {
+    const axe = await runAxe(page);
+    const runs = [];
+    const date = new Date().toISOString();
+    let report;
+    for (const task of tasks) {
+      for (let run = 1; run <= runsPerTask; run++) {
+        console.log(`${task.id}, run ${run} of ${runsPerTask}`);
+        runs.push(await runTask(page, task, run));
+        // Each finished run is saved, so a crash keeps the runs before it.
+        report = await saveReport({ date, tasks, runsPerTask, axe, runs });
+      }
+    }
+
     console.log(`\nOverall score: ${report.overall} / 100`);
-    console.log(`Report: ${new URL("report.md", directory).pathname}`);
+    console.log(`Report: ${report.path}`);
   } finally {
     await browser.close();
     await unload(options.host, options.model);

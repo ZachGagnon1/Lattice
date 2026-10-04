@@ -55,7 +55,7 @@ export function seededRandom(seed) {
   };
 }
 
-export async function decide({
+async function requestDecision({
   host,
   model,
   state,
@@ -75,9 +75,31 @@ export async function decide({
     }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
-  if (!response.ok)
-    throw new Error(`systemone ${response.status}: ${await response.text()}`);
+  if (!response.ok) {
+    const error = new Error(
+      `systemone ${response.status}: ${await response.text()}`,
+    );
+    error.status = response.status;
+    throw error;
+  }
   return (await response.json()).answers;
+}
+
+const RETRIES = 3;
+
+/** A hung host times out, and it often answers again after a short wait. An HTTP error does not retry. */
+export async function decide(params) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await requestDecision(params);
+    } catch (error) {
+      if (error.status || attempt >= RETRIES) throw error;
+      console.warn(
+        `decision request failed (${error.message}), retry ${attempt} of ${RETRIES - 1}`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 15_000 * attempt));
+    }
+  }
 }
 
 /** A decision model has no generate route, so a last tiny question with keep_alive 0 unloads it. */
