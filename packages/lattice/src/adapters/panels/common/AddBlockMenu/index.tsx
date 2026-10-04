@@ -108,6 +108,8 @@ export function AddBlockMenu({
       open={open}
       onClose={onClose}
       container={container}
+      // RichTextField hides the text toolbar, and this menu with it, when the focus leaves the text. A marked popup keeps it.
+      data-rich-text-toolbar-popup=""
       slotProps={{ paper: { sx: { maxHeight: 360 } } }}
     >
       {open &&
