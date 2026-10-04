@@ -15,3 +15,6 @@ export function getEditorRegionLabels(
     configuration: labels.configuration ?? t("Configuration"),
   };
 }
+
+/** The palette is drag-only, so this hint names the keyboard path to add a block. */
+export const PALETTE_HINT_ID = "lattice-palette-hint";
