@@ -1,3 +1,8 @@
+import {
+  BLOCK_SELECTION_SURFACE,
+  focusBlockSelectionSurface,
+} from "./canvasBlockAccessibility";
+
 /** Marks the wrapper of the settings fields for the selected block. */
 export const BLOCK_SETTINGS_ATTRIBUTE = "data-block-settings";
 export const OPEN_BLOCK_SETTINGS_EVENT = "lattice:open-block-settings";
@@ -74,4 +79,21 @@ export function isCanvasReturnKey(
 ) {
   if (event.defaultPrevented) return false;
   return isBlockSettingsShortcut(event) || event.key === "Escape";
+}
+
+/** The canvas region can show a frame after the request, so this tries again on each frame. */
+export function focusBlockWhenReady(
+  frameDocument: Document,
+  idx: string,
+  attempts = FOCUS_ATTEMPTS,
+) {
+  requestAnimationFrame(() => {
+    focusBlockSelectionSurface(frameDocument, idx);
+    const focused =
+      frameDocument.activeElement?.getAttribute(BLOCK_SELECTION_SURFACE) ===
+      idx;
+    if (!focused && attempts > 1) {
+      focusBlockWhenReady(frameDocument, idx, attempts - 1);
+    }
+  });
 }

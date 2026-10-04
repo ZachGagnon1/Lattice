@@ -10,6 +10,7 @@ import {
   isCanvasReturnKey,
   OPEN_BLOCK_SETTINGS_EVENT,
   CLOSE_BLOCK_SETTINGS_EVENT,
+  focusBlockWhenReady,
 } from "./blockSettingsNavigation";
 
 describe("isBlockSettingsShortcut", () => {
@@ -195,6 +196,34 @@ describe("focusBlockSettingsWhenReady", () => {
       '<div data-block-settings><input id="too-late" /></div>';
     vi.advanceTimersToNextFrame();
     expect(document.activeElement?.id).not.toBe("too-late");
+    vi.useRealTimers();
+  });
+});
+
+describe("focusBlockWhenReady", () => {
+  it("focuses a block that becomes focusable after the request", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = "";
+    focusBlockWhenReady(document, "content.children.[0]");
+    vi.advanceTimersToNextFrame();
+    document.body.innerHTML =
+      '<button data-block-selection-surface="content.children.[0]">Block</button>';
+    vi.advanceTimersToNextFrame();
+    expect(
+      document.activeElement?.getAttribute("data-block-selection-surface"),
+    ).toBe("content.children.[0]");
+    vi.useRealTimers();
+  });
+
+  it("stops after the given number of attempts", () => {
+    vi.useFakeTimers();
+    document.body.innerHTML = "";
+    focusBlockWhenReady(document, "content.children.[0]", 1);
+    vi.advanceTimersToNextFrame();
+    document.body.innerHTML =
+      '<button data-block-selection-surface="content.children.[0]">Block</button>';
+    vi.advanceTimersToNextFrame();
+    expect(document.activeElement).toBe(document.body);
     vi.useRealTimers();
   });
 });

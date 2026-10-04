@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { getIframeDocument, useFocusIdx } from "@";
-import { focusBlockSelectionSurface } from "@/shared/utils/canvasBlockAccessibility";
 import {
   BLOCK_SETTINGS_ATTRIBUTE,
+  focusBlockWhenReady,
   isCanvasReturnKey,
   requestCanvasReturn,
 } from "@/shared/utils/blockSettingsNavigation";
@@ -27,10 +27,7 @@ export function BlockSettings({
       if (!iframeDocument || !isCanvasReturnKey(event)) return;
       event.preventDefault();
       requestCanvasReturn();
-      // A narrow layout shows the canvas region only after the next render.
-      requestAnimationFrame(() =>
-        focusBlockSelectionSurface(iframeDocument, focusIdx),
-      );
+      focusBlockWhenReady(iframeDocument, focusIdx);
     };
     element.addEventListener("keydown", returnToCanvas);
     return () => element.removeEventListener("keydown", returnToCanvas);
