@@ -1,5 +1,8 @@
 import { Box, Grid, ListItemButton, Paper, Typography } from "@mui/material";
-import { PALETTE_HINT_ID } from "@/shared/utils/editorRegions";
+import {
+  KEYBOARD_HINT_CLASS,
+  PALETTE_HINT_ID,
+} from "@/shared/utils/editorRegions";
 import {
   BasicType,
   BlockAvatarWrapper,
@@ -20,6 +23,7 @@ export function Blocks() {
     <Box sx={{ paddingBottom: 30, minHeight: "100%" }}>
       <Typography
         id={PALETTE_HINT_ID}
+        className={KEYBOARD_HINT_CLASS}
         component="p"
         variant="caption"
         color="text.secondary"

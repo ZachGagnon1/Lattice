@@ -14,13 +14,17 @@ import {
   Paper,
   Tab,
   Tabs,
+  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import {
   getEditorRegionLabels,
+  CANVAS_HINT_ID,
+  KEYBOARD_HINT_CLASS,
   PALETTE_HINT_ID,
 } from "@/shared/utils/editorRegions";
+import { useInputModality } from "@/application/hooks/useInputModality";
 import {
   EditorRegion,
   NarrowEditorRegion,
@@ -44,6 +48,7 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
 
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const inputModality = useInputModality();
   const [activeRegion, setActiveRegion] = useState<EditorRegion>("canvas");
 
   // A narrow layout shows one region, so the block settings shortcut must switch it.
@@ -78,7 +83,13 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   return (
     <ExtensionProvider {...props} categories={categories}>
       <Paper
+        data-input-modality={inputModality}
         sx={{
+          // A mouse user does not need the keyboard hints, and aria-describedby still reads a hidden hint.
+          [`& .${KEYBOARD_HINT_CLASS}`]: { display: "none" },
+          [`&[data-input-modality="keyboard"] .${KEYBOARD_HINT_CLASS}`]: {
+            display: "block",
+          },
           padding: 0,
           height: containerHeight,
           position: "relative",
@@ -177,6 +188,7 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             role="region"
             id="lattice-canvas-region"
             aria-label={labels.canvas}
+            aria-describedby={CANVAS_HINT_ID}
             tabIndex={-1}
             size={{ xs: 12, md: 7 }}
             sx={{
@@ -187,6 +199,18 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
               overflowY: "auto",
             }}
           >
+            <Typography
+              id={CANVAS_HINT_ID}
+              className={KEYBOARD_HINT_CLASS}
+              component="p"
+              variant="caption"
+              color="text.secondary"
+              sx={{ px: 1, pt: 1 }}
+            >
+              {t(
+                "Press Tab to go past the view tabs to the blocks of the email. On a block, press Enter for its actions, or Alt+Enter for its settings.",
+              )}
+            </Typography>
             {props.children}
           </Grid>
 

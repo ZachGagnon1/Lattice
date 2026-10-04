@@ -285,3 +285,29 @@ describe("Palette hint", () => {
     );
   });
 });
+
+describe("Keyboard hints", () => {
+  it("describe the canvas region with the way to the blocks", () => {
+    const region = document.getElementById("lattice-canvas-region")!;
+    const hint = document.getElementById(
+      region.getAttribute("aria-describedby")!,
+    );
+    expect(hint?.textContent).toContain("Alt+Enter");
+  });
+
+  it("show for a keyboard user and hide for a pointer user", async () => {
+    const root = document
+      .getElementById("lattice-canvas-region")!
+      .closest("[data-input-modality]")!;
+    await act(async () => {
+      document.dispatchEvent(new Event("pointerdown"));
+    });
+    expect(root.getAttribute("data-input-modality")).toBe("pointer");
+    await act(async () => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+      );
+    });
+    expect(root.getAttribute("data-input-modality")).toBe("keyboard");
+  });
+});
