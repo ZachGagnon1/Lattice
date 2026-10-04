@@ -166,3 +166,35 @@ describe("Add block menu", () => {
     expect(menus[0].closest("[data-rich-text-toolbar-popup]")).not.toBeNull();
   });
 });
+
+describe("Color picker", () => {
+  it("moves the focus into the picker, and Escape returns it to the swatch", async () => {
+    const { frameWindow, frameDocument } = getCanvas();
+    frameDocument.body.dispatchEvent(
+      new frameWindow.KeyboardEvent("keydown", {
+        key: "Enter",
+        altKey: true,
+        bubbles: true,
+      }),
+    );
+    await waitForFrames();
+    const swatch = document.querySelector<HTMLElement>(
+      '[data-block-settings] [aria-haspopup="dialog"]',
+    );
+    expect(swatch).not.toBeNull();
+    await act(async () => {
+      swatch!.focus();
+      swatch!.click();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    });
+    expect(document.activeElement?.closest('[role="dialog"]')).not.toBeNull();
+
+    await act(async () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    });
+    expect(document.activeElement).toBe(swatch);
+  });
+});
