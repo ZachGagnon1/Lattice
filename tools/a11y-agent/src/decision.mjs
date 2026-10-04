@@ -1,7 +1,7 @@
 const TIMEOUT_MS = 180_000;
 
 /** Generic descriptions only: a description must not reveal a shortcut that the app itself does not announce. */
-export const KEY_OPTIONS = {
+const BASIC_KEY_OPTIONS = {
   Tab: "Move to the next control",
   "Shift+Tab": "Move to the previous control",
   Enter: "Activate the focused control",
@@ -20,6 +20,42 @@ export const KEY_OPTIONS = {
   PreviousLandmark: "Jump to the previous region of the page",
   finish: "Stop: the goal is reached",
 };
+
+/** What each key does and when to use it. Still generic: no text names a shortcut that only this app uses. */
+const RICH_KEY_OPTIONS = {
+  Tab: "Move forward to the next control. Use it to explore the page one control at a time.",
+  "Shift+Tab": "Move back to the previous control.",
+  Enter:
+    "Activate the focused control: press a button, follow a link, or choose a menu item.",
+  Space: "Press the focused button, or toggle a checkbox or a switch.",
+  Escape:
+    "Close the open menu, popup, or dialog, or step out of the current part and return to where you came from.",
+  ArrowUp:
+    "Move to the previous item inside a menu, list, tree, or vertical toolbar. Tab leaves the group instead.",
+  ArrowDown:
+    "Move to the next item inside a menu, list, tree, or vertical toolbar. Tab leaves the group instead.",
+  ArrowLeft:
+    "Move to the previous item inside a toolbar, tab list, or menu bar. Tab leaves the group instead.",
+  ArrowRight:
+    "Move to the next item inside a toolbar, tab list, or menu bar. Tab leaves the group instead.",
+  Home: "Jump to the first item inside the current menu, list, or toolbar.",
+  End: "Jump to the last item inside the current menu, list, or toolbar.",
+  "Alt+Enter":
+    "Press Alt and Enter together. Use it when an announcement names this shortcut.",
+  "Alt+F10":
+    "Press Alt and F10 together. Use it when an announcement names this shortcut.",
+  "Shift+F10": "Open the context menu of the focused control, if it has one.",
+  NextLandmark:
+    "Jump to the next region of the page, such as a navigation, a panel, or the main content. Fast for big moves.",
+  PreviousLandmark:
+    "Jump to the previous region of the page. Fast for big moves.",
+  finish:
+    "Stop. Choose it only when you heard proof that the goal is reached, such as an announcement or the focus on the result.",
+};
+
+export function keyOptions(style) {
+  return style === "rich" ? RICH_KEY_OPTIONS : BASIC_KEY_OPTIONS;
+}
 
 export const DIFFICULTY = [
   "Easy: the path was clear",

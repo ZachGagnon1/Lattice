@@ -11,7 +11,7 @@ import {
 import {
   decide,
   DIFFICULTY,
-  KEY_OPTIONS,
+  keyOptions,
   sampleChoice,
   seededRandom,
   unload,
@@ -34,6 +34,9 @@ const { values: options } = parseArgs({
     task: { type: "string", default: TASKS.map((task) => task.id).join(",") },
     "max-steps": { type: "string", default: "40" },
     vision: { type: "string", default: "auto" },
+    "key-hints": { type: "string", default: "basic" },
+    // "sighted" sends a screenshot with each key choice; only Clef reads images.
+    persona: { type: "string", default: "blind" },
     // A new seed each session explores new paths; the report records it, so --seed repeats a session.
     seed: { type: "string", default: String(Date.now() % 1_000_000_000) },
     headed: { type: "boolean", default: false },
@@ -49,6 +52,8 @@ const useVision =
 
 const RECENT_STEPS = 15;
 
+const SIGHTED_ROLE = `You are a keyboard-only user who can see the screen, and you test an email editor web app. You cannot use a mouse. The screenshot shows the page now. You also hear what a screen reader reports about the focused control. Reach the goal with as few key presses as you can.`;
+
 const ROLE = `You are a blind keyboard user with a screen reader, and you test an email editor web app. You cannot see the screen. You hear what the screen reader reports: the focused control with its role and name, where it is, its description and shortcut if it has them, and new announcements. Descriptions and shortcuts tell you how this app works. Reach the goal with as few key presses as you can.`;
 
 function hear(focus, announced, moved) {
@@ -62,12 +67,21 @@ function hear(focus, announced, moved) {
   };
 }
 
-async function chooseKey(task, steps, current, random) {
+async function chooseKey(task, steps, current, random, page) {
+  const sighted = options.persona === "sighted";
+  const images = sighted
+    ? [
+        (await page.screenshot({ type: "jpeg", quality: 60 })).toString(
+          "base64",
+        ),
+      ]
+    : undefined;
   const answers = await decide({
     host: options.host,
     model: options.model,
+    images,
     state: {
-      role: ROLE,
+      role: sighted ? SIGHTED_ROLE : ROLE,
       goal: task.goal,
       now: current,
       recent_steps: steps
@@ -80,7 +94,7 @@ async function chooseKey(task, steps, current, random) {
         type: "choice",
         instructions:
           "Which key do you press next to reach the goal? Choose finish only when the goal is reached.",
-        criteria: KEY_OPTIONS,
+        criteria: keyOptions(options["key-hints"]),
       },
     },
   });
@@ -159,6 +173,7 @@ async function runTask(page, task, run) {
       steps,
       current,
       random,
+      page,
     );
     if (key === "finish") {
       modelFinished = true;
@@ -215,7 +230,7 @@ function toMarkdown(report) {
   const lines = [
     `# Accessibility agent report`,
     ``,
-    `${report.date} · model \`${report.model}\` · ${report.runsPerTask} runs for each task · ${report.url} · focus check: ${report.vision ? "screenshot" : "CSS"} · seed ${report.seed}`,
+    `${report.date} · model \`${report.model}\` · ${report.runsPerTask} runs for each task · ${report.url} · focus check: ${report.vision ? "screenshot" : "CSS"} · key hints: ${report.keyHints} · persona: ${report.persona} · seed ${report.seed}`,
     ``,
     `**Overall score: ${report.overall} / 100**`,
     ``,
@@ -283,6 +298,8 @@ async function saveReport({ date, tasks, runsPerTask, axe, runs }) {
     url: options.url,
     model: options.model,
     vision: useVision,
+    keyHints: options["key-hints"],
+    persona: options.persona,
     seed,
     runsPerTask,
     overall: Math.round(

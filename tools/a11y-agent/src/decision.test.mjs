@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { KEY_OPTIONS, sampleChoice, seededRandom } from "./decision.mjs";
+import { keyOptions, sampleChoice, seededRandom } from "./decision.mjs";
 
 test("a low random value picks the first option", () => {
   assert.equal(
@@ -24,12 +24,20 @@ test("the same seed gives the same sequence", () => {
   assert.deepEqual([first(), first(), first()], [second(), second(), second()]);
 });
 
-test("the options fit the choice limit and name no app shortcut", () => {
-  const keys = Object.keys(KEY_OPTIONS);
-  assert.ok(keys.length >= 2 && keys.length <= 26);
-  assert.ok(
-    !Object.values(KEY_OPTIONS).some((text) =>
-      /settings|toolbar shortcut/i.test(text),
-    ),
+for (const style of ["basic", "rich"]) {
+  test(`the ${style} options fit the choice limit and name no app shortcut`, () => {
+    const options = keyOptions(style);
+    const keys = Object.keys(options);
+    assert.ok(keys.length >= 2 && keys.length <= 26);
+    assert.ok(
+      !Object.values(options).some((text) => /settings|block/i.test(text)),
+    );
+  });
+}
+
+test("both styles offer the same keys", () => {
+  assert.deepEqual(
+    Object.keys(keyOptions("rich")),
+    Object.keys(keyOptions("basic")),
   );
 });
