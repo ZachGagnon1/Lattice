@@ -15,7 +15,7 @@ With a Clef model, a second question judges a screenshot after each key press: d
 
 ## Score
 
-Each run scores 60 points when the goal is reached, 20 for the share of focus stops with a name, and 20 for the share of focus stops with a visible focus indicator. The report also lists loops (12 key presses on 4 stops or fewer: a focus trap, or a lost user), wasted key presses (no focus move and no announcement), the model's difficulty score (0 easy to 3 impossible), and each path.
+Each run scores 60 points when the goal is reached, 20 for the share of focus stops with a name, and 20 for the share of focus stops with a visible focus indicator. The report also lists loops (12 key presses on 4 stops or fewer: a focus trap, or a lost user), wasted key presses (no focus move and no announcement), false finishes (the model chose `finish` before the goal: the interface let the user believe the task was done), the model's difficulty score (0 easy to 3 impossible), and each path.
 
 A model makes mistakes, so run each task several times and read the median.
 

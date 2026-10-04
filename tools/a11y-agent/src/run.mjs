@@ -204,6 +204,8 @@ async function runTask(page, task, run) {
     run,
     ...scoreRun({ reached, steps }),
     modelFinished,
+    // The user believed the goal was reached when it was not: a sign of a confusing interface.
+    falseFinish: modelFinished && !reached,
     difficulty: await rateDifficulty(task, steps, reached),
     steps,
   };
@@ -217,12 +219,12 @@ function toMarkdown(report) {
     ``,
     `**Overall score: ${report.overall} / 100**`,
     ``,
-    `| Task | Median score | Goal reached | Median key presses | Wasted presses | Loops | Median difficulty (0–3) |`,
-    `| --- | --- | --- | --- | --- | --- | --- |`,
+    `| Task | Median score | Goal reached | Median key presses | Wasted presses | Loops | False finishes | Median difficulty (0–3) |`,
+    `| --- | --- | --- | --- | --- | --- | --- | --- |`,
   ];
   for (const summary of report.tasks) {
     lines.push(
-      `| ${summary.task} | ${summary.medianScore} | ${summary.reached}/${summary.runs} | ${summary.medianKeyPresses} | ${summary.wastedPresses} | ${summary.loops} | ${summary.medianDifficulty} |`,
+      `| ${summary.task} | ${summary.medianScore} | ${summary.reached}/${summary.runs} | ${summary.medianKeyPresses} | ${summary.wastedPresses} | ${summary.loops} | ${summary.falseFinishes} | ${summary.medianDifficulty} |`,
     );
   }
   lines.push("", "## Focus problems", "");
@@ -288,6 +290,7 @@ async function main() {
           0,
         ),
         loops: taskRuns.filter((run) => run.loop).length,
+        falseFinishes: taskRuns.filter((run) => run.falseFinish).length,
         medianDifficulty: median(taskRuns.map((run) => run.difficulty)),
       };
     });

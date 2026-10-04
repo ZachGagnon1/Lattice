@@ -15,7 +15,7 @@ const inSettings = (page, labelStart = "") =>
 export const TASKS = [
   {
     id: "reach-canvas",
-    goal: "Move the focus into the email canvas, where the blocks of the email are.",
+    goal: "Move the focus into the region named Email canvas, which shows the email that you edit.",
     start: async () => ({}),
     reached: (page) =>
       page.evaluate(() => {
