@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { findLoop, scoreRun } from "./score.mjs";
+import { clipAround, findLoop, median, scoreRun } from "./score.mjs";
 
 const step = (key, focusKey, extra = {}) => ({
   key,
@@ -56,4 +56,38 @@ test("a press that moves nothing and announces nothing is wasted", () => {
     steps: [{ ...step("Enter", "a"), moved: false }],
   });
   assert.equal(result.wastedPresses, 1);
+});
+
+test("the median of an even count is the mean of the two middle values", () => {
+  assert.equal(median([99, 39]), 69);
+  assert.equal(median([1, 2, 3]), 2);
+  assert.equal(median([]), 0);
+});
+
+test("a landmark jump does not count toward the visible focus", () => {
+  const steps = [
+    step("Tab", "a"),
+    {
+      ...step("NextLandmark", "region"),
+      focus: { key: "region", spoken: "region", named: true, visible: false },
+    },
+  ];
+  assert.equal(scoreRun({ reached: true, steps }).visibleRatio, 1);
+});
+
+test("the crop pads the box and stays inside the viewport", () => {
+  const viewport = { width: 1440, height: 900 };
+  assert.deepEqual(
+    clipAround({ x: 100, y: 100, width: 20, height: 20 }, viewport),
+    {
+      x: 60,
+      y: 60,
+      width: 100,
+      height: 100,
+    },
+  );
+  assert.equal(
+    clipAround({ x: 0, y: 2000, width: 20, height: 20 }, viewport),
+    null,
+  );
 });

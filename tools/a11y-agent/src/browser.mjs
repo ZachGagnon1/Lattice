@@ -151,7 +151,18 @@ export async function observeFocus(page) {
   });
 
   const named = /"[^"]+"/.test(spoken) || /^(text|paragraph)/.test(spoken);
-  return { key: `${frame.url()}|${details.path}`, spoken, named, ...details };
+  const box = await frame
+    .locator("*:focus")
+    .first()
+    .boundingBox({ timeout: 1_000 })
+    .catch(() => null);
+  return {
+    key: `${frame.url()}|${details.path}`,
+    spoken,
+    named,
+    box,
+    ...details,
+  };
 }
 
 const LANDMARK_SELECTOR =

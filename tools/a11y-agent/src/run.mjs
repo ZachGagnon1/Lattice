@@ -8,8 +8,15 @@ import {
   readAnnouncements,
   runAxe,
 } from "./browser.mjs";
-import { chat, parseKeyFromText, TOOLS, unload } from "./ollama.mjs";
-import { scoreRun } from "./score.mjs";
+import {
+  decide,
+  DIFFICULTY,
+  KEY_OPTIONS,
+  sampleChoice,
+  seededRandom,
+  unload,
+} from "./decision.mjs";
+import { clipAround, median, scoreRun } from "./score.mjs";
 import { TASKS } from "./tasks.mjs";
 
 const { values: options } = parseArgs({
@@ -26,166 +33,189 @@ const { values: options } = parseArgs({
     runs: { type: "string", default: "3" },
     task: { type: "string", default: TASKS.map((task) => task.id).join(",") },
     "max-steps": { type: "string", default: "40" },
+    vision: { type: "string", default: "auto" },
     headed: { type: "boolean", default: false },
-    "no-review": { type: "boolean", default: false },
   },
 });
 
-const SYSTEM_PROMPT = `You test an email editor web app as a blind keyboard user with a screen reader. You cannot see the screen.
-After each key press you hear what the screen reader reports: the focused control with its role and name, where it is, its description and shortcut if it has them, and new announcements.
-Reach the goal with as few key presses as you can. Call press_key with exactly one key in each turn.
-Tab and Shift+Tab move between controls. Enter or Space activates a control. Arrow keys move inside menus, toolbars, trees, and lists. Escape closes a menu or a dialog.
-NextLandmark and PreviousLandmark jump between the regions of the page, like the landmark keys of a screen reader.
-Listen to descriptions and shortcuts: they tell you how this app works.
-Call finish when the goal is reached, or when you are sure that it cannot be reached.`;
+// Only Clef and Clef Flash read images.
+const useVision =
+  options.vision === "on" ||
+  (options.vision === "auto" && options.model.startsWith("clef"));
 
-function describe(focus, announced, moved) {
-  const lines = [`Focus: ${focus.spoken}`];
-  if (focus.context?.length) lines.push(`Inside: ${focus.context.join(", ")}`);
-  if (focus.description) lines.push(`Description: ${focus.description}`);
-  if (focus.shortcut) lines.push(`Shortcut: ${focus.shortcut}`);
-  if (!moved) lines.push("The focus did not move.");
-  if (announced.length)
-    lines.push(`Announced: ${announced.map((text) => `"${text}"`).join(", ")}`);
-  return lines.join("\n");
+const RECENT_STEPS = 15;
+
+const ROLE = `You are a blind keyboard user with a screen reader, and you test an email editor web app. You cannot see the screen. You hear what the screen reader reports: the focused control with its role and name, where it is, its description and shortcut if it has them, and new announcements. Descriptions and shortcuts tell you how this app works. Reach the goal with as few key presses as you can.`;
+
+function hear(focus, announced, moved) {
+  return {
+    focus: focus.spoken,
+    inside: focus.context ?? [],
+    description: focus.description || undefined,
+    shortcut: focus.shortcut || undefined,
+    focus_moved: moved,
+    announced,
+  };
+}
+
+async function chooseKey(task, steps, current, random) {
+  const answers = await decide({
+    host: options.host,
+    model: options.model,
+    state: {
+      role: ROLE,
+      goal: task.goal,
+      now: current,
+      recent_steps: steps
+        .slice(-RECENT_STEPS)
+        .map((step) => `${step.key} → ${step.focus.spoken}`),
+      key_presses_so_far: steps.length,
+    },
+    questions: {
+      next_key: {
+        type: "choice",
+        instructions:
+          "Which key do you press next to reach the goal? Choose finish only when the goal is reached.",
+        criteria: KEY_OPTIONS,
+      },
+    },
+  });
+  const answer = answers.next_key;
+  return {
+    key: sampleChoice(answer.probabilities, random),
+    favorite: answer.choice,
+    confidence: answer.confidence,
+  };
+}
+
+/** Clef judges the screenshot, which also catches a focus style that is only a background color. */
+async function judgeFocusVisible(page, focus) {
+  if (focus.key === "body") return null;
+  const clip = focus.box && clipAround(focus.box, page.viewportSize());
+  const image = (
+    await page.screenshot({
+      type: "jpeg",
+      quality: 70,
+      ...(clip ? { clip } : {}),
+    })
+  ).toString("base64");
+  const answers = await decide({
+    host: options.host,
+    model: options.model,
+    images: [image],
+    state: `A keyboard user moved the focus. The focused control is: ${focus.spoken}.`,
+    questions: {
+      visible: {
+        type: "noul",
+        instructions:
+          "Does this screenshot show a clear focus indicator, such as an outline, a ring, or a highlight, on the focused control?",
+      },
+    },
+  });
+  return answers.visible.noul;
+}
+
+async function rateDifficulty(task, steps, reached) {
+  const answers = await decide({
+    host: options.host,
+    model: options.model,
+    state: {
+      role: ROLE,
+      goal: task.goal,
+      goal_reached: reached,
+      steps: steps
+        .slice(-30)
+        .map((step) => `${step.key} → ${step.focus.spoken}`),
+    },
+    questions: {
+      difficulty: {
+        type: "score",
+        instructions: "How hard was this task for a screen reader user?",
+        criteria: DIFFICULTY,
+      },
+    },
+  });
+  return Number(answers.difficulty.score.toFixed(2));
 }
 
 async function runTask(page, task, run) {
   await openEditor(page, options.url);
   const start = await task.start(page);
+  const random = seededRandom(run * 7919);
   const steps = [];
   let previous = await observeFocus(page);
   let heard = new Set(await readAnnouncements(page));
+  let current = hear(previous, [], true);
   let reached = false;
-  let finish = null;
-  let silentTurns = 0;
-  const ignoredReplies = [];
+  let modelFinished = false;
 
-  const messages = [
-    { role: "system", content: SYSTEM_PROMPT },
-    {
-      role: "user",
-      content: `Goal: ${task.goal}\nThe editor has loaded.\n${describe(previous, [], true)}`,
-    },
-  ];
-
-  for (
-    let turn = 0;
-    turn < Number(options["max-steps"]) && !reached && !finish;
-    turn++
-  ) {
-    const reply = await chat({
-      host: options.host,
-      model: options.model,
-      messages,
-      tools: TOOLS,
-    });
-    messages.push(reply);
-    const toolCalled = Boolean(reply.tool_calls?.length);
-    const textKey = toolCalled ? null : parseKeyFromText(reply.content);
-    const call =
-      reply.tool_calls?.[0]?.function ??
-      (textKey && {
-        name: "press_key",
-        arguments: { key: textKey, reason: "" },
-      });
-
-    if (!call) {
-      ignoredReplies.push(reply.content ?? "");
-      // A turn with no tool call is lost, and three in a row end the run.
-      if (++silentTurns >= 3) break;
-      messages.push({
-        role: "user",
-        content: "Answer with exactly one tool call: press_key or finish.",
-      });
-      continue;
-    }
-    silentTurns = 0;
-
-    if (call.name === "finish") {
-      finish = call.arguments;
+  while (steps.length < Number(options["max-steps"]) && !reached) {
+    const { key, favorite, confidence } = await chooseKey(
+      task,
+      steps,
+      current,
+      random,
+    );
+    if (key === "finish") {
+      modelFinished = true;
       break;
     }
 
-    const key = call.arguments?.key;
     if (key === "NextLandmark" || key === "PreviousLandmark") {
       await moveToLandmark(page, key === "PreviousLandmark");
     } else {
       await page.keyboard.press(key === "Space" ? " " : key);
     }
-    await page.waitForTimeout(250);
+    // Long enough for a popover or a menu transition to end.
+    await page.waitForTimeout(500);
 
     const focus = await observeFocus(page);
+    if (useVision) {
+      const seen = await judgeFocusVisible(page, focus);
+      if (seen !== null) {
+        focus.visibleByCss = focus.visible;
+        focus.visible = seen >= 0.5;
+        focus.visibleProbability = Number(seen.toFixed(3));
+      }
+    }
     const all = await readAnnouncements(page);
     const announced = all.filter((text) => !heard.has(text));
     heard = new Set(all);
     const moved = focus.key !== previous.key;
-    steps.push({
-      key,
-      reason: call.arguments?.reason ?? "",
-      focus,
-      announced,
-      moved,
-    });
+    steps.push({ key, favorite, confidence, focus, announced, moved });
     previous = focus;
+    current = hear(focus, announced, moved);
     reached = await task.reached(page, start);
 
     console.log(
-      `  [${task.id} #${run}] ${String(steps.length).padStart(2)} ${key.padEnd(10)} → ${focus.spoken}`,
+      `  [${task.id} #${run}] ${String(steps.length).padStart(2)} ${key.padEnd(16)} → ${focus.spoken}`,
     );
-    messages.push({
-      role: toolCalled ? "tool" : "user",
-      content: describe(focus, announced, moved),
-    });
-  }
-
-  let review = "";
-  if (!options["no-review"]) {
-    messages.push({
-      role: "user",
-      content: `The run is over. The goal was ${reached ? "reached" : "not reached"}. In at most three short bullet points, say what made this task hard or easy for a screen reader user. Do not call a tool.`,
-    });
-    review =
-      (
-        await chat({
-          host: options.host,
-          model: options.model,
-          messages,
-          tools: [],
-        })
-      ).content?.trim() ?? "";
   }
 
   return {
     task: task.id,
     run,
     ...scoreRun({ reached, steps }),
-    modelFinish: finish,
-    ignoredReplies,
-    review,
+    modelFinished,
+    difficulty: await rateDifficulty(task, steps, reached),
     steps,
   };
-}
-
-function median(values) {
-  const sorted = [...values].sort((a, b) => a - b);
-  return sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0;
 }
 
 function toMarkdown(report) {
   const lines = [
     `# Accessibility agent report`,
     ``,
-    `${report.date} · model \`${report.model}\` · ${report.runsPerTask} runs for each task · ${report.url}`,
+    `${report.date} · model \`${report.model}\` · ${report.runsPerTask} runs for each task · ${report.url} · focus check: ${report.vision ? "screenshot" : "CSS"}`,
     ``,
     `**Overall score: ${report.overall} / 100**`,
     ``,
-    `| Task | Median score | Goal reached | Median key presses | Wasted presses | Loops |`,
-    `| --- | --- | --- | --- | --- | --- |`,
+    `| Task | Median score | Goal reached | Median key presses | Wasted presses | Loops | Median difficulty (0–3) |`,
+    `| --- | --- | --- | --- | --- | --- | --- |`,
   ];
   for (const summary of report.tasks) {
     lines.push(
-      `| ${summary.task} | ${summary.medianScore} | ${summary.reached}/${summary.runs} | ${summary.medianKeyPresses} | ${summary.wastedPresses} | ${summary.loops} |`,
+      `| ${summary.task} | ${summary.medianScore} | ${summary.reached}/${summary.runs} | ${summary.medianKeyPresses} | ${summary.wastedPresses} | ${summary.loops} | ${summary.medianDifficulty} |`,
     );
   }
   lines.push("", "## Focus problems", "");
@@ -205,15 +235,16 @@ function toMarkdown(report) {
       `- ${where}: ${violations.length ? violations.map((v) => `${v.id} (${v.count})`).join(", ") : "none"}`,
     );
   }
-  lines.push("", "## Model reviews", "");
+  lines.push("", "## Paths", "");
   for (const run of report.runs) {
-    if (run.review)
-      lines.push(
-        `### ${run.task} #${run.run} (${run.reached ? "reached" : "not reached"})`,
-        "",
-        run.review,
-        "",
-      );
+    lines.push(
+      `### ${run.task} #${run.run} (${run.reached ? "reached" : "not reached"}, ${run.keyPresses} presses)`,
+      "",
+      run.steps
+        .map((step) => `${step.key} → ${step.focus.spoken}`)
+        .join("  \n") || "(no key presses)",
+      "",
+    );
   }
   return lines.join("\n");
 }
@@ -250,12 +281,14 @@ async function main() {
           0,
         ),
         loops: taskRuns.filter((run) => run.loop).length,
+        medianDifficulty: median(taskRuns.map((run) => run.difficulty)),
       };
     });
     const report = {
       date: new Date().toISOString(),
       url: options.url,
       model: options.model,
+      vision: useVision,
       runsPerTask,
       overall: Math.round(
         summaries.reduce((sum, s) => sum + s.medianScore, 0) /
@@ -267,7 +300,7 @@ async function main() {
     };
 
     const directory = new URL(
-      `../reports/${report.date.replace(/[:.]/g, "-")}/`,
+      `../reports/${report.date.replace(/[:.]/g, "-")}-${options.model.replace(/[^a-z0-9]/gi, "-")}/`,
       import.meta.url,
     );
     await mkdir(directory, { recursive: true });
