@@ -1,4 +1,5 @@
-import { BasicType, IBlockDataWithId } from "@";
+import { IBlockDataWithId } from "@";
+import { BasicType } from "@/domain/constants";
 import React from "react";
 import { IconButton } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";

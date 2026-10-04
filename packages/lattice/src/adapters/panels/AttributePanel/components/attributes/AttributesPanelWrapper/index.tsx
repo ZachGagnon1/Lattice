@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
-import { BasicType, BlockManager, useBlock } from "@";
+import { BlockManager, useBlock } from "@";
+import { BasicType } from "@/domain/constants";
 import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";

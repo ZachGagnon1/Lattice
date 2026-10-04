@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import { InputWithUnitField } from "../../../common/Form";
 import { useFocusIdx, useBlock } from "@";
-import { BasicType, getParentByIdx } from "@";
+import { getParentByIdx } from "@";
+import { BasicType } from "@/domain/constants";
 import { InputWithUnitProps } from "@/adapters/panels/common/Form/InputWithUnit";
 import type { FieldAdapter } from "@/adapters/panels/common/Form/enhancer";
 

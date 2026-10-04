@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack } from "@";
-import { BasicType } from "@";
+import { BasicType } from "@/domain/constants";
 
 import { BlockMaskWrapper } from "@/adapters/panels/ShortcutToolbar/components/BlockMaskWrapper";
 

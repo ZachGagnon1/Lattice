@@ -1,5 +1,5 @@
 import React from "react";
-import { BasicType } from "@";
+import { BasicType } from "@/domain/constants";
 import { Stack, TextStyle } from "@";
 
 import { TextBlockItem } from "./TextBlockItem";

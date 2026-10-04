@@ -1,4 +1,5 @@
-import { BasicType, IButton, IImage, Stack } from "@";
+import { IButton, IImage, Stack } from "@";
+import { BasicType } from "@/domain/constants";
 import React, { useRef } from "react";
 import { BlocksPanel } from "./components/BlocksPanel";
 import { DragIcon } from "./components/DragIcon";

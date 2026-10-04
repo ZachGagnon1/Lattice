@@ -1,4 +1,5 @@
-import { BasicType, ExtensionProps } from "@";
+import { ExtensionProps } from "@";
+import { BasicType } from "@/domain/constants";
 
 export const defaultCategories: ExtensionProps["categories"] = [
   {

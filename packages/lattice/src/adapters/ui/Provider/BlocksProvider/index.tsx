@@ -1,6 +1,6 @@
 import { EventManager } from "@";
 import { EventType } from "@/shared/utils/EventManager";
-import { getPageIdx } from "@";
+import { getPageIdx } from "@/domain/blocks/block";
 import { isFunction } from "lodash-es";
 import React, { useState, useCallback } from "react";
 

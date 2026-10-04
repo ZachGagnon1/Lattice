@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
-import { BasicType, useBlock, useFocusIdx } from "@";
+import { useBlock, useFocusIdx } from "@";
+import { BasicType } from "@/domain/constants";
 import { MoveBlockContext } from "@/adapters/ui/Provider/MoveBlockProvider";
 import { useEditorStatus } from "./useEditorStatus";
 import {

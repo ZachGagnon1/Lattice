@@ -3,7 +3,8 @@ import { Padding } from "@/adapters/panels/AttributePanel/components/attributes/
 import { Background } from "@/adapters/panels/AttributePanel/components/attributes/Background";
 import { Border } from "@/adapters/panels/AttributePanel/components/attributes/Border";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
-import { BasicType, BlockManager, useBlock, useFocusIdx } from "@";
+import { BlockManager, useBlock, useFocusIdx } from "@";
+import { BasicType } from "@/domain/constants";
 import { ClassName } from "@/adapters/panels";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 import { TextField } from "@/adapters/panels/common/Form";
