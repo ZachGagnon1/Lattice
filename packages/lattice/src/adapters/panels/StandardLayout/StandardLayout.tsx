@@ -1,5 +1,5 @@
 import { useEditorProps } from "@";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { InteractivePrompt } from "../InteractivePrompt";
 import { MergeTagBadgePrompt } from "@/adapters/panels/MergeTagBadgePrompt";
 import { EditPanel } from "../EditPanel";
@@ -23,6 +23,10 @@ import {
   NarrowEditorRegion,
   showEditorRegion,
 } from "@/shared/utils/responsiveEditor";
+import {
+  CLOSE_BLOCK_SETTINGS_EVENT,
+  OPEN_BLOCK_SETTINGS_EVENT,
+} from "@/shared/utils/blockSettingsNavigation";
 
 export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   const { height: containerHeight } = useEditorProps();
@@ -38,6 +42,22 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const [activeRegion, setActiveRegion] = useState<EditorRegion>("canvas");
+
+  // A narrow layout shows one region, so the block settings shortcut must switch it.
+  useEffect(() => {
+    if (isDesktop) return;
+    const showConfiguration = () => setActiveRegion("configuration");
+    const showCanvas = () => setActiveRegion("canvas");
+    document.addEventListener(OPEN_BLOCK_SETTINGS_EVENT, showConfiguration);
+    document.addEventListener(CLOSE_BLOCK_SETTINGS_EVENT, showCanvas);
+    return () => {
+      document.removeEventListener(
+        OPEN_BLOCK_SETTINGS_EVENT,
+        showConfiguration,
+      );
+      document.removeEventListener(CLOSE_BLOCK_SETTINGS_EVENT, showCanvas);
+    };
+  }, [isDesktop]);
 
   const goToRegion = (
     event: React.MouseEvent<HTMLAnchorElement>,

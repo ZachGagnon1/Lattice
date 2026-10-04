@@ -6,6 +6,8 @@ import { PresetColorsProvider } from "./components/provider/PresetColorsProvider
 import { BlockAttributeConfigurationManager } from "./utils/BlockAttributeConfigurationManager";
 import { SelectionRangeProvider } from "./components/provider/SelectionRangeProvider";
 import { TableOperation } from "./components/blocks/Table/Operation";
+import { BlockSettings } from "./components/BlockSettings";
+import { getBlockTitle } from "@/shared/utils/panel/getBlockTitle";
 // MUI Components
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
@@ -33,7 +35,11 @@ export function AttributePanel() {
     <SelectionRangeProvider>
       <PresetColorsProvider>
         {Com ? (
-          <Com key={focusIdx} />
+          <BlockSettings
+            label={`${getBlockTitle(focusBlock, false)} ${t("settings")}`}
+          >
+            <Com key={focusIdx} />
+          </BlockSettings>
         ) : (
           <Box sx={{ mt: "200px", px: "50px", textAlign: "center" }}>
             <Typography

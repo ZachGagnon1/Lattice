@@ -24,6 +24,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LibraryAddIcon from "@mui/icons-material/LibraryAdd";
 import DeleteIcon from "@mui/icons-material/Delete";
+import TuneIcon from "@mui/icons-material/Tune";
 import { EDITOR_SELECTED_COLOR } from "@/shared/utils/overlayAccessibility";
 import {
   BLOCK_KEYBOARD_HINT_CLASS,
@@ -37,6 +38,10 @@ import {
   getNextIndex,
   getToolbarItems,
 } from "@/adapters/panels/common/Form/RichTextToolBar/focus";
+import {
+  getBlockSettingsShortcutLabel,
+  requestBlockSettings,
+} from "@/shared/utils/blockSettingsNavigation";
 
 export function Toolbar() {
   const { copyBlock, removeBlock, focusBlock } = useBlock();
@@ -130,6 +135,14 @@ export function Toolbar() {
                 Enter
               </KeyboardShortcut>
               <KeyboardShortcut
+                title={t("Go to the block settings")}
+                borderColor="#ffffff"
+                className={BLOCK_KEYBOARD_HINT_CLASS}
+                style={{ marginLeft: 4 }}
+              >
+                {getBlockSettingsShortcutLabel(navigator.userAgent)}
+              </KeyboardShortcut>
+              <KeyboardShortcut
                 title={t("Move between the block actions")}
                 borderColor="#ffffff"
                 className={TOOLBAR_KEYBOARD_HINT_CLASS}
@@ -160,6 +173,14 @@ export function Toolbar() {
                     style={{ marginLeft: 4 }}
                   >
                     Shift+F10
+                  </KeyboardShortcut>
+                  <KeyboardShortcut
+                    title={t("Go to the block settings")}
+                    borderColor="#ffffff"
+                    className={TABLE_CELL_HINT_CLASS}
+                    style={{ marginLeft: 4 }}
+                  >
+                    {getBlockSettingsShortcutLabel(navigator.userAgent)}
                   </KeyboardShortcut>
                   <KeyboardShortcut
                     title={t("Go to the table block")}
@@ -251,6 +272,26 @@ export function Toolbar() {
                   }}
                 >
                   <AddIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip
+                title={t("Block settings")}
+                slotProps={{ popper: { container: iframeBody } }}
+              >
+                <IconButton
+                  aria-label={t("Block settings")}
+                  aria-keyshortcuts="Alt+Enter"
+                  onClick={() => requestBlockSettings()}
+                  sx={{
+                    color: "inherit",
+                    p: 0,
+                    width: 22,
+                    height: 22,
+                    borderRadius: 0,
+                  }}
+                >
+                  <TuneIcon sx={{ fontSize: 14 }} />
                 </IconButton>
               </Tooltip>
 
