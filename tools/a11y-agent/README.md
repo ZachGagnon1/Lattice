@@ -7,7 +7,7 @@ A local decision model tests the editor with the keyboard only, the way a blind 
 1. Playwright opens the demo in headless Chrome.
 2. After each key press, the script reads what a screen reader reports: the role and name of the focused control from the accessibility tree, its region, dialog or menu, its description and shortcut, and new live announcements.
 3. A [decision model](https://docs.ollama.com/capabilities/decision) such as Nimble or Clef gets that text, the goal, and the last 15 steps. It answers one `choice` question through `POST /v1/systemone`: which key to press next. The options are the keys, `NextLandmark` and `PreviousLandmark` (the region jumps of a screen reader), and `finish`. Their descriptions are generic, so they reveal no shortcut that the app does not announce itself.
-4. The script samples the key from the returned probabilities, sharpened toward the favorite, with a seed for each run. A deterministic model can then still leave a loop, and the runs differ.
+4. The script samples the key from the returned probabilities, sharpened toward the favorite, with a seed for each run. A deterministic model can then still leave a loop, and the runs differ. Each session gets a new seed, so it explores new paths.
 5. Code checks the goal after each key press. The score never depends on what the model claims.
 6. axe-core runs in real Chromium, so it also checks color contrast, which the jsdom tests cannot.
 
@@ -29,16 +29,17 @@ OLLAMA_HOST=http://ai-brain.home:11434 pnpm start
 pnpm start --model clef:latest --task add-button --runs 5
 ```
 
-| Option        | Default                                               |
-| ------------- | ----------------------------------------------------- |
-| `--url`       | `$A11Y_AGENT_URL` or `http://localhost:5173/`         |
-| `--host`      | `$OLLAMA_HOST` or `http://localhost:11434`            |
-| `--model`     | `nimble:latest`                                       |
-| `--runs`      | `3` for each task                                     |
-| `--task`      | all: `add-button`, `text-settings`, `color-picker`    |
-| `--max-steps` | `40` key presses for each run                         |
-| `--vision`    | `auto`: on for Clef models. `on` or `off` to force it |
-| `--headed`    | off: show the browser                                 |
+| Option        | Default                                                                             |
+| ------------- | ----------------------------------------------------------------------------------- |
+| `--url`       | `$A11Y_AGENT_URL` or `http://localhost:5173/`                                       |
+| `--host`      | `$OLLAMA_HOST` or `http://localhost:11434`                                          |
+| `--model`     | `nimble:latest`                                                                     |
+| `--runs`      | `3` for each task                                                                   |
+| `--task`      | all: `add-button`, `text-settings`, `color-picker`                                  |
+| `--max-steps` | `40` key presses for each run                                                       |
+| `--vision`    | `auto`: on for Clef models. `on` or `off` to force it                               |
+| `--seed`      | a new seed from the clock. The report records it; pass it again to repeat a session |
+| `--headed`    | off: show the browser                                                               |
 
 The script uses the installed Chrome. Set `A11Y_AGENT_BROWSER_PATH` to use another Chromium build. Reports go to `reports/`, which git ignores.
 

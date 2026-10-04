@@ -22,7 +22,7 @@ export function scoreRun({ reached, steps }) {
   const ratio = (count) => (stops.length ? count / stops.length : 1);
   const named = ratio(stops.filter((step) => step.focus.named).length);
   // A landmark jump moves a screen reader cursor, which shows no focus ring in a real browser either.
-  const focusStops = stops.filter((step) => !step.key.endsWith("Landmark"));
+  const focusStops = stops.filter((step) => !step.focus.viaLandmark);
   const visible = focusStops.length
     ? focusStops.filter((step) => step.focus.visible).length / focusStops.length
     : 1;

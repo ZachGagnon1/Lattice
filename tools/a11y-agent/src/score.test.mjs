@@ -69,10 +69,34 @@ test("a landmark jump does not count toward the visible focus", () => {
     step("Tab", "a"),
     {
       ...step("NextLandmark", "region"),
-      focus: { key: "region", spoken: "region", named: true, visible: false },
+      focus: {
+        key: "region",
+        spoken: "region",
+        named: true,
+        visible: false,
+        viaLandmark: true,
+      },
     },
   ];
   assert.equal(scoreRun({ reached: true, steps }).visibleRatio, 1);
+});
+
+test("a key press that stays on a landmark does not count toward the visible focus", () => {
+  const landmark = {
+    key: "nav",
+    spoken: "navigation",
+    named: true,
+    visible: false,
+    viaLandmark: true,
+  };
+  const steps = [
+    step("Tab", "a"),
+    { ...step("NextLandmark", "nav"), focus: landmark },
+    { ...step("ArrowDown", "nav"), moved: false, focus: landmark },
+  ];
+  const result = scoreRun({ reached: true, steps });
+  assert.equal(result.visibleRatio, 1);
+  assert.deepEqual(result.invisibleStops, []);
 });
 
 test("the crop pads the box and stays inside the viewport", () => {

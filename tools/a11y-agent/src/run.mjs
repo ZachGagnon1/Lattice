@@ -34,11 +34,15 @@ const { values: options } = parseArgs({
     task: { type: "string", default: TASKS.map((task) => task.id).join(",") },
     "max-steps": { type: "string", default: "40" },
     vision: { type: "string", default: "auto" },
+    // A new seed each session explores new paths; the report records it, so --seed repeats a session.
+    seed: { type: "string", default: String(Date.now() % 1_000_000_000) },
     headed: { type: "boolean", default: false },
   },
 });
 
 // Only Clef and Clef Flash read images.
+const seed = Number(options.seed);
+
 const useVision =
   options.vision === "on" ||
   (options.vision === "auto" && options.model.startsWith("clef"));
@@ -141,7 +145,7 @@ async function rateDifficulty(task, steps, reached) {
 async function runTask(page, task, run) {
   await openEditor(page, options.url);
   const start = await task.start(page);
-  const random = seededRandom(run * 7919);
+  const random = seededRandom(seed + run * 7919);
   const steps = [];
   let previous = await observeFocus(page);
   let heard = new Set(await readAnnouncements(page));
@@ -182,6 +186,9 @@ async function runTask(page, task, run) {
     const announced = all.filter((text) => !heard.has(text));
     heard = new Set(all);
     const moved = focus.key !== previous.key;
+    // A landmark jump moves a screen reader cursor, and the focus stays in that state until it moves.
+    focus.viaLandmark =
+      key.endsWith("Landmark") || (!moved && Boolean(previous.viaLandmark));
     steps.push({ key, favorite, confidence, focus, announced, moved });
     previous = focus;
     current = hear(focus, announced, moved);
@@ -206,7 +213,7 @@ function toMarkdown(report) {
   const lines = [
     `# Accessibility agent report`,
     ``,
-    `${report.date} · model \`${report.model}\` · ${report.runsPerTask} runs for each task · ${report.url} · focus check: ${report.vision ? "screenshot" : "CSS"}`,
+    `${report.date} · model \`${report.model}\` · ${report.runsPerTask} runs for each task · ${report.url} · focus check: ${report.vision ? "screenshot" : "CSS"} · seed ${report.seed}`,
     ``,
     `**Overall score: ${report.overall} / 100**`,
     ``,
@@ -289,6 +296,7 @@ async function main() {
       url: options.url,
       model: options.model,
       vision: useVision,
+      seed,
       runsPerTask,
       overall: Math.round(
         summaries.reduce((sum, s) => sum + s.medianScore, 0) /
