@@ -164,6 +164,18 @@ describe("Add block menu", () => {
     expect(menus.length).toBeGreaterThan(0);
     // jsdom does not render the text toolbar, so this checks the marker that keeps it open.
     expect(menus[0].closest("[data-rich-text-toolbar-popup]")).not.toBeNull();
+
+    // An open menu holds the focus, so the next test could not select a block.
+    await act(async () => {
+      menus[0].dispatchEvent(
+        new (getCanvas().frameWindow.KeyboardEvent)("keydown", {
+          key: "Escape",
+          bubbles: true,
+        }),
+      );
+    });
+    await waitForFrames();
+    expect(frameDocument.querySelector('[role="menu"]')).toBeNull();
   });
 });
 
@@ -196,5 +208,53 @@ describe("Color picker", () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
     });
     expect(document.activeElement).toBe(swatch);
+  });
+});
+
+describe("Merge tag button", () => {
+  it("has one named Tab stop, and moves the focus into its dialog and back", async () => {
+    const { frameWindow, frameDocument } = getCanvas();
+    const buttonBlock = frameDocument.querySelector<HTMLElement>(
+      '[data-block-selection-surface][aria-label*="Button"]',
+    );
+    expect(buttonBlock).not.toBeNull();
+    await act(async () => {
+      buttonBlock!.focus();
+    });
+    await waitForFrames();
+    frameDocument.body.dispatchEvent(
+      new frameWindow.KeyboardEvent("keydown", {
+        key: "Enter",
+        altKey: true,
+        bubbles: true,
+      }),
+    );
+    await waitForFrames();
+
+    const settings = document.querySelector("[data-block-settings]")!;
+    expect(settings.querySelectorAll("legend button")).toHaveLength(0);
+    const trigger = settings.querySelector<HTMLElement>(
+      '[aria-label="Insert merge tag"]',
+    );
+    expect(trigger).not.toBeNull();
+
+    await act(async () => {
+      trigger!.focus();
+      trigger!.click();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    });
+    expect(
+      document.activeElement?.closest(
+        '[role="dialog"][aria-label="Merge tags"]',
+      ),
+    ).not.toBeNull();
+
+    await act(async () => {
+      document.activeElement!.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    });
+    expect(document.activeElement).toBe(trigger);
   });
 });

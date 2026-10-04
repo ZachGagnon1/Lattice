@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Align } from "@/adapters/panels/AttributePanel/components/attributes/Align";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { BackgroundColor } from "@/adapters/panels/AttributePanel/components/attributes/BackgroundColor";
@@ -13,7 +13,7 @@ import { FontWeight } from "@/adapters/panels/AttributePanel/components/attribut
 import { LetterSpacing } from "@/adapters/panels/AttributePanel/components/attributes/LetterSpacing";
 import { LineHeight } from "@/adapters/panels/AttributePanel/components/attributes/LineHeight";
 import { Link } from "@/adapters/panels/AttributePanel/components/attributes/Link";
-import { MergeTags } from "@/adapters/panels/AttributePanel/components/attributes/MergeTags";
+import { MergeTagButton } from "@/adapters/panels/AttributePanel/components/attributes/MergeTagButton";
 import { Padding } from "@/adapters/panels/AttributePanel/components/attributes/Padding";
 import { TextDecoration } from "@/adapters/panels/AttributePanel/components/attributes/TextDecoration";
 import { TextField } from "@/adapters/panels/common/Form";
@@ -21,8 +21,7 @@ import { Width } from "@/adapters/panels/AttributePanel/components/attributes/Wi
 import { useEditorProps, useFocusIdx } from "@";
 import { useEditorField } from "@/adapters/panels/common/Form/useEditorField";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
-import { Box, IconButton, Popover, Stack } from "@mui/material";
-import DataObjectIcon from "@mui/icons-material/DataObject";
+import { Stack } from "@mui/material";
 
 export function Button() {
   const { focusIdx } = useFocusIdx();
@@ -30,63 +29,22 @@ export function Button() {
 
   const { variableData } = useEditorProps();
 
-  // MUI Popover requires local state to anchor the popup to the button
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
-  const id = open ? "merge-tags-popover" : undefined;
-
   return (
     <AttributesPanelWrapper>
       <CollapsableItem title={t("Setting")}>
         <Stack spacing={2}>
           <TextField
-            label={
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <span>{t("Content")}</span>
-                {variableData && (
-                  <>
-                    <IconButton
-                      aria-describedby={id}
-                      onClick={handleClick}
-                      size="small"
-                      sx={{ p: 0.5 }}
-                    >
-                      <DataObjectIcon />
-                    </IconButton>
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClose}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                      }}
-                      transformOrigin={{
-                        vertical: "top",
-                        horizontal: "left",
-                      }}
-                    >
-                      <Box sx={{ p: 1 }}>
-                        <MergeTags
-                          value={input.value}
-                          onChange={input.onChange}
-                        />
-                      </Box>
-                    </Popover>
-                  </>
-                )}
-              </Box>
-            }
+            label={t("Content")}
+            slotProps={{
+              input: {
+                endAdornment: variableData && (
+                  <MergeTagButton
+                    value={input.value}
+                    onChange={input.onChange}
+                  />
+                ),
+              },
+            }}
             name={`${focusIdx}.data.value.content`}
           />
           <Link />
