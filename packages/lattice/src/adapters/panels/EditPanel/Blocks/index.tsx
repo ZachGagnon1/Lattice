@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Typography } from "@mui/material";
+import { Box, Grid, ListItemButton, Paper, Typography } from "@mui/material";
 import {
   BasicType,
   BlockAvatarWrapper,
@@ -6,7 +6,7 @@ import {
   getIconNameByBlockType,
   IBlockData,
 } from "@";
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useExtensionProps } from "@/adapters/panels/common/Providers/ExtensionProvider";
@@ -117,28 +117,29 @@ function LayoutItem({
   title: string;
 }) {
   const [visible, setVisible] = useState(false);
+  const contentId = useId();
 
   return (
     <Box>
-      <Box
+      <ListItemButton
+        aria-expanded={visible}
+        aria-controls={contentId}
         onClick={() => setVisible((v) => !v)}
         sx={{
-          display: "flex",
           justifyContent: "space-between",
-          "&:hover": {
-            backgroundColor: "action.hover",
-          },
           px: 1,
-          py: 1,
           borderRadius: 1,
+          "&.Mui-focusVisible": {
+            outline: "2px solid",
+            outlineColor: "primary.main",
+          },
         }}
       >
         <Typography variant="body2">{title}</Typography>
-        <Typography>
-          {visible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-        </Typography>
-      </Box>
+        {visible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+      </ListItemButton>
       <Box
+        id={contentId}
         sx={{
           height: visible ? "auto" : 0,
           overflow: "hidden",
