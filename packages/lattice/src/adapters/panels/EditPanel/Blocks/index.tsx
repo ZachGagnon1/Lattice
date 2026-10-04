@@ -1,4 +1,5 @@
 import { Box, Grid, ListItemButton, Paper, Typography } from "@mui/material";
+import { PALETTE_HINT_ID } from "@/shared/utils/editorRegions";
 import {
   BasicType,
   BlockAvatarWrapper,
@@ -17,6 +18,17 @@ export function Blocks() {
 
   return (
     <Box sx={{ paddingBottom: 30, minHeight: "100%" }}>
+      <Typography
+        id={PALETTE_HINT_ID}
+        component="p"
+        variant="caption"
+        color="text.secondary"
+        sx={{ px: 1, pt: 1 }}
+      >
+        {t(
+          "Drag a block into the email. With the keyboard, select a block in the canvas, press Enter, and choose Add Block.",
+        )}
+      </Typography>
       {categories.map((cat, index) => {
         if (cat.displayType === "column") {
           return (
