@@ -11,9 +11,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useExtensionProps } from "@/adapters/panels/common/Providers/ExtensionProvider";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
-import IconButton from "@mui/material/IconButton";
-import AddIcon from "@mui/icons-material/Add";
-import { useAddBlockAtFocus } from "@/application/hooks/useAddBlockAtFocus";
 
 export function Blocks() {
   const { categories } = useExtensionProps();
@@ -86,11 +83,9 @@ function BlockItem({
   title?: string;
 }) {
   const block = BlockManager.getBlockByType(type);
-  const { getTarget, addAtFocus } = useAddBlockAtFocus();
-  const name = title ?? block?.name ?? type;
 
   return (
-    <Paper sx={{ cursor: "grab !important", position: "relative" }}>
+    <Paper sx={{ cursor: "grab !important" }}>
       <BlockAvatarWrapper type={type} payload={payload}>
         <Box
           sx={{
@@ -106,20 +101,10 @@ function BlockItem({
         >
           {getIconNameByBlockType(type)}
           <Typography variant="body2" sx={{ marginTop: 1 }}>
-            {name}
+            {title ?? block?.name}
           </Typography>
         </Box>
       </BlockAvatarWrapper>
-      {/* Outside the drag wrapper, so a click does not start a drag. */}
-      <IconButton
-        size="small"
-        aria-label={`${t("Add")} ${name}`}
-        disabled={!getTarget(type)}
-        onClick={() => addAtFocus(type, payload)}
-        sx={{ position: "absolute", top: 2, right: 2, p: 0.25 }}
-      >
-        <AddIcon fontSize="small" />
-      </IconButton>
     </Paper>
   );
 }
