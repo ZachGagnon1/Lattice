@@ -44,6 +44,11 @@ export interface ColorPickerPanelProps {
 
 const hexPattern = /^#?[0-9a-f]{6}$/i;
 
+/** `disableAutoFocus` leaves the focus on the trigger, so the picker takes it once it shows. */
+function focusFirstControl(node: HTMLElement) {
+  node.querySelector<HTMLElement>('[role="slider"], input, button')?.focus();
+}
+
 export function ColorPickerPanel(props: ColorPickerPanelProps) {
   const { value, onChange, onPick, label } = props;
   const { colors: presetColors } = useContext(PresetColorsContext);
@@ -268,6 +273,11 @@ export function ColorPicker(props: ColorPickerProps) {
                 height: "40px",
                 minWidth: "unset",
                 p: 0,
+                // disableRipple also removes the focus ripple, so the keyboard focus needs an outline.
+                "&.Mui-focusVisible": {
+                  outline: `2px solid ${theme.palette.primary.main}`,
+                  outlineOffset: 2,
+                },
               })}
             />
             {showInput && (
@@ -320,6 +330,7 @@ export function ColorPicker(props: ColorPickerProps) {
           disableEnforceFocus
           sx={{ zIndex: 10000 }}
           slotProps={{
+            transition: { onEntered: focusFirstControl },
             paper: {
               sx: {
                 backgroundColor: "#FFFFFF",
