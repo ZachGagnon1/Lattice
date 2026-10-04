@@ -413,10 +413,11 @@ export function Tools({ onChange }: Readonly<ToolsProps>) {
         onFocus={onFocus}
         style={{
           display: "flex",
-          flexWrap: "nowrap",
+          flexWrap: "wrap",
+          // The tools wrap as whole items, so the text inside a tool must not break.
+          whiteSpace: "nowrap",
           alignItems: "center",
           maxWidth: "100%",
-          overflowX: "auto",
         }}
       >
         <BasicTools />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   FIXED_CONTAINER_ID,
   getIframeDocument,
@@ -11,11 +11,20 @@ import styleText from "./shadow-dom.scss?inline";
 import { createPortal } from "react-dom";
 import { IframeCacheProvider } from "@/adapters/ui/Provider/IframeCacheProvider";
 import { getToolbarItems } from "./focus";
+import { DEFAULT_TOOLBAR_HEIGHT, getToolbarStyle } from "./position";
 
 export function RichTextToolBar(props: { onChange: (s: string) => void }) {
   const { initialized } = useEditorContext();
   const { focusBlockNode } = useFocusBlockLayout();
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [toolbarHeight, setToolbarHeight] = useState(DEFAULT_TOOLBAR_HEIGHT);
+
+  // The tools wrap in a narrow canvas, so the toolbar measures its height to stay clear of the block.
+  useLayoutEffect(() => {
+    const height = barRef.current?.offsetHeight;
+    if (height && height !== toolbarHeight) setToolbarHeight(height);
+  });
 
   // Alt+F10 is the common shortcut for an editor toolbar, for example in TinyMCE and CKEditor.
   useEffect(() => {
@@ -81,25 +90,14 @@ export function RichTextToolBar(props: { onChange: (s: string) => void }) {
 
   if (!root || !rect) return null;
 
-  // Smart positioning: Try above by 45px. If it hits the top bounds of the screen, render it below.
-  const topPosition = rect.top >= 45 ? rect.top - 45 : rect.bottom + 10;
-
   return createPortal(
     <IframeCacheProvider>
       <>
         <style dangerouslySetInnerHTML={{ __html: styleText }} />
         <div
           id={RICH_TEXT_BAR_ID}
-          style={{
-            position: "fixed", // Relative to iframe viewport instead of a column
-            top: topPosition,
-            left: "50%", // Perfect center to the whole email width
-            transform: "translateX(-50%)",
-            padding: "4px 15px",
-            boxSizing: "border-box",
-            zIndex: 100,
-            whiteSpace: "nowrap",
-          }}
+          ref={barRef}
+          style={getToolbarStyle(rect, toolbarHeight)}
         >
           <div
             style={{

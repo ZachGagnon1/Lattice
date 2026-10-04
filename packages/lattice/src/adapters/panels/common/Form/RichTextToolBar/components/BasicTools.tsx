@@ -41,6 +41,7 @@ export function BasicTools() {
       direction="row"
       sx={{
         alignItems: "center",
+        flexWrap: "wrap",
       }}
       style={{ marginRight: 40 }}
     >
