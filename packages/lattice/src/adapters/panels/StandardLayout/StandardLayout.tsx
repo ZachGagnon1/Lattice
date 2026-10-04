@@ -17,7 +17,10 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { getEditorRegionLabels } from "@/shared/utils/editorRegions";
+import {
+  getEditorRegionLabels,
+  PALETTE_HINT_ID,
+} from "@/shared/utils/editorRegions";
 import {
   EditorRegion,
   NarrowEditorRegion,
@@ -154,6 +157,7 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
           <Grid
             component="aside"
             id="lattice-blocks-region"
+            aria-describedby={PALETTE_HINT_ID}
             aria-label={labels.blocks}
             tabIndex={-1}
             size={{ xs: 12, md: 2.5 }}
