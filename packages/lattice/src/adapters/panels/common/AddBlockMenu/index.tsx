@@ -20,6 +20,7 @@ import {
   useExtensionProps,
 } from "@/adapters/panels/common/Providers/ExtensionProvider";
 import { resolveAddTarget } from "@/shared/utils/panel/resolveAddTarget";
+import { getColumnLayouts } from "./columnLayouts";
 
 export interface AddBlockMenuProps {
   anchorEl: HTMLElement | null;
@@ -56,19 +57,16 @@ function sectionWithColumns(widths: string[]): Partial<IBlockData> {
 function toGroups(categories: ExtensionProps["categories"]): AddBlockGroup[] {
   return categories.flatMap((category): AddBlockGroup[] => {
     if (category.displayType === "column") {
-      const items = category.blocks.flatMap((block) => {
-        const [widths] = (block.payload ?? []) as string[][];
-        if (!widths) return [];
-        const label = block.title ?? "";
-        return [
-          {
+      const items = category.blocks.flatMap((block) =>
+        getColumnLayouts(block.title, block.payload).map(
+          ({ label, widths }) => ({
             key: label,
             label,
             type: BasicType.SECTION,
             payload: sectionWithColumns(widths),
-          },
-        ];
-      });
+          }),
+        ),
+      );
       return [{ label: category.label, items }];
     }
     if (
