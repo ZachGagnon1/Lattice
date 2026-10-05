@@ -8,6 +8,7 @@ export * from "./createCustomBlock";
 export * from "./isAdvancedBlock";
 export * from "./isValidBlockData";
 export * from "./mergeBlock";
+export * from "./normalizeLegacyLayout";
 export * from "./parseReactBlockToBlockData";
 export { getAdapterAttributesString } from "./render/getAdapterAttributesString";
 export { ImageManager } from "./render/ImageManager";

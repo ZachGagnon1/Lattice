@@ -1,15 +1,17 @@
 import mjml from "mjml-browser";
 import { JsonToMjml } from "@/domain/compile/JsonToMjml";
+import { normalizeLegacyLayout } from "@/domain/blocks/normalizeLegacyLayout";
 import { IEmailTemplate } from "@/shared/typings";
 
 /**
  * Converts the email template state into a raw MJML string.
  */
 export function exportToMjml(template: IEmailTemplate): string {
+  const content = normalizeLegacyLayout(template.content);
   return JsonToMjml({
-    data: template.content,
+    data: content,
     mode: "production",
-    context: template.content,
+    context: content,
   });
 }
 
