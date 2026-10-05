@@ -1,3 +1,4 @@
+import { normalizeLegacyLayout } from "@/domain/blocks/normalizeLegacyLayout";
 import { IEmailTemplate } from "@/shared/typings";
 import { FormProvider, useForm } from "react-hook-form";
 import React, { useEffect, useRef } from "react";
@@ -34,7 +35,7 @@ function toFormValues(data: IEmailTemplate): IEmailTemplate {
   return {
     subject: data.subject,
     subTitle: data.subTitle,
-    content: data.content,
+    content: normalizeLegacyLayout(data.content),
   };
 }
 

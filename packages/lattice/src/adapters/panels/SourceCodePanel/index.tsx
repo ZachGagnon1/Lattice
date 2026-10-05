@@ -3,7 +3,6 @@ import {
   BlockManager,
   getPageIdx,
   getParentByIdx,
-  IBlockData,
   JsonToMjml,
   useBlock,
   useEditorContext,
@@ -13,6 +12,7 @@ import {
 import { cloneDeep } from "lodash-es";
 import React, { useCallback, useEffect, useState } from "react";
 import { MjmlToJson } from "@/shared/utils/panel/MjmlToJson";
+import { parseJsonSource } from "./parseJsonSource";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
 
 import { Box, Button, Stack } from "@mui/material";
@@ -65,20 +65,7 @@ export function SourceCodePanel({
   const onSaveJson = useCallback(() => {
     if (jsonReadOnly) return;
     try {
-      const parseValue = JSON.parse(
-        JSON.stringify(window.eval("(" + codeText + ")")),
-      ) as IBlockData;
-
-      const block = BlockManager.getBlockByType(parseValue.type);
-      if (!block) throw new Error(t("Invalid content"));
-
-      if (
-        !parseValue.data?.value ||
-        !parseValue.attributes ||
-        !Array.isArray(parseValue.children)
-      ) {
-        throw new Error(t("Invalid content format"));
-      }
+      const parseValue = parseJsonSource(codeText, focusIdx);
 
       setValueByIdx(focusIdx, parseValue);
       setDirtyMode(null);

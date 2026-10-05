@@ -129,9 +129,36 @@ const VARIABLE_DATA = {
  * />
  */
 
+type ImportMode = "design" | "unlayer";
+
+type JsonObject = Record<string, unknown>;
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+const IMPORT_COPY: Record<
+  ImportMode,
+  { title: string; description: string; placeholder: string }
+> = {
+  design: {
+    title: "Import Design",
+    description:
+      "Paste a Lattice or easy-email JSON design below to load it into Lattice.",
+    placeholder:
+      '{"subject": "", "subTitle": "", "content": {"type": "page", ...}}',
+  },
+  unlayer: {
+    title: "Import Unlayer Template",
+    description:
+      "Paste your Unlayer JSON payload below to convert and load it into Lattice.",
+    placeholder: '{"counters": {...}, "body": {...}}',
+  },
+};
+
 export default function Editor() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [unlayerJson, setUnlayerJson] = useState("");
+  const [importMode, setImportMode] = useState<ImportMode | null>(null);
+  const [importJson, setImportJson] = useState("");
 
   const [template, setTemplate] = useState<IEmailTemplate>(DEFAULT_TEMPLATE);
 
@@ -204,33 +231,63 @@ export default function Editor() {
     });
   };
 
-  // --- Handler to parse JSON and update the Editor ---
-  const handleImportUnlayer = () => {
+  const closeImport = () => {
+    setImportMode(null);
+    setImportJson("");
+  };
+
+  const handleImportUnlayer = (parsed: JsonObject) => {
+    if (
+      !parsed.schemaVersion ||
+      !isJsonObject(parsed.body) ||
+      !Array.isArray(parsed.body.rows)
+    ) {
+      alert(
+        "This doesn't look like a valid Unlayer JSON template. Make sure it contains 'schemaVersion' and 'body'.",
+      );
+      return;
+    }
+    setTemplate((prev) => ({ ...prev, content: unlayerToLattice(parsed) }));
+    closeImport();
+  };
+
+  // The editor wraps legacy page-level blocks on load, so an old easy-email design works as it is.
+  const handleImportDesign = (parsed: JsonObject) => {
+    const content = isJsonObject(parsed.content) ? parsed.content : parsed;
+    if (content.type !== "page" || !Array.isArray(content.children)) {
+      alert(
+        "This doesn't look like a valid Lattice design. Paste a template with a 'content' page block, or the page block itself.",
+      );
+      return;
+    }
+    setTemplate((prev) => ({
+      subject:
+        typeof parsed.subject === "string" ? parsed.subject : prev.subject,
+      subTitle:
+        typeof parsed.subTitle === "string" ? parsed.subTitle : prev.subTitle,
+      content: content as unknown as IEmailTemplate["content"],
+    }));
+    closeImport();
+  };
+
+  const handleImport = () => {
+    let parsed: unknown;
     try {
-      const parsed = JSON.parse(unlayerJson);
-
-      // Basic feature detection to ensure it's an Unlayer format
-      if (parsed.schemaVersion && parsed.body?.rows) {
-        const convertedDesign = unlayerToLattice(parsed);
-
-        // Update the Lattice editor state with the converted AST
-        setTemplate((prev) => ({
-          ...prev,
-          content: convertedDesign,
-        }));
-
-        setIsModalOpen(false);
-        setUnlayerJson(""); // Clear the textarea on success
-      } else {
-        alert(
-          "This doesn't look like a valid Unlayer JSON template. Make sure it contains 'schemaVersion' and 'body'.",
-        );
-      }
+      parsed = JSON.parse(importJson);
     } catch (e) {
       alert("Failed to parse JSON. Please check your syntax.");
       console.error(e);
+      return;
     }
+    if (!isJsonObject(parsed)) {
+      alert("Paste a JSON object.");
+      return;
+    }
+    if (importMode === "unlayer") handleImportUnlayer(parsed);
+    else handleImportDesign(parsed);
   };
+
+  const importCopy = importMode ? IMPORT_COPY[importMode] : null;
 
   if (!template) return null;
 
@@ -247,14 +304,23 @@ export default function Editor() {
       >
         <h1>Lattice Editor</h1>
         <div style={{ display: "flex", gap: "10px" }}>
-          {/* --- New Import Button --- */}
           <button
             style={{
               height: "30px",
               fontWeight: "bold",
               cursor: "pointer",
             }}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setImportMode("design")}
+          >
+            Import Design
+          </button>
+          <button
+            style={{
+              height: "30px",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+            onClick={() => setImportMode("unlayer")}
           >
             Import Unlayer
           </button>
@@ -300,8 +366,7 @@ export default function Editor() {
         onBeforeMjmlCompile={handleBeforeMjmlCompile}
       />
 
-      {/* --- Basic Modal Overlay for Unlayer Import --- */}
-      {isModalOpen && (
+      {importCopy && (
         <div
           style={{
             position: "fixed",
@@ -329,17 +394,16 @@ export default function Editor() {
               boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
             }}
           >
-            <h2 style={{ margin: 0 }}>Import Unlayer Template</h2>
+            <h2 style={{ margin: 0 }}>{importCopy.title}</h2>
             <p style={{ margin: 0, fontSize: "14px", color: "#666" }}>
-              Paste your Unlayer JSON payload below to convert and load it into
-              Lattice.
+              {importCopy.description}
             </p>
 
             <textarea
               rows={15}
-              value={unlayerJson}
-              onChange={(e) => setUnlayerJson(e.target.value)}
-              placeholder='{"counters": {...}, "body": {...}}'
+              value={importJson}
+              onChange={(e) => setImportJson(e.target.value)}
+              placeholder={importCopy.placeholder}
               style={{
                 width: "100%",
                 fontFamily: "monospace",
@@ -358,7 +422,7 @@ export default function Editor() {
             >
               <button
                 style={{ padding: "8px 16px", cursor: "pointer" }}
-                onClick={() => setIsModalOpen(false)}
+                onClick={closeImport}
               >
                 Cancel
               </button>
@@ -371,7 +435,7 @@ export default function Editor() {
                   border: "none",
                   borderRadius: "4px",
                 }}
-                onClick={handleImportUnlayer}
+                onClick={handleImport}
               >
                 Import
               </button>
