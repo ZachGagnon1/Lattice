@@ -1,5 +1,5 @@
 import React from "react";
-import { useFocusIdx } from "@";
+import { useEditorProps, useFocusIdx } from "@";
 import { SelectField, TextField } from "../../../common/Form";
 import { MergeTagButton } from "./MergeTagButton";
 import { useEditorField } from "@/adapters/panels/common/Form/useEditorField";
@@ -10,6 +10,7 @@ import LinkIcon from "@mui/icons-material/Link";
 export function Link() {
   const { focusIdx } = useFocusIdx();
   const { input } = useEditorField<string>(`${focusIdx}.attributes.href`);
+  const { variableData } = useEditorProps();
 
   return (
     <Stack spacing={1} direction="row">
@@ -21,7 +22,7 @@ export function Link() {
                 <LinkIcon />
               </InputAdornment>
             ),
-            endAdornment: (
+            endAdornment: variableData && (
               <MergeTagButton value={input.value} onChange={input.onChange} />
             ),
           },

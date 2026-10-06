@@ -312,23 +312,23 @@ export function schemaToSampleData(
  * Normalise either input into the plain sample object the picker consumes.
  *
  * A plain object passes through unchanged. A schema becomes generated sample
- * data. Anything else, including a schema whose root is an array, becomes an
- * empty object, because the picker needs named top-level fields.
+ * data. The result is `undefined` when it holds no top-level field, so the
+ * editor hides the merge tag controls. A schema whose root is an array gives
+ * `undefined`, because the picker needs named top-level fields.
  *
  * @param input - A schema or a plain sample object.
  * @param options - Controls the array length and the recursion limit.
- * @returns A plain object of sample data.
+ * @returns A plain object of sample data, or `undefined`.
  */
 export function toVariableSample(
   input: unknown,
   options?: SampleOptions,
-): Record<string, any> {
-  if (isSchemaLike(input)) {
-    const sample = schemaToSampleData(input, options);
-    return isPlainObject(sample) ? sample : {};
-  }
+): Record<string, any> | undefined {
+  const sample = isSchemaLike(input)
+    ? schemaToSampleData(input, options)
+    : input;
 
-  if (isPlainObject(input)) return input;
-
-  return {};
+  return isPlainObject(sample) && Object.keys(sample).length > 0
+    ? sample
+    : undefined;
 }

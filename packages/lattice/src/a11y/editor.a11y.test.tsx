@@ -60,7 +60,13 @@ beforeAll(async () => {
   // Vitest gives each test file its own jsdom, so the test does not unmount.
   const root = createRoot(container);
   await act(async () => {
-    root.render(<LatticeEditor data={buildData()} height="800px" />);
+    root.render(
+      <LatticeEditor
+        data={buildData()}
+        height="800px"
+        variableData={{ firstName: "John" }}
+      />,
+    );
   });
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));

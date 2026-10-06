@@ -169,16 +169,18 @@ describe("toVariableSample", () => {
     });
   });
 
-  it("returns an empty object for anything else", () => {
-    expect(toVariableSample(null)).toEqual({});
-    expect(toVariableSample(7)).toEqual({});
-    expect(toVariableSample("firstName")).toEqual({});
-    expect(toVariableSample([1, 2])).toEqual({});
+  it("returns undefined when there is no data", () => {
+    expect(toVariableSample(undefined)).toBeUndefined();
+    expect(toVariableSample({})).toBeUndefined();
+    expect(toVariableSample(null)).toBeUndefined();
+    expect(toVariableSample(7)).toBeUndefined();
+    expect(toVariableSample("firstName")).toBeUndefined();
+    expect(toVariableSample([1, 2])).toBeUndefined();
   });
 
-  it("returns an empty object when a schema root is an array", () => {
+  it("returns undefined when a schema root is an array", () => {
     const schema = { safeParse: () => null, element: { parse: () => null } };
-    expect(toVariableSample(schema)).toEqual({});
+    expect(toVariableSample(schema)).toBeUndefined();
   });
 
   it("converts a stub schema", () => {
