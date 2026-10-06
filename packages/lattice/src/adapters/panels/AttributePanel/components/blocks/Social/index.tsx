@@ -144,6 +144,7 @@ function SocialElement({
 
       <TextField
         label={t("Link")}
+        placeholder="https://example.com"
         name={`${focusIdx}.data.value.elements.[${index}].href`}
         slotProps={{
           input: {

@@ -28,6 +28,7 @@ export function Link() {
           },
         }}
         label={t("Href")}
+        placeholder="https://example.com"
         name={`${focusIdx}.attributes.href`}
       />
       <SelectField

@@ -15,14 +15,14 @@ const list = [
         value: {
           elements: [
             {
-              href: "#",
+              href: "",
               "icon-size": "20px",
               target: "_blank",
               src: getImg("IMAGE_53"),
               content: "Facebook",
             },
             {
-              href: "#",
+              href: "",
               "icon-size": "20px",
               target: "_blank",
               src: getImg("IMAGE_54"),
@@ -63,14 +63,14 @@ const list = [
         value: {
           elements: [
             {
-              href: "#",
+              href: "",
               "icon-size": "20px",
               target: "_blank",
               src: getImg("IMAGE_53"),
               content: "",
             },
             {
-              href: "#",
+              href: "",
               "icon-size": "20px",
               target: "_blank",
               src: getImg("IMAGE_54"),

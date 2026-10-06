@@ -24,7 +24,6 @@ const buttonList = [
         "vertical-align": "middle",
         border: "none",
         "text-align": "center",
-        href: "#",
       },
       data: {
         value: {
@@ -51,7 +50,6 @@ const buttonList = [
         "vertical-align": "middle",
         border: "2px solid #000",
         "text-align": "center",
-        href: "#",
       },
       data: {
         value: {
@@ -79,7 +77,6 @@ const buttonList = [
         "vertical-align": "middle",
         border: "2px dashed #ffffff",
         "text-align": "center",
-        href: "#",
         "container-background-color": "#97c0f0",
       },
       data: {

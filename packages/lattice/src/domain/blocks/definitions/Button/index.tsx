@@ -62,7 +62,6 @@ export const Button = createBlock<IButton>({
         "vertical-align": "middle",
         border: "none",
         "text-align": "center",
-        href: "#",
       },
       children: [],
     };
