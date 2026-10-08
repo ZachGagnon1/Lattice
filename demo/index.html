@@ -3,29 +3,47 @@
 <head>
   <meta charset="UTF-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Lattice: Drag-and-Drop Email Editor for React</title>
   <meta
-    content="Easy email is developed based on the MJML and has very good compatibility. At the same time, it can generate code through drag-and-drop editing."
+    content="Lattice is an open-source drag-and-drop email editor and email template builder for React 19. It builds responsive HTML emails with MJML, and it aims to be fully accessible."
     name="description"
   />
+  <link href="https://zachgagnon1.github.io/Lattice/" rel="canonical" />
 
-  <title>easy email</title>
+  <meta content="website" property="og:type" />
+  <meta content="Lattice: Drag-and-Drop Email Editor for React" property="og:title" />
+  <meta
+    content="An open-source drag-and-drop email editor for React 19. Build responsive HTML emails with MJML, and export to MJML, HTML, or JSON. It aims to be fully accessible."
+    property="og:description"
+  />
+  <meta content="https://zachgagnon1.github.io/Lattice/" property="og:url" />
+  <meta content="summary" name="twitter:card" />
 </head>
 
 <body style="height: 100vh">
+<!-- createRoot replaces this markup. Crawlers that do not run JavaScript still read the text. -->
 <div id="root" style="width: 100%; height: 100%">
   <div
     style="
           height: 100%;
           width: 100%;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
+          font-family: sans-serif;
+          color: rgba(0, 0, 0, 0.65);
         "
   >
     <img alt="" src="/loading" width="200px" />
-    <p style="font-size: 24px; color: rgba(0, 0, 0, 0.65)">
-      Please wait a moment.
+    <h1 style="font-size: 24px">Lattice: drag-and-drop email editor for React</h1>
+    <p style="max-width: 560px; text-align: center">
+      Lattice is an open-source email template builder for React 19. It builds
+      responsive HTML emails with MJML. Export to MJML, HTML, or JSON. Add
+      Handlebars conditions and loops, and merge tags from your own data. We aim to make
+      the editor fully accessible, with keyboard and screen reader support.
     </p>
+    <p>The demo is loading. Please wait a moment.</p>
   </div>
 </div>
 <script src="/src/main.tsx" type="module"></script>
