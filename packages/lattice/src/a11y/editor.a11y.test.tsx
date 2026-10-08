@@ -275,3 +275,13 @@ describe("Screen reader hints", () => {
     expect(find("lattice-inline-edit-instructions")).toContain("Alt+Enter");
   });
 });
+
+describe("Palette hint", () => {
+  it("names the keyboard path to add a block, and the Blocks region reads it", () => {
+    const region = document.getElementById("lattice-blocks-region")!;
+    const hintId = region.getAttribute("aria-describedby")!;
+    expect(document.getElementById(hintId)?.textContent).toContain(
+      "choose Add Block",
+    );
+  });
+});
