@@ -24,7 +24,12 @@
     "html-email",
     "newsletter",
     "wysiwyg",
-    "easy-email-editor"
+    "easy-email-editor",
+    "unlayer",
+    "unlayer-alternative",
+    "email-template-editor",
+    "open-source",
+    "accessibility"
   ],
   "files": [
     "lib"
