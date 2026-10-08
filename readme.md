@@ -5,7 +5,7 @@
 > **Lattice** _noun_
 > A structure of strips of wood or metal, crossed and fastened together.
 
-Lattice is a drag-and-drop email editor for React 19. It builds responsive HTML emails with MJML. Lattice is a fork of **easy-email-editor**.
+Lattice is an open-source drag-and-drop email editor for React 19. It builds responsive HTML emails with MJML. It is a free, self-hosted alternative to Unlayer. Lattice is a fork of **easy-email-editor**.
 
 [**_Demo_**](https://zachgagnon1.github.io/Lattice/)
 
@@ -18,6 +18,14 @@ Lattice is a drag-and-drop email editor for React 19. It builds responsive HTML 
 - Undo and redo.
 - MUI themes for the editor.
 - Unlayer template import through `unlayerToLattice`.
+- Keyboard and screen reader support. We aim to make the editor fully accessible.
+
+## Why Lattice?
+
+- **Open source.** Lattice uses the MIT license. No feature needs a paid plan, and the editor shows no branding.
+- **Self-hosted.** The editor runs inside your React app. It loads no external script and no iframe, so your templates stay in your app.
+- **Standard output.** Lattice exports MJML, the standard markup language for responsive email. You can render the MJML on your own backend.
+- **Easy move from Unlayer.** Unlayer's `react-email-editor` loads the editor from Unlayer's servers in an iframe, and some features need a paid plan. `unlayerToLattice` imports your existing Unlayer templates.
 
 ## Install
 
