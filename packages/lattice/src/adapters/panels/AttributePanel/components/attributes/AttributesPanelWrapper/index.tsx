@@ -1,7 +1,8 @@
 import React, { useCallback } from "react";
 import { BlockManager, useBlock } from "@";
 import { BasicType } from "@/domain/constants";
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Stack, Tooltip } from "@mui/material";
+import { Text } from "@/adapters/ui/kit/Text";
 import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOffOutlined";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
@@ -40,12 +41,13 @@ export const AttributesPanelWrapper: React.FC<AttributesPanelWrapper> = (
           }}
         >
           <EyeIcon />
-          <Typography
-            component={getHeadingComponent(headingLevel)}
-            variant="h6"
+          <Text
+            as={getHeadingComponent(headingLevel)}
+            size="lg"
+            weight="medium"
           >
             {`${block.name} `} {t("Attributes")}
-          </Typography>
+          </Text>
           {props.extra}
         </Stack>
       </div>

@@ -10,7 +10,7 @@ import {
   getParentIdx,
   IBlockData,
   scrollBlockEleIntoView,
-  TextStyle,
+  Text,
   useBlock,
   useEditorContext,
   useFocusIdx,
@@ -108,7 +108,7 @@ export function BlockLayer(props: BlockLayerProps) {
                 textOverflow: "ellipsis",
               }}
             >
-              <TextStyle size="smallest">{title}</TextStyle>
+              <Text size="xs">{title}</Text>
             </div>
           </Stack>
           <div className={styles.eyeIcon}>

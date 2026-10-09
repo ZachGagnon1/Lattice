@@ -10,7 +10,7 @@ import { BlockSettings } from "./components/BlockSettings";
 import { getBlockTitle } from "@/shared/utils/panel/getBlockTitle";
 // MUI Components
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+import { Text } from "@/adapters/ui/kit/Text";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
 import { getHeadingComponent } from "@/shared/utils/accessibility";
 import { INLINE_EDIT_INSTRUCTIONS_ID } from "@/shared/utils/inlineEditAccessibility";
@@ -42,13 +42,14 @@ export function AttributePanel() {
           </BlockSettings>
         ) : (
           <Box sx={{ mt: "200px", px: "50px", textAlign: "center" }}>
-            <Typography
-              component={getHeadingComponent(headingLevel)}
-              variant="h6"
-              color="text.secondary"
+            <Text
+              as={getHeadingComponent(headingLevel)}
+              size="lg"
+              weight="medium"
+              tone="muted"
             >
               {t("No matching components")}
-            </Typography>
+            </Text>
           </Box>
         )}
         <Box sx={{ position: "absolute" }}>

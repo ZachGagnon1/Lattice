@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from "react";
-import { Box, Button, Drawer, Stack, Typography } from "@mui/material";
+import { Box, Button, Drawer, Stack } from "@mui/material";
+import { Text } from "@/adapters/ui/kit/Text";
 import { useBlock, useEditorContext, useFocusIdx } from "@";
 import { BasicType } from "@/domain/constants";
 import {
@@ -97,13 +98,9 @@ export const HtmlEditor: React.FC<{
           bgcolor: "background.paper",
         }}
       >
-        <Typography
-          component={getHeadingComponent(headingLevel)}
-          variant="h6"
-          sx={{ fontWeight: "bold" }}
-        >
+        <Text as={getHeadingComponent(headingLevel)} size="lg" weight="bold">
           Html
-        </Typography>
+        </Text>
         <Stack direction="row" spacing={2}>
           <Button onClick={onClose} color="inherit">
             Cancel

@@ -1,6 +1,6 @@
 import React from "react";
 import { BasicType } from "@/domain/constants";
-import { Stack, TextStyle } from "@";
+import { Stack, Text } from "@";
 
 import { TextBlockItem } from "./TextBlockItem";
 import { ImageBlockItem } from "./ImageBlockItem";
@@ -42,11 +42,11 @@ export const defaultCategories = [
         get description() {
           return (
             <Stack vertical spacing="none">
-              <TextStyle>
+              <Text>
                 {t(
                   "Displays a responsive image in your email. It is similar to the HTML '&lt;img/&gt;' tag. Note that if no width is provided, the image will use the parent column width.",
                 )}
-              </TextStyle>
+              </Text>
             </Stack>
           );
         },
@@ -172,16 +172,16 @@ export const defaultCategories = [
         get description() {
           return (
             <Stack vertical spacing="none">
-              <TextStyle>
+              <Text>
                 {t(
                   "Sections are intended to be used as rows within your email. They will be used to structure the layout.",
                 )}
-              </TextStyle>
-              <TextStyle>
+              </Text>
+              <Text>
                 {t(
                   "Sections cannot nest in sections. Columns can nest in sections; all content must be in a column.",
                 )}
-              </TextStyle>
+              </Text>
             </Stack>
           );
         },
@@ -207,17 +207,17 @@ export const defaultCategories = [
         get description() {
           return (
             <Stack vertical spacing="none">
-              <TextStyle>
+              <Text>
                 {t(`Columns enable you to horizontally organize the content within
                 your sections. They must be located under "Section" block in order
                 to be considered by the engine. To be responsive, columns are
                 expressed in terms of percentage.`)}
-              </TextStyle>
-              <TextStyle>
+              </Text>
+              <Text>
                 {t(`Every single column has to contain something because they are
                 responsive containers, and will be vertically stacked on a mobile
                 view.`)}
-              </TextStyle>
+              </Text>
             </Stack>
           );
         },
