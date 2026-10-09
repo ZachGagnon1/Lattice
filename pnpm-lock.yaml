@@ -47,7 +47,7 @@ importers:
         version: 26.6.3
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3))
+        version: 6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0))
       sass:
         specifier: ^1.105.0
         version: 1.105.0
@@ -59,7 +59,7 @@ importers:
         version: 7.0.2
       vite:
         specifier: 8.3.1
-        version: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3)
+        version: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0)
 
   packages/lattice:
     dependencies:
@@ -105,9 +105,6 @@ importers:
       color:
         specifier: ^5.0.3
         version: 5.0.3
-      color-namer:
-        specifier: ^1.4.0
-        version: 1.4.0
       he:
         specifier: ^1.2.0
         version: 1.2.0
@@ -177,7 +174,7 @@ importers:
         version: 8.71.0(eslint@10.11.0(supports-color@7.2.0))(supports-color@7.2.0)(typescript@7.0.2)
       '@vitejs/plugin-react':
         specifier: ^6.1.1
-        version: 6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3))
+        version: 6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0))
       axe-core:
         specifier: ^4.13.0
         version: 4.13.0
@@ -222,10 +219,10 @@ importers:
         version: 7.0.2
       vite:
         specifier: 8.3.1
-        version: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3)
+        version: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0)
       vitest:
         specifier: ^5.0.1
-        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(jsdom@29.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3))
+        version: 5.0.1(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(jsdom@29.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0))
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -2171,9 +2168,6 @@ packages:
     resolution: {integrity: sha512-+IxzY9BZOQd/XuYPRmrvEVjF/nqj5kgT4kEq7VofrDoM1MxoRjEWkrCC3EtLi59TVawxTAn+orJwFQcrqEN1+g==}
     engines: {node: '>=18'}
 
-  chroma-js@1.4.1:
-    resolution: {integrity: sha512-jTwQiT859RTFN/vIf7s+Vl/Z2LcMrvMv3WUFmd/4u76AdlFC0NTNgqEEFPcRiHmAswPsMiQEDZLM8vX8qXpZNQ==}
-
   ci-info@3.9.0:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
@@ -2242,9 +2236,6 @@ packages:
   color-name@2.1.0:
     resolution: {integrity: sha512-1bPaDNFm0axzE4MEAzKPuqKWeRaT43U/hyxKPBdqTfmPF+d6n7FSoTFxLVULUJOmiLp01KjhIPPH+HrXZJN4Rg==}
     engines: {node: '>=12.20'}
-
-  color-namer@1.4.0:
-    resolution: {integrity: sha512-3mQMY9MJyfdV2uhe+xjQWcKHtYnPtl5svGjt89V2WWT2MlaLAd7C02886Wq7H1MTjjIIEa/NJLYPNF/Lhxhq2A==}
 
   color-string@2.1.4:
     resolution: {integrity: sha512-Bb6Cq8oq0IjDOe8wJmi4JeNn763Xs9cfrBcaylK1tPypWzyoy2G3l90v9k64kjphl/ZJjPIShFztenRomi8WTg==}
@@ -2389,10 +2380,6 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
-
-  d@1.0.2:
-    resolution: {integrity: sha512-MOqHvMWF9/9MX6nza0KgvFH4HpMU0EF5uUDXqX/BtxtU8NfB0QzRtJ8Oe/6SuS4kbhyzVJwjd97EA4PKrzJ8bw==}
-    engines: {node: '>=0.12'}
 
   dargs@7.0.0:
     resolution: {integrity: sha512-2iy1EkLdlBzQGvbweYRFxmFath8+K7+AKB0TlhHWkNuH+TmovaMH/Wp7V7R4u7f4SnX3OgLsU9t1NI9ioDnUpg==}
@@ -2633,20 +2620,6 @@ packages:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
 
-  es5-ext@0.10.64:
-    resolution: {integrity: sha512-p2snDhiLaXe6dahss1LddxqEm+SkuDvV8dnIQG0MWjyHpcMNfXKPE+/Cc0y+PhxJX3A4xGNeFCj5oc0BUh6deg==}
-    engines: {node: '>=0.10'}
-
-  es6-iterator@2.0.3:
-    resolution: {integrity: sha512-zw4SRzoUkd+cl+ZoE15A9o1oQd920Bb0iOJMQkQhl3jNc03YqVjAhG7scf9C5KWRU/R13Orf588uCC6525o02g==}
-
-  es6-symbol@3.1.4:
-    resolution: {integrity: sha512-U9bFFjX8tFiATgtkJ1zg25+KviIXpgRvRHS8sau3GfhVzThRQrOeksPeT0BWW2MNZs1OEWJ1DPXOQMn0KKRkvg==}
-    engines: {node: '>=0.12'}
-
-  es6-weak-map@2.0.3:
-    resolution: {integrity: sha512-p5um32HOTO1kP+w7PRnB+5lQ43Z6muuMuIMffvDN8ZB4GcnjLBV6zGStpbASIMk4DCAvEaamhe2zhyCb/QXXsA==}
-
   esbuild@0.28.0:
     resolution: {integrity: sha512-sNR9MHpXSUV/XB4zmsFKN+QgVG82Cc7+/aaxJ8Adi8hyOac+EXptIp45QBPaVyX3N70664wRbTcLTOemCAnyqw==}
     engines: {node: '>=18'}
@@ -2732,10 +2705,6 @@ packages:
       jiti:
         optional: true
 
-  esniff@2.0.1:
-    resolution: {integrity: sha512-kTUIGKQ/mDPFoJ0oVfcmyJn4iBDRptjNVIzwIFR7tqWXdVI9xfA2RMwY/gbSpJG3lkdWNEjLap/NqVHZiJsdfg==}
-    engines: {node: '>=0.10'}
-
   espree@11.2.0:
     resolution: {integrity: sha512-7p3DrVEIopW1B1avAGLuCSh1jubc01H2JHc8B4qqGblmg5gI9yumBgACjWo4JlIc04ufug4xJ3SQI8HkS/Rgzw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
@@ -2759,9 +2728,6 @@ packages:
     resolution: {integrity: sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==}
     engines: {node: '>=0.10.0'}
 
-  event-emitter@0.3.5:
-    resolution: {integrity: sha512-D9rRn9y7kLPnJ+hMq7S/nhvoKwwvVJahBi2BPmx3bvbsEdK3W9ii8cBSGjP+72/LnM4n6fo3+dkCX5FeTQruXA==}
-
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
 
@@ -2775,9 +2741,6 @@ packages:
 
   exponential-backoff@3.1.3:
     resolution: {integrity: sha512-ZgEeZXj30q+I0EN+CbSSpIyPaJ5HVQD18Z1m+u1FXbAeT94mr1zw50q4q6jiiC447Nl/YTcIYSAftiGqetwXCA==}
-
-  ext@1.7.0:
-    resolution: {integrity: sha512-6hxeJYaL110a9b5TEJSj0gojyHQAmA2ch5Os+ySCiA1QGdS697XWY1pzsrSjqA9LDEEgdB/KypIlR59RcLuHYw==}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -3827,9 +3790,6 @@ packages:
 
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
-
-  next-tick@1.1.0:
-    resolution: {integrity: sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==}
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -4882,9 +4842,6 @@ packages:
     resolution: {integrity: sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==}
     engines: {node: '>=8'}
 
-  type@2.7.3:
-    resolution: {integrity: sha512-8j+1QmAbPvLZow5Qpi6NCaN8FB60p/6x8/vfNqOk/hC+HuvFZhL4+WfekuhQLiqFZXOgQdrs3B+XxEmCc6b3FQ==}
-
   typed-array-buffer@1.0.3:
     resolution: {integrity: sha512-nAYYwfY3qnzX30IkA6AQZjVbtK6duGontcQm1WSG1MD94YLqK0515GNApXkoxKOWMusVssAHWLh9SeaoefYFGw==}
     engines: {node: '>= 0.4'}
@@ -5206,11 +5163,6 @@ packages:
 
   yaml@2.8.0:
     resolution: {integrity: sha512-4lLa/EcQCB0cJkyts+FpIRx5G/llPxfP6VQU5KByHEhLxY3IJCH0f0Hy1MHI8sClTvsIb8qwRJ6R/ZdlDJ/leQ==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
-
-  yaml@2.8.3:
-    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -6625,7 +6577,8 @@ snapshots:
 
   '@types/normalize-package-data@2.4.4': {}
 
-  '@types/parse-json@4.0.2': {}
+  '@types/parse-json@4.0.2':
+    optional: true
 
   '@types/prop-types@15.7.15': {}
 
@@ -6916,19 +6869,19 @@ snapshots:
       - '@codemirror/lint'
       - '@codemirror/search'
 
-  '@vitejs/plugin-react@6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3))':
+  '@vitejs/plugin-react@6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3)
+      vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0)
 
-  '@vitest/mocker@5.0.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3))':
+  '@vitest/mocker@5.0.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.1
       estree-walker: 3.0.3
       magic-string: 1.4.2
     optionalDependencies:
-      vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3)
+      vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0)
 
   '@vitest/spy@5.0.1': {}
 
@@ -7094,6 +7047,7 @@ snapshots:
       '@babel/runtime': 7.29.7
       cosmiconfig: 7.1.0
       resolve: 1.22.12
+    optional: true
 
   balanced-match@1.0.2: {}
 
@@ -7286,8 +7240,6 @@ snapshots:
 
   chownr@3.0.0: {}
 
-  chroma-js@1.4.1: {}
-
   ci-info@3.9.0: {}
 
   ci-info@4.3.1: {}
@@ -7347,11 +7299,6 @@ snapshots:
   color-name@1.1.4: {}
 
   color-name@2.1.0: {}
-
-  color-namer@1.4.0:
-    dependencies:
-      chroma-js: 1.4.1
-      es6-weak-map: 2.0.3
 
   color-string@2.1.4:
     dependencies:
@@ -7476,6 +7423,7 @@ snapshots:
       parse-json: 5.2.0
       path-type: 4.0.0
       yaml: 1.10.3
+    optional: true
 
   cosmiconfig@9.0.0(typescript@5.9.3):
     dependencies:
@@ -7521,11 +7469,6 @@ snapshots:
   cssesc@3.0.0: {}
 
   csstype@3.2.3: {}
-
-  d@1.0.2:
-    dependencies:
-      es5-ext: 0.10.64
-      type: 2.7.3
 
   dargs@7.0.0: {}
 
@@ -7824,31 +7767,6 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  es5-ext@0.10.64:
-    dependencies:
-      es6-iterator: 2.0.3
-      es6-symbol: 3.1.4
-      esniff: 2.0.1
-      next-tick: 1.1.0
-
-  es6-iterator@2.0.3:
-    dependencies:
-      d: 1.0.2
-      es5-ext: 0.10.64
-      es6-symbol: 3.1.4
-
-  es6-symbol@3.1.4:
-    dependencies:
-      d: 1.0.2
-      ext: 1.7.0
-
-  es6-weak-map@2.0.3:
-    dependencies:
-      d: 1.0.2
-      es5-ext: 0.10.64
-      es6-iterator: 2.0.3
-      es6-symbol: 3.1.4
-
   esbuild@0.28.0:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.28.0
@@ -8010,13 +7928,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  esniff@2.0.1:
-    dependencies:
-      d: 1.0.2
-      es5-ext: 0.10.64
-      event-emitter: 0.3.5
-      type: 2.7.3
-
   espree@11.2.0:
     dependencies:
       acorn: 8.18.0
@@ -8039,11 +7950,6 @@ snapshots:
 
   esutils@2.0.3: {}
 
-  event-emitter@0.3.5:
-    dependencies:
-      d: 1.0.2
-      es5-ext: 0.10.64
-
   eventemitter3@4.0.7: {}
 
   execa@5.0.0:
@@ -8061,10 +7967,6 @@ snapshots:
   expect-type@1.4.0: {}
 
   exponential-backoff@3.1.3: {}
-
-  ext@1.7.0:
-    dependencies:
-      type: 2.7.3
 
   fast-deep-equal@3.1.3: {}
 
@@ -9220,8 +9122,6 @@ snapshots:
   negotiator@1.0.0: {}
 
   neo-async@2.6.2: {}
-
-  next-tick@1.1.0: {}
 
   no-case@3.0.4:
     dependencies:
@@ -10514,8 +10414,6 @@ snapshots:
 
   type-fest@0.8.1: {}
 
-  type@2.7.3: {}
-
   typed-array-buffer@1.0.3:
     dependencies:
       call-bound: 1.0.4
@@ -10631,7 +10529,7 @@ snapshots:
 
   validate-npm-package-name@6.0.2: {}
 
-  vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3):
+  vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -10645,12 +10543,12 @@ snapshots:
       less: 4.6.4
       sass: 1.105.0
       terser: 5.51.2
-      yaml: 2.8.3
+      yaml: 2.8.0
 
-  vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(jsdom@29.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3)):
+  vitest@5.0.1(@opentelemetry/api@1.9.1)(@types/node@26.6.3)(jsdom@29.1.1)(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3))
+      '@vitest/mocker': 5.0.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -10661,7 +10559,7 @@ snapshots:
       tinybench: 6.1.4
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
-      vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.3)
+      vite: 8.3.1(@types/node@26.6.3)(esbuild@0.28.0)(less@4.6.4)(sass@1.105.0)(terser@5.51.2)(yaml@2.8.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@opentelemetry/api': 1.9.1
@@ -10810,12 +10708,10 @@ snapshots:
 
   yallist@5.0.0: {}
 
-  yaml@1.10.3: {}
+  yaml@1.10.3:
+    optional: true
 
   yaml@2.8.0: {}
-
-  yaml@2.8.3:
-    optional: true
 
   yargs-parser@20.2.9: {}
 
