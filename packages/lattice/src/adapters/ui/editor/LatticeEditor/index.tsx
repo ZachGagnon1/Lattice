@@ -12,6 +12,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { toVariableSample } from "@/shared/utils/variableSchema";
 import { VariableDataOf } from "@/shared/typings/variableData";
 import { HeadingLevel } from "@/shared/utils/accessibility";
+import { ColorScheme, ThemeRoot } from "@/adapters/ui/kit/theme/ThemeRoot";
 
 /** Layout and panel switches for the editor user interface. */
 export interface LatticeEditorConfig {
@@ -70,6 +71,8 @@ export interface LatticeEditorProps<TVar = Record<string, any>> {
   allowCondition?: boolean;
   /** Add the For Loop block to the Logic category. Default is false. */
   allowForLoop?: boolean;
+  /** The default theme. `system` follows the OS setting. Default is `light`. */
+  colorScheme?: ColorScheme;
 }
 
 /**
@@ -100,6 +103,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
     headingLevel = 2,
     allowCondition = false,
     allowForLoop = false,
+    colorScheme = "light",
   } = props;
 
   const {
@@ -193,7 +197,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
       fontList={fontList}
     >
       {() => (
-        <>
+        <ThemeRoot colorScheme={colorScheme}>
           {onChange && <ValuesListener onChange={debouncedOnChange} />}
           <StandardLayout
             categories={activeComponents}
@@ -204,7 +208,7 @@ export function LatticeEditor<TVar = Record<string, any>>(
           >
             <EmailEditor />
           </StandardLayout>
-        </>
+        </ThemeRoot>
       )}
     </EmailEditorProvider>
   );
