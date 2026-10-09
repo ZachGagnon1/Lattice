@@ -3,7 +3,7 @@ import { NumberField, TextField } from "@/adapters/panels/common/Form";
 import { useFocusIdx } from "@";
 
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
+import { Text } from "@/adapters/ui/kit/Text";
 
 export function Decoration() {
   const { focusIdx } = useFocusIdx();
@@ -11,9 +11,9 @@ export function Decoration() {
   return useMemo(() => {
     return (
       <Stack key={focusIdx} direction="column" spacing={1}>
-        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+        <Text size="md" weight="bold">
           {t("Decoration")}
-        </Typography>
+        </Text>
 
         <TextField
           label={t("Border radius")}

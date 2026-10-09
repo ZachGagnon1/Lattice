@@ -15,7 +15,7 @@ import {
   getSiblingIdx,
   IBlockDataWithId,
   scrollBlockEleIntoView,
-  TextStyle,
+  Text,
   useBlock,
   useEditorProps,
 } from "@";
@@ -108,7 +108,7 @@ export function ContextMenu({
             </ListItemIcon>
             <ListItemText
               disableTypography
-              primary={<TextStyle>{t("Move up")}</TextStyle>}
+              primary={<Text>{t("Move up")}</Text>}
             />
           </MenuItem>
         )}
@@ -119,7 +119,7 @@ export function ContextMenu({
           </ListItemIcon>
           <ListItemText
             disableTypography
-            primary={<TextStyle>{t("Move down")}</TextStyle>}
+            primary={<Text>{t("Move down")}</Text>}
           />
         </MenuItem>
 
@@ -127,10 +127,7 @@ export function ContextMenu({
           <ListItemIcon>
             <ContentCopyIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText
-            disableTypography
-            primary={<TextStyle>{t("Copy")}</TextStyle>}
-          />
+          <ListItemText disableTypography primary={<Text>{t("Copy")}</Text>} />
         </MenuItem>
 
         {props.onAddCollection && (
@@ -140,7 +137,7 @@ export function ContextMenu({
             </ListItemIcon>
             <ListItemText
               disableTypography
-              primary={<TextStyle>Add to collection</TextStyle>}
+              primary={<Text>Add to collection</Text>}
             />
           </MenuItem>
         )}
@@ -151,7 +148,7 @@ export function ContextMenu({
           </ListItemIcon>
           <ListItemText
             disableTypography
-            primary={<TextStyle>{t("Delete")}</TextStyle>}
+            primary={<Text>{t("Delete")}</Text>}
           />
         </MenuItem>
       </Menu>

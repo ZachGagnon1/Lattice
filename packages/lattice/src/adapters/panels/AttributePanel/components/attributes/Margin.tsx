@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { TextField } from "../../../common/Form";
-import { Stack, TextStyle, useFocusIdx } from "@";
+import { Stack, Text, useFocusIdx } from "@";
 
 export function Margin() {
   const { focusIdx } = useFocusIdx();
@@ -8,7 +8,9 @@ export function Margin() {
   return useMemo(() => {
     return (
       <Stack vertical spacing="extraTight">
-        <TextStyle size="large">{t("Margin")}</TextStyle>
+        <Text size="lg" weight="medium">
+          {t("Margin")}
+        </Text>
         <Stack wrap={false}>
           <Stack.Item fill>
             <TextField

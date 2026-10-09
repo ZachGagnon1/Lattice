@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, TextStyle } from "@";
+import { Stack, Text } from "@";
 import { ISpacer, RecursivePartial } from "@";
 import { BasicType } from "@/domain/constants";
 
@@ -36,7 +36,7 @@ export function SpacerBlockItem() {
                     }}
                   />
                 </Stack.Item>
-                <TextStyle>{item} px</TextStyle>
+                <Text>{item} px</Text>
               </Stack>
             </BlockMaskWrapper>
           );

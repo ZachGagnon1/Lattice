@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import { InputWithUnitField } from "../../../common/Form";
-import { createBlockDataByType, TextStyle, useBlock, useFocusIdx } from "@";
+import { createBlockDataByType, Text, useBlock, useFocusIdx } from "@";
 import { FormProvider, useForm } from "react-hook-form";
 import { get } from "lodash-es";
 import { pixelAdapter } from "../adapter";
@@ -106,7 +106,7 @@ export function Padding(props: PaddingProps = {}) {
           }}
           spacing={2}
         >
-          <TextStyle variation="strong">{title}</TextStyle>
+          <Text weight="bold">{title}</Text>
           {showResetAll && (
             <Tooltip title="Remove all padding" placement="top">
               <IconButton

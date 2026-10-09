@@ -1,5 +1,5 @@
 import React from "react";
-import { Stack, TextStyle } from "@";
+import { Stack, Text } from "@";
 import { IDivider, RecursivePartial } from "@";
 import { BasicType } from "@/domain/constants";
 import { BlockMaskWrapper } from "@/adapters/panels/ShortcutToolbar/components/BlockMaskWrapper";
@@ -58,7 +58,7 @@ export function DividerBlockItem() {
                     />
                   </div>
                 </Stack.Item>
-                <TextStyle>{item["border-style"]}</TextStyle>
+                <Text>{item["border-style"]}</Text>
               </Stack>
             </BlockMaskWrapper>
           );

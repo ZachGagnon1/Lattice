@@ -9,8 +9,8 @@ import {
   Select,
   Stack,
   TextField,
-  Typography,
 } from "@mui/material";
+import { Text } from "@/adapters/ui/kit/Text";
 import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import { MergeTags } from "@/adapters/panels/AttributePanel/components/attributes/MergeTags";
 import {
@@ -87,9 +87,9 @@ export function RuleConnector(props: Readonly<RuleConnectorProps>) {
         py: 1,
       }}
     >
-      <Typography variant="body2" color="text.secondary">
+      <Text size="sm" tone="muted">
         {operator}
-      </Typography>
+      </Text>
     </Box>
   );
 }
