@@ -276,12 +276,29 @@ describe("Screen reader hints", () => {
   });
 });
 
-describe("Palette hint", () => {
-  it("names the keyboard path to add a block, and the Blocks region reads it", () => {
-    const region = document.getElementById("lattice-blocks-region")!;
-    const hintId = region.getAttribute("aria-describedby")!;
-    expect(document.getElementById(hintId)?.textContent).toContain(
-      "choose Add Block",
+describe("Block shortcuts", () => {
+  it("name Enter and Alt+Enter on a selection button, and only Alt+Enter on a text", () => {
+    const { frameDocument } = getCanvas();
+    const button = frameDocument.querySelector(
+      "button[data-block-selection-surface]",
     );
+    const text = frameDocument.querySelector(
+      '[contenteditable="true"][data-block-selection-surface]',
+    );
+    expect(button?.getAttribute("aria-keyshortcuts")).toBe("Enter Alt+Enter");
+    expect(text?.getAttribute("aria-keyshortcuts")).toBe("Alt+Enter");
+  });
+});
+
+describe("Palette", () => {
+  it("keeps the drag-only controls out of the Tab order", () => {
+    const palette = document.querySelector(
+      '#lattice-blocks-region [role="tabpanel"]',
+    )!;
+    const controls = Array.from(
+      palette.querySelectorAll<HTMLElement>("button, [tabindex]"),
+    );
+    expect(controls.length).toBeGreaterThan(0);
+    expect(controls.filter((control) => control.tabIndex >= 0)).toEqual([]);
   });
 });

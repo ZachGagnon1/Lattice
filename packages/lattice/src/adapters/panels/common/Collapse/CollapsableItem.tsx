@@ -16,6 +16,8 @@ interface CollapsableItemProps {
   title: string;
   headerStyle?: SxProps;
   defaultExpanded?: boolean;
+  /** Takes the toggle out of the Tab order, for content that only a pointer can use. */
+  pointerOnly?: boolean;
 }
 
 export function CollapsableItem(
@@ -41,6 +43,7 @@ export function CollapsableItem(
             aria-expanded={expanded}
             aria-controls={contentId}
             onClick={() => setExpanded(!expanded)}
+            tabIndex={props.pointerOnly ? -1 : undefined}
           >
             {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>

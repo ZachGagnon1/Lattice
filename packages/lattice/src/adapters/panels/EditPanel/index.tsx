@@ -12,12 +12,34 @@ import {
   EditorTabs,
 } from "@/adapters/panels/common/EditorTabs/EditorTabs";
 import { getTabA11yProps } from "@/shared/utils/accessibility";
+import { SHOW_BLOCK_LAYER_EVENT } from "@/shared/utils/editorRegions";
 
 export function EditPanel() {
   const { height } = useEditorProps();
   const { showBlockLayer = true } = useExtensionProps();
   const [value, setValue] = React.useState("block");
   const tabId = React.useId();
+
+  React.useEffect(() => {
+    if (!showBlockLayer) return;
+    const showBlockLayerTab = () => {
+      setValue("layer");
+      // The Layer panel shows its tree one frame after the tab changes.
+      requestAnimationFrame(() => {
+        const item =
+          document.querySelector<HTMLElement>(
+            '#BlockLayerManager [role="treeitem"][tabindex="0"]',
+          ) ??
+          document.querySelector<HTMLElement>(
+            '#BlockLayerManager [role="treeitem"]',
+          );
+        item?.focus();
+      });
+    };
+    document.addEventListener(SHOW_BLOCK_LAYER_EVENT, showBlockLayerTab);
+    return () =>
+      document.removeEventListener(SHOW_BLOCK_LAYER_EVENT, showBlockLayerTab);
+  }, [showBlockLayer]);
 
   return (
     <Box
