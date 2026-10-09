@@ -19,8 +19,10 @@ import {
 } from "@mui/material";
 import {
   getEditorRegionLabels,
-  PALETTE_HINT_ID,
+  requestBlockLayer,
 } from "@/shared/utils/editorRegions";
+import { focusActiveBlock } from "@/shared/utils/canvasBlockAccessibility";
+import { getIframeDocument } from "@/shared/utils/getEditorRoot";
 import {
   EditorRegion,
   NarrowEditorRegion,
@@ -39,6 +41,7 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
     jsonReadOnly = false,
     mjmlReadOnly = true,
     regionLabels = {},
+    showBlockLayer = true,
   } = props;
   const labels = getEditorRegionLabels(regionLabels);
 
@@ -75,6 +78,23 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
     }
   };
 
+  const goToCanvas = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    setActiveRegion("canvas");
+    // A narrow layout shows the canvas region one frame after the click.
+    requestAnimationFrame(() => {
+      const frameDocument = getIframeDocument();
+      if (!frameDocument || !focusActiveBlock(frameDocument)) {
+        document.getElementById("lattice-canvas-region")?.focus();
+      }
+    });
+  };
+
+  const goToLayers = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    requestBlockLayer();
+  };
+
   return (
     <ExtensionProvider {...props} categories={categories}>
       <Paper
@@ -108,15 +128,12 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
             "& a:focus": { transform: "translateY(0)" },
           }}
         >
-          {isDesktop && (
-            <a href="#lattice-blocks-region">
-              {t("Go to")} {labels.blocks}
+          {isDesktop && showBlockLayer && (
+            <a href="#lattice-blocks-region" onClick={goToLayers}>
+              {t("Go to")} {labels.layers}
             </a>
           )}
-          <a
-            href="#lattice-canvas-region"
-            onClick={(event) => goToRegion(event, "canvas")}
-          >
+          <a href="#lattice-canvas-region" onClick={goToCanvas}>
             {t("Go to")} {labels.canvas}
           </a>
           <a
@@ -157,7 +174,6 @@ export const StandardLayout: React.FC<ExtensionProps> = (props) => {
           <Grid
             component="aside"
             id="lattice-blocks-region"
-            aria-describedby={PALETTE_HINT_ID}
             aria-label={labels.blocks}
             tabIndex={-1}
             size={{ xs: 12, md: 2.5 }}

@@ -55,6 +55,8 @@ function getTabTarget(block: HTMLElement, idx: string, type: string) {
     if (editable) {
       getSelectionButton(block)?.remove();
       editable.setAttribute(BLOCK_SELECTION_SURFACE, idx);
+      // Enter types a new line in the text, so only Alt+Enter is a shortcut there.
+      editable.setAttribute("aria-keyshortcuts", "Alt+Enter");
       return editable;
     }
   }
@@ -65,6 +67,7 @@ function getTabTarget(block: HTMLElement, idx: string, type: string) {
     button.type = "button";
     button.setAttribute(BLOCK_SELECTION_SURFACE, idx);
     button.setAttribute("aria-describedby", BLOCK_SELECTION_INSTRUCTIONS);
+    button.setAttribute("aria-keyshortcuts", "Enter Alt+Enter");
     setVisuallyHiddenStyle(button);
     block.prepend(button);
   }
@@ -220,4 +223,14 @@ export function focusAdjacentBlock(
   });
   focusTarget(next.element);
   return true;
+}
+
+/** Returns false when no block can take the focus, for example on the Preview tab. */
+export function focusActiveBlock(document: Document) {
+  const active = getBlockTargets(document).find(
+    (target) => target.element.tabIndex === 0,
+  );
+  if (!active) return false;
+  focusTarget(active.element);
+  return document.activeElement === active.element;
 }

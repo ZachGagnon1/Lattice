@@ -1,5 +1,4 @@
 import { Box, Grid, ListItemButton, Paper, Typography } from "@mui/material";
-import { PALETTE_HINT_ID } from "@/shared/utils/editorRegions";
 import {
   BasicType,
   BlockAvatarWrapper,
@@ -18,21 +17,14 @@ export function Blocks() {
 
   return (
     <Box sx={{ paddingBottom: 30, minHeight: "100%" }}>
-      <Typography
-        id={PALETTE_HINT_ID}
-        component="p"
-        variant="caption"
-        color="text.secondary"
-        sx={{ px: 1, pt: 1 }}
-      >
-        {t(
-          "Drag a block into the email. With the keyboard, select a block in the canvas, press Enter, and choose Add Block.",
-        )}
-      </Typography>
       {categories.map((cat, index) => {
         if (cat.displayType === "column") {
           return (
-            <CollapsableItem key={cat.displayType + index} title={cat.label}>
+            <CollapsableItem
+              key={cat.displayType + index}
+              title={cat.label}
+              pointerOnly
+            >
               <>
                 {cat.blocks.map((item) => (
                   <LayoutItem
@@ -61,6 +53,7 @@ export function Blocks() {
         return (
           <CollapsableItem
             key={cat.displayType ?? "" + index}
+            pointerOnly
             title={cat.label}
           >
             <Grid container spacing={1} sx={{ justifyContent: "center" }}>
@@ -136,6 +129,7 @@ function LayoutItem({
       <ListItemButton
         aria-expanded={visible}
         aria-controls={contentId}
+        tabIndex={-1}
         onClick={() => setVisible((v) => !v)}
         sx={{
           justifyContent: "space-between",

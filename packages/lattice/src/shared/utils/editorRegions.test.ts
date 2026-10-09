@@ -9,6 +9,7 @@ describe("getEditorRegionLabels", () => {
     expect(getEditorRegionLabels()).toEqual({
       navigation: "Editor region navigation",
       blocks: "Blocks",
+      layers: "Layers",
       canvas: "Email canvas",
       configuration: "Configuration",
     });
