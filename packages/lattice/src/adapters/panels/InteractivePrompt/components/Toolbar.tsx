@@ -18,7 +18,6 @@ import { useMoveBlockActions } from "@/application/hooks/useMoveBlockActions";
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
 
 import AddIcon from "@mui/icons-material/Add";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -43,6 +42,8 @@ import {
   getBlockSettingsShortcutLabel,
   requestBlockSettings,
 } from "@/shared/utils/blockSettingsNavigation";
+import { Text } from "@/adapters/ui/kit/Text";
+import { ThemeScope } from "@/adapters/ui/kit/theme/ThemeRoot";
 
 export function Toolbar() {
   const { copyBlock, removeBlock, focusBlock } = useBlock();
@@ -82,296 +83,258 @@ export function Toolbar() {
   return (
     <>
       <IframeCacheProvider>
-        <Box
-          id="easy-email-extensions-InteractivePrompt-Toolbar"
-          sx={{
-            height: 0,
-            zIndex: 100,
-            position: "absolute", // Ensure the toolbar floats correctly
-            top: 0,
-            left: 0,
-            width: "100%",
-          }}
-        >
+        <ThemeScope>
           <Box
+            id="easy-email-extensions-InteractivePrompt-Toolbar"
             sx={{
-              pointerEvents: "auto",
-              color: "#ffffff",
-              transform: "translateY(-100%)",
-              display: "inline-flex",
-              [[
-                BLOCK_KEYBOARD_HINT_CLASS,
-                TOOLBAR_KEYBOARD_HINT_CLASS,
-                TABLE_CELL_HINT_CLASS,
-                TABLE_EDIT_HINT_CLASS,
-              ]
-                .map((name) => `& .${name}`)
-                .join(", ")]: { display: "none" },
-              [`&:has([role=toolbar]:focus-within) .${TOOLBAR_KEYBOARD_HINT_CLASS}`]:
-                { display: "inline" },
+              height: 0,
+              zIndex: 100,
+              position: "absolute", // Ensure the toolbar floats correctly
+              top: 0,
+              left: 0,
+              width: "100%",
             }}
           >
-            {/* Block Title Container */}
             <Box
               sx={{
-                color: "#ffffff",
-                backgroundColor: EDITOR_SELECTED_COLOR,
-                minHeight: 22,
-                display: "inline-flex",
-                alignItems: "center",
-                padding: "2px 6px",
-                boxSizing: "border-box",
-                whiteSpace: "nowrap",
-                maxWidth: 420,
-                overflow: "hidden",
-              }}
-            >
-              <Typography variant="caption">
-                {focusBlock && getBlockTitle(focusBlock, false)}
-              </Typography>
-              <KeyboardShortcut
-                title={t("Shortcut to the block actions")}
-                borderColor="#ffffff"
-                className={BLOCK_KEYBOARD_HINT_CLASS}
-              >
-                Enter
-              </KeyboardShortcut>
-              <KeyboardShortcut
-                title={t("Go to the block settings")}
-                borderColor="#ffffff"
-                className={BLOCK_KEYBOARD_HINT_CLASS}
-                style={{ marginLeft: 4 }}
-              >
-                {getBlockSettingsShortcutLabel(navigator.userAgent)}
-              </KeyboardShortcut>
-              <KeyboardShortcut
-                title={t("Move between the block actions")}
-                borderColor="#ffffff"
-                className={TOOLBAR_KEYBOARD_HINT_CLASS}
-              >
-                ← →
-              </KeyboardShortcut>
-              <KeyboardShortcut
-                title={t("Return to the block")}
-                borderColor="#ffffff"
-                className={TOOLBAR_KEYBOARD_HINT_CLASS}
-                style={{ marginLeft: 4 }}
-              >
-                Esc
-              </KeyboardShortcut>
-              {isTable && (
-                <>
-                  <KeyboardShortcut
-                    title={t("Edit the cell")}
-                    borderColor="#ffffff"
-                    className={TABLE_CELL_HINT_CLASS}
-                  >
-                    Enter
-                  </KeyboardShortcut>
-                  <KeyboardShortcut
-                    title={t("Open the table menu")}
-                    borderColor="#ffffff"
-                    className={TABLE_CELL_HINT_CLASS}
-                    style={{ marginLeft: 4 }}
-                  >
-                    Shift+F10
-                  </KeyboardShortcut>
-                  <KeyboardShortcut
-                    title={t("Go to the block settings")}
-                    borderColor="#ffffff"
-                    className={TABLE_CELL_HINT_CLASS}
-                    style={{ marginLeft: 4 }}
-                  >
-                    {getBlockSettingsShortcutLabel(navigator.userAgent)}
-                  </KeyboardShortcut>
-                  <KeyboardShortcut
-                    title={t("Go to the table block")}
-                    borderColor="#ffffff"
-                    className={TABLE_CELL_HINT_CLASS}
-                    style={{ marginLeft: 4 }}
-                  >
-                    Esc
-                  </KeyboardShortcut>
-                  <KeyboardShortcut
-                    title={t("Stop the edit")}
-                    borderColor="#ffffff"
-                    className={TABLE_EDIT_HINT_CLASS}
-                  >
-                    Esc
-                  </KeyboardShortcut>
-                </>
-              )}
-            </Box>
-
-            {/* Action Buttons Container */}
-            <Box
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(ev) => ev.preventDefault()}
-              role="toolbar"
-              aria-label={t("Block actions")}
-              onKeyDown={(event) => {
-                const iframeDocument = getIframeDocument();
-                if (!iframeDocument) return;
-                const items = getToolbarItems(event.currentTarget);
-                const nextItem =
-                  items[
-                    getNextIndex(
-                      event.key,
-                      items.indexOf(event.target as HTMLButtonElement),
-                      items.length,
-                    )
-                  ];
-                if (nextItem) {
-                  event.preventDefault();
-                  nextItem.focus();
-                  return;
-                }
-                // Tab continues the walk through the blocks, so the actions do not trap the user.
-                const leaveToNextBlock =
-                  event.key === "Tab" &&
-                  !event.shiftKey &&
-                  focusAdjacentBlock(iframeDocument, focusIdx, false);
-                const leaveToBlock =
-                  event.key === "Escape" ||
-                  (event.key === "Tab" && event.shiftKey);
-                if (leaveToNextBlock) {
-                  event.preventDefault();
-                } else if (leaveToBlock) {
-                  event.preventDefault();
-                  focusBlockSelectionSurface(iframeDocument, focusIdx);
-                }
-              }}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
                 pointerEvents: "auto",
-                backgroundColor: EDITOR_SELECTED_COLOR,
-                minHeight: 26,
-                "& button:focus-visible": {
-                  outline: "2px solid #ffffff",
-                  outlineOffset: -3,
-                },
-                "@media (forced-colors: active)": {
-                  border: "1px solid ButtonText",
-                },
+                color: "#ffffff",
+                transform: "translateY(-100%)",
+                display: "inline-flex",
+                [[
+                  BLOCK_KEYBOARD_HINT_CLASS,
+                  TOOLBAR_KEYBOARD_HINT_CLASS,
+                  TABLE_CELL_HINT_CLASS,
+                  TABLE_EDIT_HINT_CLASS,
+                ]
+                  .map((name) => `& .${name}`)
+                  .join(", ")]: { display: "none" },
+                [`&:has([role=toolbar]:focus-within) .${TOOLBAR_KEYBOARD_HINT_CLASS}`]:
+                  { display: "inline" },
               }}
             >
-              <Tooltip
-                title="Add Block"
-                slotProps={{ popper: { container: iframeBody } }}
+              {/* Block Title Container */}
+              <Box
+                sx={{
+                  color: "#ffffff",
+                  backgroundColor: EDITOR_SELECTED_COLOR,
+                  minHeight: 22,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "2px 6px",
+                  boxSizing: "border-box",
+                  whiteSpace: "nowrap",
+                  maxWidth: 420,
+                  overflow: "hidden",
+                }}
               >
-                <IconButton
-                  aria-label="Add Block"
-                  aria-haspopup="menu"
-                  onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}
-                  sx={{
-                    color: "inherit",
-                    p: 0,
-                    width: 22,
-                    height: 22,
-                    borderRadius: 0,
-                  }}
+                <Text size="xs">
+                  {focusBlock && getBlockTitle(focusBlock, false)}
+                </Text>
+                <KeyboardShortcut
+                  title={t("Shortcut to the block actions")}
+                  borderColor="#ffffff"
+                  className={BLOCK_KEYBOARD_HINT_CLASS}
                 >
-                  <AddIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </Tooltip>
+                  Enter
+                </KeyboardShortcut>
+                <KeyboardShortcut
+                  title={t("Go to the block settings")}
+                  borderColor="#ffffff"
+                  className={BLOCK_KEYBOARD_HINT_CLASS}
+                  style={{ marginLeft: 4 }}
+                >
+                  {getBlockSettingsShortcutLabel(navigator.userAgent)}
+                </KeyboardShortcut>
+                <KeyboardShortcut
+                  title={t("Move between the block actions")}
+                  borderColor="#ffffff"
+                  className={TOOLBAR_KEYBOARD_HINT_CLASS}
+                >
+                  ← →
+                </KeyboardShortcut>
+                <KeyboardShortcut
+                  title={t("Return to the block")}
+                  borderColor="#ffffff"
+                  className={TOOLBAR_KEYBOARD_HINT_CLASS}
+                  style={{ marginLeft: 4 }}
+                >
+                  Esc
+                </KeyboardShortcut>
+                {isTable && (
+                  <>
+                    <KeyboardShortcut
+                      title={t("Edit the cell")}
+                      borderColor="#ffffff"
+                      className={TABLE_CELL_HINT_CLASS}
+                    >
+                      Enter
+                    </KeyboardShortcut>
+                    <KeyboardShortcut
+                      title={t("Open the table menu")}
+                      borderColor="#ffffff"
+                      className={TABLE_CELL_HINT_CLASS}
+                      style={{ marginLeft: 4 }}
+                    >
+                      Shift+F10
+                    </KeyboardShortcut>
+                    <KeyboardShortcut
+                      title={t("Go to the block settings")}
+                      borderColor="#ffffff"
+                      className={TABLE_CELL_HINT_CLASS}
+                      style={{ marginLeft: 4 }}
+                    >
+                      {getBlockSettingsShortcutLabel(navigator.userAgent)}
+                    </KeyboardShortcut>
+                    <KeyboardShortcut
+                      title={t("Go to the table block")}
+                      borderColor="#ffffff"
+                      className={TABLE_CELL_HINT_CLASS}
+                      style={{ marginLeft: 4 }}
+                    >
+                      Esc
+                    </KeyboardShortcut>
+                    <KeyboardShortcut
+                      title={t("Stop the edit")}
+                      borderColor="#ffffff"
+                      className={TABLE_EDIT_HINT_CLASS}
+                    >
+                      Esc
+                    </KeyboardShortcut>
+                  </>
+                )}
+              </Box>
 
-              <Tooltip
-                title={t("Block settings")}
-                slotProps={{ popper: { container: iframeBody } }}
+              {/* Action Buttons Container */}
+              <Box
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(ev) => ev.preventDefault()}
+                role="toolbar"
+                aria-label={t("Block actions")}
+                onKeyDown={(event) => {
+                  const iframeDocument = getIframeDocument();
+                  if (!iframeDocument) return;
+                  const items = getToolbarItems(event.currentTarget);
+                  const nextItem =
+                    items[
+                      getNextIndex(
+                        event.key,
+                        items.indexOf(event.target as HTMLButtonElement),
+                        items.length,
+                      )
+                    ];
+                  if (nextItem) {
+                    event.preventDefault();
+                    nextItem.focus();
+                    return;
+                  }
+                  // Tab continues the walk through the blocks, so the actions do not trap the user.
+                  const leaveToNextBlock =
+                    event.key === "Tab" &&
+                    !event.shiftKey &&
+                    focusAdjacentBlock(iframeDocument, focusIdx, false);
+                  const leaveToBlock =
+                    event.key === "Escape" ||
+                    (event.key === "Tab" && event.shiftKey);
+                  if (leaveToNextBlock) {
+                    event.preventDefault();
+                  } else if (leaveToBlock) {
+                    event.preventDefault();
+                    focusBlockSelectionSurface(iframeDocument, focusIdx);
+                  }
+                }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  pointerEvents: "auto",
+                  backgroundColor: EDITOR_SELECTED_COLOR,
+                  minHeight: 26,
+                  "& button:focus-visible": {
+                    outline: "2px solid #ffffff",
+                    outlineOffset: -3,
+                  },
+                  "@media (forced-colors: active)": {
+                    border: "1px solid ButtonText",
+                  },
+                }}
               >
-                <IconButton
-                  aria-label={t("Block settings")}
-                  aria-keyshortcuts="Alt+Enter"
-                  onClick={() => requestBlockSettings()}
-                  sx={{
-                    color: "inherit",
-                    p: 0,
-                    width: 22,
-                    height: 22,
-                    borderRadius: 0,
-                  }}
-                >
-                  <TuneIcon sx={{ fontSize: 14 }} />
-                </IconButton>
-              </Tooltip>
-
-              {moveActions.map((action) => (
                 <Tooltip
-                  key={action.key}
-                  title={action.title}
+                  title="Add Block"
                   slotProps={{ popper: { container: iframeBody } }}
                 >
-                  {/* A disabled button fires no events, so the tooltip needs a wrapper. */}
-                  <span>
-                    <IconButton
-                      aria-label={action.title}
-                      disabled={action.disabled}
-                      onClick={action.onClick}
-                      sx={{
-                        color: "inherit",
-                        p: 0,
-                        width: 22,
-                        height: 22,
-                        borderRadius: 0,
-                        "& svg": { fontSize: 14 },
-                      }}
-                    >
-                      {action.icon}
-                    </IconButton>
-                  </span>
+                  <IconButton
+                    aria-label="Add Block"
+                    aria-haspopup="menu"
+                    onClick={(ev) => setAddMenuAnchor(ev.currentTarget)}
+                    sx={{
+                      color: "inherit",
+                      p: 0,
+                      width: 22,
+                      height: 22,
+                      borderRadius: 0,
+                    }}
+                  >
+                    <AddIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
                 </Tooltip>
-              ))}
 
-              {!isPage && (
-                <>
+                <Tooltip
+                  title={t("Block settings")}
+                  slotProps={{ popper: { container: iframeBody } }}
+                >
+                  <IconButton
+                    aria-label={t("Block settings")}
+                    aria-keyshortcuts="Alt+Enter"
+                    onClick={() => requestBlockSettings()}
+                    sx={{
+                      color: "inherit",
+                      p: 0,
+                      width: 22,
+                      height: 22,
+                      borderRadius: 0,
+                    }}
+                  >
+                    <TuneIcon sx={{ fontSize: 14 }} />
+                  </IconButton>
+                </Tooltip>
+
+                {moveActions.map((action) => (
                   <Tooltip
-                    title="Select Parent"
+                    key={action.key}
+                    title={action.title}
                     slotProps={{ popper: { container: iframeBody } }}
                   >
-                    <IconButton
-                      aria-label="Select Parent"
-                      onClick={handleSelectParent}
-                      sx={{
-                        color: "inherit",
-                        p: 0,
-                        width: 22,
-                        height: 22,
-                        borderRadius: 0,
-                      }}
-                    >
-                      <ArrowUpwardIcon sx={{ fontSize: 16 }} />
-                    </IconButton>
+                    {/* A disabled button fires no events, so the tooltip needs a wrapper. */}
+                    <span>
+                      <IconButton
+                        aria-label={action.title}
+                        disabled={action.disabled}
+                        onClick={action.onClick}
+                        sx={{
+                          color: "inherit",
+                          p: 0,
+                          width: 22,
+                          height: 22,
+                          borderRadius: 0,
+                          "& svg": { fontSize: 14 },
+                        }}
+                      >
+                        {action.icon}
+                      </IconButton>
+                    </span>
                   </Tooltip>
+                ))}
 
-                  <Tooltip
-                    title="Copy"
-                    slotProps={{ popper: { container: iframeBody } }}
-                  >
-                    <IconButton
-                      aria-label="Copy Block"
-                      onClick={handleCopy}
-                      sx={{
-                        color: "inherit",
-                        p: 0,
-                        width: 22,
-                        height: 22,
-                        borderRadius: 0,
-                      }}
-                    >
-                      <ContentCopyIcon sx={{ fontSize: 14 }} />
-                    </IconButton>
-                  </Tooltip>
-
-                  {props.onAddCollection && (
+                {!isPage && (
+                  <>
                     <Tooltip
-                      title="Add to Collection"
+                      title="Select Parent"
                       slotProps={{ popper: { container: iframeBody } }}
                     >
                       <IconButton
-                        aria-label="Add to Collection"
-                        onClick={handleAddToCollection}
+                        aria-label="Select Parent"
+                        onClick={handleSelectParent}
                         sx={{
                           color: "inherit",
                           p: 0,
@@ -380,39 +343,79 @@ export function Toolbar() {
                           borderRadius: 0,
                         }}
                       >
-                        <LibraryAddIcon sx={{ fontSize: 14 }} />
+                        <ArrowUpwardIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                     </Tooltip>
-                  )}
 
-                  <Tooltip
-                    title="Delete"
-                    slotProps={{ popper: { container: iframeBody } }}
-                  >
-                    <IconButton
-                      aria-label="Delete Block"
-                      onClick={handleDelete}
-                      sx={{
-                        color: "inherit",
-                        p: 0,
-                        width: 22,
-                        height: 22,
-                        borderRadius: 0,
-                      }}
+                    <Tooltip
+                      title="Copy"
+                      slotProps={{ popper: { container: iframeBody } }}
                     >
-                      <DeleteIcon sx={{ fontSize: 14 }} />
-                    </IconButton>
-                  </Tooltip>
-                </>
-              )}
+                      <IconButton
+                        aria-label="Copy Block"
+                        onClick={handleCopy}
+                        sx={{
+                          color: "inherit",
+                          p: 0,
+                          width: 22,
+                          height: 22,
+                          borderRadius: 0,
+                        }}
+                      >
+                        <ContentCopyIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    </Tooltip>
+
+                    {props.onAddCollection && (
+                      <Tooltip
+                        title="Add to Collection"
+                        slotProps={{ popper: { container: iframeBody } }}
+                      >
+                        <IconButton
+                          aria-label="Add to Collection"
+                          onClick={handleAddToCollection}
+                          sx={{
+                            color: "inherit",
+                            p: 0,
+                            width: 22,
+                            height: 22,
+                            borderRadius: 0,
+                          }}
+                        >
+                          <LibraryAddIcon sx={{ fontSize: 14 }} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    <Tooltip
+                      title="Delete"
+                      slotProps={{ popper: { container: iframeBody } }}
+                    >
+                      <IconButton
+                        aria-label="Delete Block"
+                        onClick={handleDelete}
+                        sx={{
+                          color: "inherit",
+                          p: 0,
+                          width: 22,
+                          height: 22,
+                          borderRadius: 0,
+                        }}
+                      >
+                        <DeleteIcon sx={{ fontSize: 14 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </>
+                )}
+              </Box>
             </Box>
           </Box>
-        </Box>
-        <AddBlockMenu
-          anchorEl={addMenuAnchor}
-          onClose={() => setAddMenuAnchor(null)}
-          container={iframeBody}
-        />
+          <AddBlockMenu
+            anchorEl={addMenuAnchor}
+            onClose={() => setAddMenuAnchor(null)}
+            container={iframeBody}
+          />
+        </ThemeScope>
       </IframeCacheProvider>
       {modal}
     </>

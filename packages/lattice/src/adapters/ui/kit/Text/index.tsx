@@ -1,6 +1,5 @@
 import React from "react";
 import { classnames } from "@/shared/utils/classnames";
-import styles from "./Text.module.scss";
 
 export type SpaceToken = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -40,13 +39,13 @@ export function Text({
   return (
     <Component
       className={classnames(
-        styles.text,
-        styles[`size-${size}`],
-        styles[`weight-${weight}`],
-        styles[`tone-${tone}`],
-        mt !== undefined && styles[`mt-${mt}`],
-        mb !== undefined && styles[`mb-${mb}`],
-        block && styles.block,
+        "lattice-text",
+        `lattice-text--size-${size}`,
+        `lattice-text--weight-${weight}`,
+        `lattice-text--tone-${tone}`,
+        mt !== undefined && `lattice-text--mt-${mt}`,
+        mb !== undefined && `lattice-text--mb-${mb}`,
+        block && "lattice-text--block",
         className,
       )}
       {...rest}
