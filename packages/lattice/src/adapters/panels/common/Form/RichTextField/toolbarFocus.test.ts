@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const state = vi.hoisted(() => ({
   focusBlockNode: null as HTMLElement | null,
   iframeDocument: null as Document | null,
+  change: vi.fn(),
 }));
 
 vi.mock("@", () => ({
@@ -18,22 +19,15 @@ vi.mock("@", () => ({
   MergeTagBadge: { revert: (value: string) => value },
   RICH_TEXT_BAR_ID: "easy-email-rich-text-bar",
   getIframeDocument: () => state.iframeDocument,
-  useEditorContext: () => ({ initialized: true }),
+  useEditorContext: () => ({
+    initialized: true,
+    formHelpers: { change: state.change },
+  }),
   useEditorProps: () => ({
     enabledMergeTagsBadge: false,
     mergeTagGenerate: (value: string) => value,
   }),
   useFocusBlockLayout: () => ({ focusBlockNode: state.focusBlockNode }),
-}));
-
-vi.mock("../InlineTextField", () => ({
-  InlineText: () => null,
-}));
-
-vi.mock("../useEditorField", () => ({
-  useEditorField: () => ({
-    input: { onBlur: vi.fn(), onChange: vi.fn() },
-  }),
 }));
 
 vi.mock("../RichTextToolBar/components/Tools", () => ({
@@ -85,6 +79,8 @@ describe("RichTextField toolbar focus", () => {
     document.body.replaceChildren();
     state.focusBlockNode = null;
     state.iframeDocument = null;
+    state.change.mockReset();
+    vi.useRealTimers();
   });
 
   function createEditable(path: string, text: string) {
@@ -167,5 +163,42 @@ describe("RichTextField toolbar focus", () => {
     });
 
     expect(toolbar?.isConnected).toBe(true);
+  });
+
+  it("keeps the toolbar when a drag selection ends outside the text", async () => {
+    const { toolbar } = await showToolbar();
+    selectText();
+
+    await act(async () => {
+      iframeDocument.body.dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+    });
+
+    expect(toolbar?.isConnected).toBe(true);
+  });
+
+  it("saves a text edit while the toolbar is hidden", async () => {
+    await showToolbar();
+    vi.useFakeTimers();
+
+    await act(async () => {
+      editable.blur();
+      iframeDocument.body.dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+    });
+    expect(
+      iframeDocument.getElementById("easy-email-rich-text-bar"),
+    ).toBeNull();
+
+    editable.textContent = "Edited text";
+    editable.dispatchEvent(new Event("input", { bubbles: true }));
+    await act(async () => vi.advanceTimersByTime(200));
+
+    expect(state.change).toHaveBeenCalledWith(
+      "content.children.0",
+      "Edited text",
+    );
   });
 });

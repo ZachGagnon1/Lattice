@@ -10,6 +10,20 @@ export interface InlineTextProps {
   onChange: (content: string) => void;
 }
 
+/** Returns the field value of an editable block, or null when the target is not one. */
+export function readEditableContent(target: HTMLElement): string | null {
+  if (!target.getAttribute("contenteditable")) return null;
+
+  const contentEditableType = target.getAttribute(DATA_CONTENT_EDITABLE_TYPE);
+  if (contentEditableType === ContentEditableType.RichText) {
+    return target.innerHTML || "";
+  }
+  if (contentEditableType === ContentEditableType.Text) {
+    return target.textContent?.trim() ?? "";
+  }
+  return null;
+}
+
 export function InlineText({ onChange, children }: InlineTextProps) {
   useEffect(() => {
     const iframeDocument = getIframeDocument();
@@ -22,30 +36,14 @@ export function InlineText({ onChange, children }: InlineTextProps) {
 
         const text = e.clipboardData?.getData("text/plain") ?? "";
         iframeDocument?.execCommand("insertHTML", false, text);
-        const contentEditableType = target.getAttribute(
-          DATA_CONTENT_EDITABLE_TYPE,
-        );
-        if (contentEditableType === ContentEditableType.RichText) {
-          onChange(target.innerHTML || "");
-        } else if (contentEditableType === ContentEditableType.Text) {
-          onChange(target.textContent?.trim() ?? "");
-        }
+        const content = readEditableContent(target);
+        if (content !== null) onChange(content);
       }
     };
 
     const onInput = (e: Event) => {
-      const target = e.target as HTMLElement;
-
-      if (target.getAttribute("contenteditable")) {
-        const contentEditableType = target.getAttribute(
-          DATA_CONTENT_EDITABLE_TYPE,
-        );
-        if (contentEditableType === ContentEditableType.RichText) {
-          onChange(target.innerHTML || "");
-        } else if (contentEditableType === ContentEditableType.Text) {
-          onChange(target.textContent?.trim() ?? "");
-        }
-      }
+      const content = readEditableContent(e.target as HTMLElement);
+      if (content !== null) onChange(content);
     };
 
     iframeDocument?.body.addEventListener("paste", onPaste as any, true);
