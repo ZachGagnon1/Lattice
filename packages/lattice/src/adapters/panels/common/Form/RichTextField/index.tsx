@@ -5,18 +5,15 @@ import {
   DATA_CONTENT_EDITABLE_TYPE,
   FIXED_CONTAINER_ID,
   getIframeDocument,
-  MergeTagBadge,
   RICH_TEXT_BAR_ID,
-  useEditorProps,
   useFocusBlockLayout,
 } from "@";
-import React, { useCallback, useEffect, useState } from "react";
-import { InlineText, InlineTextProps } from "../InlineTextField";
+import React, { useEffect, useState } from "react";
+import { InlineTextProps, readEditableContent } from "../InlineTextField";
 import { RichTextToolBar } from "../RichTextToolBar";
-import { useEditorField } from "../useEditorField";
-import { debounce } from "lodash-es";
 import { getEditableField } from "@/shared/utils/editableTarget";
 import { isEditingText } from "@/shared/utils/contenteditable";
+import { useTextCommit } from "./useTextCommit";
 
 export const RichTextField = (
   props: Omit<InlineTextProps, "onChange" | "mutators">,
@@ -27,6 +24,7 @@ export const RichTextField = (
   );
 
   const { focusBlockNode } = useFocusBlockLayout(); // 2. Consume the hook
+  const commitText = useTextCommit();
 
   // Listener for clicks OUTSIDE the iframe (on the parent window)
   useEffect(() => {
@@ -71,6 +69,8 @@ export const RichTextField = (
         DATA_CONTENT_EDITABLE_TYPE,
       );
       if (!editable) {
+        // A drag selection that ends outside the text sends the click to a parent, but the text keeps the focus.
+        if (e.type === "click" && isEditingText(root)) return;
         setContentEditableName("");
       } else {
         setContentEditableType(editable.type);
@@ -78,13 +78,42 @@ export const RichTextField = (
       }
     };
 
+    // These listeners stay while the toolbar is hidden, so a text edit always reaches the form.
+    const commitEditable = (target: HTMLElement) => {
+      const editable = getEditableField(
+        target,
+        DATA_CONTENT_EDITABLE_IDX,
+        DATA_CONTENT_EDITABLE_TYPE,
+      );
+      const content = readEditableContent(target);
+      if (editable && content !== null) {
+        commitText(editable.name, content);
+      }
+    };
+
+    const onInput = (e: Event) => commitEditable(e.target as HTMLElement);
+
+    const onPaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.getAttribute("contenteditable")) return;
+
+      e.preventDefault();
+      const text = e.clipboardData?.getData("text/plain") ?? "";
+      root.execCommand("insertHTML", false, text);
+      commitEditable(target);
+    };
+
     root.addEventListener("click", updateField);
     root.addEventListener("focusin", updateField);
+    root.body.addEventListener("input", onInput);
+    root.body.addEventListener("paste", onPaste, true);
     return () => {
       root.removeEventListener("click", updateField);
       root.removeEventListener("focusin", updateField);
+      root.body.removeEventListener("input", onInput);
+      root.body.removeEventListener("paste", onPaste, true);
     };
-  }, [focusBlockNode]);
+  }, [focusBlockNode, commitText]);
 
   // Hide the toolbar when the focus block changes, for example after a delete.
   // A re-render also changes the block, so keep the toolbar while the user still edits text.
@@ -97,45 +126,14 @@ export const RichTextField = (
   if (!contentEditableName) return null;
 
   return (
-    <FieldWrapper
-      key={contentEditableName}
-      {...props}
-      name={contentEditableName}
-      contentEditableType={contentEditableType}
-    />
-  );
-};
-
-function FieldWrapper(
-  props: Omit<InlineTextProps, "onChange"> & {
-    name: string;
-    contentEditableType: string | null;
-  },
-) {
-  const { name, contentEditableType, ...rest } = props;
-  const { input } = useEditorField<string>(name);
-  const { mergeTagGenerate, enabledMergeTagsBadge } = useEditorProps();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceCallbackChange = useCallback(
-    debounce((val) => {
-      if (enabledMergeTagsBadge) {
-        input.onChange(MergeTagBadge.revert(val, mergeTagGenerate));
-      } else {
-        input.onChange(val);
-      }
-
-      input.onBlur();
-    }, 200),
-    [input],
-  );
-
-  return (
     <>
       {contentEditableType === ContentEditableType.RichText && (
-        <RichTextToolBar onChange={debounceCallbackChange} />
+        <RichTextToolBar
+          key={contentEditableName}
+          onChange={(value) => commitText(contentEditableName, value)}
+        />
       )}
-      <InlineText {...rest} onChange={debounceCallbackChange} />
+      {props.children}
     </>
   );
-}
+};
