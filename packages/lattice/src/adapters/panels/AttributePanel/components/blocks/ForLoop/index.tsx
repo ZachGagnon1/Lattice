@@ -1,13 +1,6 @@
 import React, { useMemo } from "react";
 import { useEditorField } from "@/adapters/panels/common/Form/useEditorField";
-import {
-  Alert,
-  Box,
-  Divider,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Divider, Stack, TextField } from "@mui/material";
 import { AttributesPanelWrapper } from "@/adapters/panels/AttributePanel/components/attributes/AttributesPanelWrapper";
 import { useFocusIdx } from "@";
 import { MergeTags } from "@/adapters/panels/AttributePanel/components/attributes/MergeTags";
@@ -18,6 +11,7 @@ import {
   compileLoopLabel,
   compileLoopOpen,
 } from "@/domain/compile/handlebars";
+import { Text } from "@/adapters/ui/kit/Text";
 
 export function ForLoop() {
   const { focusIdx } = useFocusIdx();
@@ -49,13 +43,9 @@ export function ForLoop() {
     <AttributesPanelWrapper>
       <Box sx={{ p: 2, display: "flex", flexDirection: "column", gap: 2 }}>
         <Box>
-          <Typography
-            variant="subtitle2"
-            sx={{ fontWeight: "bold" }}
-            gutterBottom
-          >
+          <Text size="sm" weight="bold" mb={1}>
             For Loop
-          </Typography>
+          </Text>
           <Divider />
         </Box>
 
@@ -70,25 +60,18 @@ export function ForLoop() {
             borderColor: hasSource ? "primary.200" : "grey.300",
           }}
         >
-          <Typography
-            variant="body2"
-            color={hasSource ? "primary.main" : "text.secondary"}
-          >
+          <Text size="sm" tone={hasSource ? "primary" : "muted"}>
             {hasSource
               ? "This block repeats its contents for each item."
               : "No data source set. Contents will render without a loop."}
-          </Typography>
+          </Text>
         </Box>
 
         <Stack spacing={2}>
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mb: 0.5, display: "block" }}
-            >
+            <Text size="xs" tone="muted" mb={1} block>
               Data Source (array merge tag)
-            </Typography>
+            </Text>
             <MergeTags
               isSelect
               rawPath
@@ -99,13 +82,9 @@ export function ForLoop() {
           </Box>
 
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mb: 0.5, display: "block" }}
-            >
+            <Text size="xs" tone="muted" mb={1} block>
               Item Alias (optional)
-            </Typography>
+            </Text>
             <TextField
               {...itemAsInput}
               size="small"
@@ -119,33 +98,25 @@ export function ForLoop() {
         {isLoopStarted && issues.length > 0 && (
           <Alert severity="warning" variant="outlined" sx={{ py: 0.5 }}>
             {issues.map((issue) => (
-              <Typography
-                key={`${issue.path}-${issue.code}`}
-                variant="body2"
-                component="div"
-              >
+              <Text key={`${issue.path}-${issue.code}`} size="sm" as="div">
                 {issue.message}
-              </Typography>
+              </Text>
             ))}
           </Alert>
         )}
 
         {hasSource && !hasAlias && (
-          <Typography variant="caption" color="text.secondary">
+          <Text size="xs" tone="muted">
             {"With no alias, fields insert as {{this.field}}. " +
               "An alias is clearer, especially inside a nested loop."}
-          </Typography>
+          </Text>
         )}
 
         {loopOpen !== null && (
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mb: 0.5, display: "block" }}
-            >
+            <Text size="xs" tone="muted" mb={1} block>
               {compileLoopLabel(loopConfig)}
-            </Typography>
+            </Text>
             <Box
               sx={{
                 p: 1.5,

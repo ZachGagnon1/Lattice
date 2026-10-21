@@ -32,7 +32,8 @@ export { ActiveTabKeys } from "./adapters/ui/Provider/BlocksProvider";
 
 // UI
 export { IconFont } from "./adapters/ui/IconFont";
-export { TextStyle } from "./adapters/ui/kit/TextStyle";
+export { Text } from "./adapters/ui/kit/Text";
+export type { TextProps } from "./adapters/ui/kit/Text";
 export { Stack } from "./adapters/ui/kit/Stack";
 export { ThemeRoot } from "./adapters/ui/kit/theme/ThemeRoot";
 export type {

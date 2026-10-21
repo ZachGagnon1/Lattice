@@ -1,16 +1,10 @@
-import {
-  Box,
-  Collapse,
-  IconButton,
-  Stack,
-  SxProps,
-  Typography,
-} from "@mui/material";
+import { Box, Collapse, IconButton, Stack, SxProps } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { PropsWithChildren, useId, useState } from "react";
 import { useEditorProps } from "@/application/hooks/useEditorProps";
 import { getHeadingComponent } from "@/shared/utils/accessibility";
+import { Text } from "@/adapters/ui/kit/Text";
 
 interface CollapsableItemProps {
   title: string;
@@ -47,12 +41,9 @@ export function CollapsableItem(
           >
             {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
-          <Typography
-            component={getHeadingComponent(headingLevel, 1)}
-            variant="body2"
-          >
+          <Text as={getHeadingComponent(headingLevel, 1)} size="sm">
             {props.title}
-          </Typography>
+          </Text>
         </Stack>
       </Box>
       <Collapse id={contentId} in={expanded}>

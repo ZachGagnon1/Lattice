@@ -1,4 +1,4 @@
-import { Box, Grid, ListItemButton, Paper, Typography } from "@mui/material";
+import { Box, Grid, ListItemButton, Paper } from "@mui/material";
 import {
   BasicType,
   BlockAvatarWrapper,
@@ -11,6 +11,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useExtensionProps } from "@/adapters/panels/common/Providers/ExtensionProvider";
 import { CollapsableItem } from "@/adapters/panels/common/Collapse/CollapsableItem";
+import { Text } from "@/adapters/ui/kit/Text";
 
 export function Blocks() {
   const { categories } = useExtensionProps();
@@ -105,9 +106,9 @@ function BlockItem({
           }}
         >
           {getIconNameByBlockType(type)}
-          <Typography variant="body2" sx={{ marginTop: 1 }}>
+          <Text size="sm" mt={2}>
             {title ?? block?.name}
-          </Typography>
+          </Text>
         </Box>
       </BlockAvatarWrapper>
     </Paper>
@@ -141,7 +142,7 @@ function LayoutItem({
           },
         }}
       >
-        <Typography variant="body2">{title}</Typography>
+        <Text size="sm">{title}</Text>
         {visible ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
       </ListItemButton>
       <Box

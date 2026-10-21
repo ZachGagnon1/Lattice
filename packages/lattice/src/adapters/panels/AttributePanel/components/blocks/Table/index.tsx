@@ -20,7 +20,6 @@ import {
   Stack,
   TextField,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import CodeIcon from "@mui/icons-material/Code";
 import { useEditorField } from "@/adapters/panels/common/Form/useEditorField";
@@ -33,6 +32,7 @@ import {
   compileLoopLabel,
   compileLoopOpen,
 } from "@/domain/compile/handlebars";
+import { Text } from "@/adapters/ui/kit/Text";
 
 export function Table() {
   const [visible, setVisible] = useState(false);
@@ -118,18 +118,14 @@ export function Table() {
 
       <CollapsableItem title={t("Row Loop")}>
         <Stack spacing={2}>
-          <Typography variant="caption" color="text.secondary">
+          <Text size="xs" tone="muted">
             Wrap table rows in a Handlebars each loop to repeat them over an
             array.
-          </Typography>
+          </Text>
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mb: 0.5, display: "block" }}
-            >
+            <Text size="xs" tone="muted" mb={1} block>
               Data Source (array merge tag)
-            </Typography>
+            </Text>
             <MergeTags
               isSelect
               rawPath
@@ -139,13 +135,9 @@ export function Table() {
             />
           </Box>
           <Box>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ mb: 0.5, display: "block" }}
-            >
+            <Text size="xs" tone="muted" mb={1} block>
               Item Alias (optional)
-            </Typography>
+            </Text>
             <TextField
               {...itemAsInput}
               size="small"
@@ -166,42 +158,34 @@ export function Table() {
               />
             }
             label={
-              <Typography variant="caption" color="text.secondary">
+              <Text size="xs" tone="muted">
                 First row is a header (do not repeat it)
-              </Typography>
+              </Text>
             }
           />
 
           {isLoopStarted && issues.length > 0 && (
             <Alert severity="warning" variant="outlined" sx={{ py: 0.5 }}>
               {issues.map((issue) => (
-                <Typography
-                  key={`${issue.path}-${issue.code}`}
-                  variant="body2"
-                  component="div"
-                >
+                <Text key={`${issue.path}-${issue.code}`} size="sm" as="div">
                   {issue.message}
-                </Typography>
+                </Text>
               ))}
             </Alert>
           )}
 
           {hasSource && !hasAlias && (
-            <Typography variant="caption" color="text.secondary">
+            <Text size="xs" tone="muted">
               {"With no alias, fields insert as {{this.field}}. " +
                 "An alias is clearer, especially inside a nested loop."}
-            </Typography>
+            </Text>
           )}
 
           {loopOpen !== null && (
             <Box>
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{ mb: 0.5, display: "block" }}
-              >
+              <Text size="xs" tone="muted" mb={1} block>
                 {compileLoopLabel(loopConfig)}
-              </Typography>
+              </Text>
               <Box
                 sx={{
                   p: 1.5,

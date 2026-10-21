@@ -1,0 +1,50 @@
+.text {
+  margin: 0;
+  font-family: var(--lattice-font);
+  line-height: var(--lattice-line-height);
+}
+.size-xs {
+  font-size: var(--lattice-font-size-xs);
+}
+.size-sm {
+  font-size: var(--lattice-font-size-sm);
+}
+.size-md {
+  font-size: var(--lattice-font-size-md);
+}
+.size-lg {
+  font-size: var(--lattice-font-size-lg);
+}
+.weight-regular {
+  font-weight: 400;
+}
+.weight-medium {
+  font-weight: 500;
+}
+.weight-bold {
+  font-weight: var(--lattice-font-weight-bold);
+}
+.tone-default {
+  color: var(--lattice-color-text);
+}
+.tone-muted {
+  color: var(--lattice-color-text-muted);
+}
+.tone-primary {
+  color: var(--lattice-color-primary);
+}
+.block {
+  display: block;
+}
+.tone-inherit {
+  color: inherit;
+}
+
+@each $i in 0, 1, 2, 3, 4, 5, 6 {
+  .mt-#{$i} {
+    margin-top: var(--lattice-space-#{$i});
+  }
+  .mb-#{$i} {
+    margin-bottom: var(--lattice-space-#{$i});
+  }
+}

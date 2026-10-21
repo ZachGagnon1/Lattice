@@ -12,7 +12,6 @@ import {
   IconButton,
   Paper,
   Stack,
-  Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
@@ -24,6 +23,7 @@ import {
 } from "@/adapters/panels/common/EditorTabs/EditorTabs";
 import styles from "./index.module.scss";
 import { getTabA11yProps } from "@/shared/utils/accessibility";
+import { Text } from "@/adapters/ui/kit/Text";
 
 export const BlocksPanel: React.FC<{
   children: React.ReactNode | React.ReactElement;
@@ -114,9 +114,9 @@ export const BlocksPanel: React.FC<{
                   bgcolor: "grey.50",
                 }}
               >
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                <Text size="md" weight="bold">
                   {t("Drag block")}
-                </Typography>
+                </Text>
                 <IconButton
                   aria-label={t("Close block library")}
                   size="small"
@@ -241,7 +241,7 @@ const BlockPanelItem: React.FC<{
             sx={{ mr: 0, py: 1.5, minHeight: "auto", alignItems: "flex-end" }}
             label={
               <Stack direction="row" sx={{ alignItems: "center" }} spacing={1}>
-                <Typography variant="body2">{block.title}</Typography>
+                <Text size="sm">{block.title}</Text>
                 {block.description && <Help title={block.description} />}
               </Stack>
             }

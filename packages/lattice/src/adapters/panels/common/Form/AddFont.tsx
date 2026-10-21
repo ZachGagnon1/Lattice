@@ -4,9 +4,10 @@ import { useEditorField } from "./useEditorField";
 import { useBlock, useFocusIdx } from "@";
 import { Help } from "@/adapters/panels/AttributePanel/components/UI/Help";
 import { IPage } from "@";
-import { Box, IconButton, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Stack, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
+import { Text } from "@/adapters/ui/kit/Text";
 
 export function AddFont() {
   const { focusBlock } = useBlock();
@@ -35,12 +36,9 @@ export function AddFont() {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Typography
-              variant="subtitle2"
-              sx={{ fontWeight: 600, color: "text.primary" }}
-            >
+            <Text size="sm" weight="bold">
               {t("Import font")}
-            </Typography>
+            </Text>
             <Help title={t("Points to a hosted css file")} />
           </Box>
           <Tooltip title={t("Add Font")} placement="top">

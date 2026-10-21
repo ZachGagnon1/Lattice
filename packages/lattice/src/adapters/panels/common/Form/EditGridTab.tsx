@@ -7,11 +7,11 @@ import {
   IconButton,
   Stack,
   Tooltip,
-  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import { getRepeatItemLabel } from "@/shared/utils/repeatItemAccessibility";
+import { Text } from "@/adapters/ui/kit/Text";
 
 // Note: Removed Omit<TabsProps, "onChange"> since we are no longer using Arco's Tabs
 export interface EditGridTabProps<T> {
@@ -76,18 +76,15 @@ export function EditGridTab<T>(props: EditGridTabProps<T>) {
               borderColor: "divider",
             }}
             title={
-              <Typography
+              <Text
                 id={`${idPrefix}-item-${index}`}
                 tabIndex={-1}
-                variant="subtitle2"
-                sx={{
-                  fontWeight: 600,
-                  color: "text.primary",
-                }}
+                size="sm"
+                weight="bold"
               >
                 {/* Assuming 't' is globally available in your app like the original code */}
                 {t("Item")} {index + 1}
-              </Typography>
+              </Text>
             }
             action={
               <Stack direction="row" spacing={0.5}>
