@@ -34,6 +34,11 @@ export { ActiveTabKeys } from "./adapters/ui/Provider/BlocksProvider";
 export { IconFont } from "./adapters/ui/IconFont";
 export { TextStyle } from "./adapters/ui/kit/TextStyle";
 export { Stack } from "./adapters/ui/kit/Stack";
+export { ThemeRoot } from "./adapters/ui/kit/theme/ThemeRoot";
+export type {
+  ColorScheme,
+  ThemeRootProps,
+} from "./adapters/ui/kit/theme/ThemeRoot";
 
 export * from "./shared/typings";
 export type { StackProps } from "./adapters/ui/kit/Stack";

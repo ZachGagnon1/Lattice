@@ -1,0 +1,86 @@
+// The host app themes the editor by overriding these variables on .lattice-theme.
+
+@mixin light-colors {
+  --lattice-color-primary: #1976d2;
+  --lattice-color-primary-hover: #1565c0;
+  --lattice-color-primary-soft: rgba(25, 118, 210, 0.08);
+  --lattice-color-on-primary: #fff;
+  --lattice-color-text: rgba(0, 0, 0, 0.87);
+  --lattice-color-text-muted: rgba(0, 0, 0, 0.6);
+  --lattice-color-text-disabled: rgba(0, 0, 0, 0.38);
+  --lattice-color-background: #fff;
+  --lattice-color-surface: #fff;
+  --lattice-color-surface-hover: rgba(0, 0, 0, 0.04);
+  --lattice-color-border: rgba(0, 0, 0, 0.12);
+  --lattice-color-error: #d32f2f;
+  --lattice-color-warning: #ed6c02;
+  --lattice-color-success: #2e7d32;
+  --lattice-color-info: #0288d1;
+  --lattice-shadow-1:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
+  --lattice-shadow-2:
+    0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  color-scheme: light;
+}
+
+@mixin dark-colors {
+  --lattice-color-primary: #90caf9;
+  --lattice-color-primary-hover: #42a5f5;
+  --lattice-color-primary-soft: rgba(144, 202, 249, 0.16);
+  --lattice-color-on-primary: rgba(0, 0, 0, 0.87);
+  --lattice-color-text: #fff;
+  --lattice-color-text-muted: rgba(255, 255, 255, 0.7);
+  --lattice-color-text-disabled: rgba(255, 255, 255, 0.5);
+  --lattice-color-background: #121212;
+  --lattice-color-surface: #1e1e1e;
+  --lattice-color-surface-hover: rgba(255, 255, 255, 0.08);
+  --lattice-color-border: rgba(255, 255, 255, 0.12);
+  --lattice-color-error: #f44336;
+  --lattice-color-warning: #ffa726;
+  --lattice-color-success: #66bb6a;
+  --lattice-color-info: #29b6f6;
+  --lattice-shadow-1:
+    0 2px 1px -1px rgba(0, 0, 0, 0.5), 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  --lattice-shadow-2:
+    0 8px 10px 1px rgba(0, 0, 0, 0.5), 0 3px 14px 2px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
+.lattice-theme {
+  --lattice-font: Roboto, Helvetica, Arial, sans-serif;
+  --lattice-font-size-xs: 12px;
+  --lattice-font-size-sm: 14px;
+  --lattice-font-size-md: 16px;
+  --lattice-font-size-lg: 20px;
+  --lattice-font-size-xl: 24px;
+  --lattice-font-weight-bold: 600;
+  --lattice-line-height: 1.5;
+  --lattice-radius: 4px;
+  --lattice-space-0: 0;
+  --lattice-space-1: 4px;
+  --lattice-space-2: 8px;
+  --lattice-space-3: 12px;
+  --lattice-space-4: 16px;
+  --lattice-space-5: 24px;
+  --lattice-space-6: 32px;
+  --lattice-focus-ring: 0 0 0 2px var(--lattice-color-primary);
+  --lattice-z-popup: 1300;
+
+  @include light-colors;
+
+  font-family: var(--lattice-font);
+  color: var(--lattice-color-text);
+  line-height: var(--lattice-line-height);
+}
+
+.lattice-theme[data-lattice-color-scheme="dark"] {
+  @include dark-colors;
+}
+
+@media (prefers-color-scheme: dark) {
+  .lattice-theme[data-lattice-color-scheme="system"] {
+    @include dark-colors;
+  }
+}
