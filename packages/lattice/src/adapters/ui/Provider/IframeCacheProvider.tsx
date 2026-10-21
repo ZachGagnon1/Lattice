@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import { getIframeDocument } from "@/shared/utils";
+import { useKitStyles } from "@/adapters/ui/kit/styles";
 
 export const IframeCacheProvider: React.FC<{
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export const IframeCacheProvider: React.FC<{
     return (iframeDocument as any).__emotion_cache;
   }, [iframeDocument]);
 
+  useKitStyles(iframeDocument);
   if (!cache) return <>{children}</>;
 
   return <CacheProvider value={cache}>{children}</CacheProvider>;

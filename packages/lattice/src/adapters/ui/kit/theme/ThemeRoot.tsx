@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from "react";
-import "./tokens.scss";
+import { useKitStyles } from "../styles";
 
 export type ColorScheme = "light" | "dark" | "system";
 
@@ -21,9 +21,23 @@ export interface ThemeRootProps {
 
 /** The element that holds the --lattice-* tokens for the editor. */
 export function ThemeRoot({ colorScheme = "light", children }: ThemeRootProps) {
+  useKitStyles(typeof document === "undefined" ? undefined : document);
   return (
     <ColorSchemeContext.Provider value={colorScheme}>
       <div {...themeScopeProps(colorScheme)}>{children}</div>
     </ColorSchemeContext.Provider>
+  );
+}
+
+/** Carries the tokens into content that renders outside ThemeRoot, such as the canvas frame. */
+export function ThemeScope({ children }: { children?: React.ReactNode }) {
+  const colorScheme = useColorScheme();
+  return (
+    <div
+      {...themeScopeProps(colorScheme)}
+      className="lattice-theme lattice-theme--contents"
+    >
+      {children}
+    </div>
   );
 }

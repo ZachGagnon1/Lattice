@@ -48,7 +48,7 @@
   color-scheme: dark;
 }
 
-.lattice-theme {
+:where(.lattice-theme) {
   --lattice-font: Roboto, Helvetica, Arial, sans-serif;
   --lattice-font-size-xs: 12px;
   --lattice-font-size-sm: 14px;
@@ -75,12 +75,16 @@
   line-height: var(--lattice-line-height);
 }
 
-.lattice-theme[data-lattice-color-scheme="dark"] {
+:where(.lattice-theme[data-lattice-color-scheme="dark"]) {
   @include dark-colors;
 }
 
 @media (prefers-color-scheme: dark) {
-  .lattice-theme[data-lattice-color-scheme="system"] {
+  :where(.lattice-theme[data-lattice-color-scheme="system"]) {
     @include dark-colors;
   }
+}
+
+.lattice-theme--contents {
+  display: contents;
 }

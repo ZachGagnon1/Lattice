@@ -1,50 +1,50 @@
-.text {
+.lattice-text {
   margin: 0;
   font-family: var(--lattice-font);
   line-height: var(--lattice-line-height);
 }
-.size-xs {
+.lattice-text--size-xs {
   font-size: var(--lattice-font-size-xs);
 }
-.size-sm {
+.lattice-text--size-sm {
   font-size: var(--lattice-font-size-sm);
 }
-.size-md {
+.lattice-text--size-md {
   font-size: var(--lattice-font-size-md);
 }
-.size-lg {
+.lattice-text--size-lg {
   font-size: var(--lattice-font-size-lg);
 }
-.weight-regular {
+.lattice-text--weight-regular {
   font-weight: 400;
 }
-.weight-medium {
+.lattice-text--weight-medium {
   font-weight: 500;
 }
-.weight-bold {
+.lattice-text--weight-bold {
   font-weight: var(--lattice-font-weight-bold);
 }
-.tone-default {
+.lattice-text--tone-default {
   color: var(--lattice-color-text);
 }
-.tone-muted {
+.lattice-text--tone-muted {
   color: var(--lattice-color-text-muted);
 }
-.tone-primary {
+.lattice-text--tone-primary {
   color: var(--lattice-color-primary);
 }
-.block {
-  display: block;
-}
-.tone-inherit {
+.lattice-text--tone-inherit {
   color: inherit;
+}
+.lattice-text--block {
+  display: block;
 }
 
 @each $i in 0, 1, 2, 3, 4, 5, 6 {
-  .mt-#{$i} {
+  .lattice-text--mt-#{$i} {
     margin-top: var(--lattice-space-#{$i});
   }
-  .mb-#{$i} {
+  .lattice-text--mb-#{$i} {
     margin-bottom: var(--lattice-space-#{$i});
   }
 }
