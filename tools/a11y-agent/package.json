@@ -1,0 +1,14 @@
+{
+  "name": "a11y-agent",
+  "private": true,
+  "type": "module",
+  "description": "A local model tests the editor with the keyboard, the way a screen reader user does.",
+  "scripts": {
+    "start": "node src/run.mjs",
+    "test": "node --test src/*.test.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "^4.13.0",
+    "playwright-core": "^1.56.0"
+  }
+}
